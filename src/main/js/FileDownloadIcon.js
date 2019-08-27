@@ -2,18 +2,18 @@
 import React from "react";
 
 type Props = {
-  downloadUrl: any,
+  file: any,
 };
 
 class FileDownloadIcon extends React.Component<Props> {
 
   render() {
+    const { file } = this.props;
     return (
       <>
-        <div>
+        <a href={file._links.self.href} download={file.name}>
           <i className={`fas has-text-link fa-download`}/>
-          <a href={this.props.downloadUrl} download/>
-        </div>
+        </a>
       </>
     )
   }
