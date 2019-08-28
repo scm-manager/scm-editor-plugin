@@ -2,6 +2,9 @@
   "scm-editor-plugin": {
     "download": {
       "tooltip": "Download"
+    },
+    "upload": {
+      "tooltip": "Upload"
     }
   }
 }
