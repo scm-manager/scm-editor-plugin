@@ -16,7 +16,8 @@ const styles = {
 };
 
 type Props = {
-  baseUrl: any,
+  baseUrl: string,
+  revision: any,
   // context props
   classes: any,
   t: string => string
@@ -25,17 +26,20 @@ type Props = {
 class FileUploadButton extends React.Component<Props> {
 
   render() {
-    const {baseUrl, classes, t} = this.props;
+    const {baseUrl, revision, classes, t} = this.props;
     return (
       <>
-        <span
-          title={t("scm-editor-plugin.upload.tooltip")}
-          className={classNames(classes.button, "button")}
-        >
-          <Link to={baseUrl + "/upload"}>
-            <i className="fas fa-upload"/>
-          </Link>
+        {
+          revision &&
+          <span
+            title={t("scm-editor-plugin.upload.tooltip")}
+            className={classNames(classes.button, "button")}
+          >
+            <Link to={baseUrl + "/" + revision + "/upload"}>
+              <i className="fas fa-upload"/>
+            </Link>
         </span>
+        }
       </>
     )
   }
