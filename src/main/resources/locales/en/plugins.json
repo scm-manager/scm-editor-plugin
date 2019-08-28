@@ -4,7 +4,8 @@
       "tooltip": "Download"
     },
     "upload": {
-      "tooltip": "Upload"
+      "tooltip": "Upload",
+      "title": "Upload file"
     }
   }
 }

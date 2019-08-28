@@ -30,12 +30,12 @@ class FileUploadButton extends React.Component<Props> {
     return (
       <>
         {
-          revision &&
+          revision && revision !== "undefined" &&
           <span
             title={t("scm-editor-plugin.upload.tooltip")}
             className={classNames(classes.button, "button")}
           >
-            <Link to={baseUrl + "/" + revision + "/upload"}>
+            <Link to={baseUrl + "/upload/" + revision}>
               <i className="fas fa-upload"/>
             </Link>
         </span>
