@@ -11,5 +11,11 @@
       "clickHere": "Click here to select your file",
       "dragAndDrop": "Drag and drop your file here"
     }
+  },
+  "errors": {
+    "4uRaXHBhs1": {
+      "displayName": "Upload failed",
+      "description": "A file could not be uploaded correctly."
+    }
   }
 }
