@@ -17,7 +17,9 @@ const styles = {
 
 type Props = {
   baseUrl: string,
-  revision: any,
+  path: string,
+  branch: string,
+  revision: string,
   // context props
   classes: any,
   t: string => string
@@ -25,20 +27,35 @@ type Props = {
 
 class FileUploadButton extends React.Component<Props> {
 
+  createUploadUrl = () => {
+    const {baseUrl, path, branch, revision} = this.props;
+    let uploadUrl = baseUrl.replace("sources", "upload/") + path;
+
+    if (branch) {
+      uploadUrl += "?branch=" + branch
+    }
+
+    if (revision) {
+      uploadUrl += branch ? "&revision=" + revision : "?revision=" + revision;
+    }
+
+    return uploadUrl;
+  };
+
   render() {
-    const {baseUrl, revision, classes, t} = this.props;
+    const {classes, t} = this.props;
+
     return (
       <>
         {
-          revision && revision !== "undefined" &&
           <span
             title={t("scm-editor-plugin.upload.tooltip")}
             className={classNames(classes.button, "button")}
           >
-            <Link to={baseUrl + "/upload/" + revision}>
+            <Link to={this.createUploadUrl()}>
               <i className="fas fa-upload"/>
             </Link>
-        </span>
+          </span>
         }
       </>
     )

@@ -9,7 +9,8 @@
     "flow": "flow check"
   },
   "dependencies": {
-    "@scm-manager/ui-extensions": "latest"
+    "@scm-manager/ui-extensions": "latest",
+    "react-dropzone": "^10.1.8"
   },
   "devDependencies": {
     "@scm-manager/ui-bundler": "^0.0.27",
