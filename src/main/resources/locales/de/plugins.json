@@ -10,6 +10,9 @@
       "placeholder": "Hier den Dateipfad eingeben",
       "clickHere": "Hier klicken um eine Datei hochzuladen",
       "dragAndDrop": "Datei zum Hochladen hier einfügen"
+    },
+    "commit": {
+      "author": "Autor"
     }
   }
 }

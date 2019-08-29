@@ -18,8 +18,8 @@ const styles = {
 type Props = {
   baseUrl: string,
   path: string,
-  branch: string,
-  revision: string,
+  branch?: string,
+  revision?: string,
   // context props
   classes: any,
   t: string => string
@@ -43,7 +43,7 @@ class FileUploadButton extends React.Component<Props> {
   };
 
   render() {
-    const {classes, t} = this.props;
+    const {classes, t, path} = this.props;
 
     return (
       <>
