@@ -17,7 +17,7 @@ const styles = {
 
 type Props = {
   baseUrl: string,
-  path: string,
+  path?: string,
   branch?: string,
   revision?: string,
   // context props
@@ -29,7 +29,7 @@ class FileUploadButton extends React.Component<Props> {
 
   createUploadUrl = () => {
     const {baseUrl, path, branch, revision} = this.props;
-    let uploadUrl = baseUrl.replace("sources", "upload/") + path;
+    let uploadUrl = baseUrl.replace("sources", "upload/") + (path ? path : "");
 
     if (branch) {
       uploadUrl += "?branch=" + branch
@@ -48,14 +48,14 @@ class FileUploadButton extends React.Component<Props> {
     return (
       <>
         {
-          <span
-            title={t("scm-editor-plugin.upload.tooltip")}
-            className={classNames(classes.button, "button")}
-          >
-            <Link to={this.createUploadUrl()}>
-              <i className="fas fa-upload"/>
-            </Link>
-          </span>
+          <Link to={this.createUploadUrl()}>
+            <span
+              title={t("scm-editor-plugin.upload.tooltip")}
+              className={classNames(classes.button, "button")}
+            >
+                <i className="fas fa-upload"/>
+            </span>
+          </Link>
         }
       </>
     )
