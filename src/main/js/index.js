@@ -4,5 +4,5 @@ import { binder } from "@scm-manager/ui-extensions";
 import FileDownloadIcon from "./FileDownloadIcon";
 import FileDownloadButton from "./FileDownloadButton";
 
-binder.bind("sourceView.right", FileDownloadIcon);
-binder.bind("fileView.actionbar.right", FileDownloadButton);
+binder.bind("repos.sources.tree.row.right", FileDownloadIcon);
+binder.bind("repos.sources.content.actionbar", FileDownloadButton);
