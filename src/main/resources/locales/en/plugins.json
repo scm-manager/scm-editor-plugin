@@ -5,7 +5,11 @@
     },
     "upload": {
       "tooltip": "Upload",
-      "title": "Upload file"
+      "title": "Upload file",
+      "path": "Path",
+      "placeholder": "Insert path here",
+      "clickHere": "Click here to select your file",
+      "dragAndDrop": "Drag and drop your file here"
     }
   }
 }

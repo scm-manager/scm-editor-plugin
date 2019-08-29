@@ -5,7 +5,11 @@
     },
     "upload": {
       "tooltip": "Upload",
-      "title": "Datei hochladen"
+      "title": "Datei hochladen",
+      "path": "Pfad",
+      "placeholder": "Hier den Dateipfad eingeben",
+      "clickHere": "Hier klicken um eine Datei hochzuladen",
+      "dragAndDrop": "Datei zum Hochladen hier einfügen"
     }
   }
 }
