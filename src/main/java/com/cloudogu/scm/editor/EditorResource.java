@@ -1,5 +1,6 @@
 package com.cloudogu.scm.editor;
 
+import org.apache.http.HttpStatus;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import sonia.scm.BadRequestException;
@@ -17,6 +18,8 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.http.HttpStatus.SC_CREATED;
 
 @Path(EditorResource.EDITOR_REQUESTS_PATH_V2)
 public class EditorResource {
@@ -74,7 +77,7 @@ public class EditorResource {
       .map(Map.Entry::getValue)
       .forEach(inputParts -> uploadFile(fileUploader, inputParts));
     String targetRevision = fileUploader.done();
-    return Response.status(200).entity(targetRevision).build();
+    return Response.status(SC_CREATED).entity(targetRevision).build();
   }
 
   private void uploadFile(EditorService.FileUploader fileUploader, List<InputPart> inputParts) {
