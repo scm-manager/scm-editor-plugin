@@ -14,5 +14,11 @@
     "commit": {
       "author": "Author"
     }
+  },
+  "errors": {
+    "4uRaXHBhs1": {
+      "displayName": "Upload failed",
+      "description": "A file could not be uploaded correctly."
+    }
   }
 }
