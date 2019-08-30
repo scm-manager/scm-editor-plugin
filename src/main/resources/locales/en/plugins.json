@@ -9,7 +9,11 @@
       "path": "Path",
       "placeholder": "Insert path here",
       "clickHere": "Click here to select your file",
-      "dragAndDrop": "Drag and drop your file here"
+      "dragAndDrop": "Drag and drop your file here",
+      "button": {
+        "abort": "Cancel",
+        "commit": "Commit"
+      }
     },
     "commit": {
       "author": "Author"
