@@ -13,10 +13,16 @@
       "button": {
         "abort": "Abbrechen",
         "commit": "Commit"
+      },
+      "file": {
+        "name": "Dateiname",
+        "type": "Typ",
+        "size": "Größe"
       }
     },
     "commit": {
-      "author": "Autor"
+      "author": "Autor",
+      "placeholder": "Bitte eine Commit Nachricht eintragen"
     }
   }
 }
