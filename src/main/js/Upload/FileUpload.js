@@ -2,7 +2,7 @@
 import React from "react";
 import {translate} from "react-i18next";
 import {Subtitle, ButtonGroup, Button} from "@scm-manager/ui-components";
-import {File, Me} from "@scm-manager/ui-types";
+import {File, Me, Repository} from "@scm-manager/ui-types";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FileUploadPath from "./FileUploadPath";
 import {withRouter} from "react-router-dom";
@@ -11,20 +11,25 @@ import {compose} from "redux";
 import {connect} from "react-redux";
 import {apiClient} from "@scm-manager/ui-components";
 import FileUploadTable from "./FileUploadTable";
+import queryString from 'query-string';
 
 
 type Props = {
   me?: Me,
   url: string,
+  repository: Repository,
   //context props
   t: string => string,
   match: any,
-  location: any
+  location: any,
+  history: any
 };
 
 type State = {
+  path: string,
   files: File[],
-  commitMessage?: any
+  commitMessage: any,
+  branch: string,
 };
 
 class FileUpload extends React.Component<Props, State> {
@@ -33,7 +38,10 @@ class FileUpload extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      files: []
+      files: [],
+      path: this.props.match.params.path ? this.props.match.params.path : "",
+      commitMessage: "",
+      branch: queryString.parse(this.props.location.search, {ignoreQueryPrefix: true}).branch
     };
   }
 
@@ -43,34 +51,39 @@ class FileUpload extends React.Component<Props, State> {
     this.setState({files: fileArray});
   };
 
+  changePath = (path) => {
+    this.setState({path});
+  };
+
+  changeCommitMessage = (commitMessage) => {
+    this.setState({commitMessage});
+  };
+
   removeFileEntry = (entry) => {
     const filteredFiles = this.state.files.filter(file => file !== entry);
     this.setState({files: filteredFiles})
   };
 
-  commitFile() {
-    const {url} = this.props;
+  commitFile = () => {
+    const {url, repository, history} = this.props;
     const {files, commitMessage} = this.state;
-    let formdata = new FormData();
-    files && files.forEach(file => formdata.append("file", file));
-    formdata.append("message", commitMessage);
 
-    {/*apiClient.postBinary(
-      url + "/v2/edit/${namespace}/${name}/" + this.props.match.params.path,
-      formdata
-      );*/
-    }
+    apiClient.postBinary(
+      repository._links.fileUpload.href.replace("{path}", this.state.path) + "?branch=" + this.state.branch,
+      formdata => {
+        files.forEach(file => formdata.append("file", file));
+        formdata.append("message", commitMessage);
+      }).then(() => history.push(url + "/sources/" + this.state.branch.replace("/", "%2F") + "/"))
   };
 
   render() {
-    const {t, me} = this.props;
-    const {files} = this.state;
-    const filePath = this.props.match.params.path;
-    const sourcesLink = this.props.location.pathname.split("upload")[0];
+    const {t, me, location} = this.props;
+    const {files, path, commitMessage} = this.state;
+    const sourcesLink = location.pathname.split("upload")[0];
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")}/>
-        <FileUploadPath path={filePath}/>
+        <FileUploadPath path={path} changePath={this.changePath}/>
         <FileUploadDropzone fileHandler={this.handleFile}/>
         <br/>
         {
@@ -78,7 +91,7 @@ class FileUpload extends React.Component<Props, State> {
           <FileUploadTable files={files} removeFileEntry={this.removeFileEntry}/>
         }
         <br/>
-        <CommitMessage me={me}/>
+        <CommitMessage me={me} commitMessage={commitMessage} onChange={this.changeCommitMessage}/>
         <br/>
         <div className={"level"}>
           <div className={"level-left"}/>
@@ -91,7 +104,8 @@ class FileUpload extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.upload.button.commit")}
                 color={"primary"}
-                action={this.commitFile()}
+                disabled={!commitMessage || files.length === 0}
+                action={() => this.commitFile()}
               />
             </ButtonGroup>
           </div>

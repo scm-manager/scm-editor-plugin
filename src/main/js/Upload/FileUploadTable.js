@@ -17,7 +17,7 @@ class FileUploadTable extends React.Component<Props> {
   };
 
   humanFileSize(bytes) {
-    let thresh = 1024;
+    let thresh = 1000;
     if (Math.abs(bytes) < thresh) {
       return bytes + ' B';
     }
