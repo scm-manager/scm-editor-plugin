@@ -13,7 +13,7 @@
     "react-dropzone": "^10.1.8"
   },
   "devDependencies": {
-    "@scm-manager/ui-bundler": "^0.0.27",
+    "@scm-manager/ui-bundler": "^0.0.31",
     "fetch-mock": "^6.5.0",
     "jest": "^23.6.0",
     "node-fetch": "^2.3.0",
