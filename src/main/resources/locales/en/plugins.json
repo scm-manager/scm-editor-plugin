@@ -30,6 +30,14 @@
     "4uRaXHBhs1": {
       "displayName": "Upload failed",
       "description": "A file could not be uploaded correctly."
+    },
+    "AnRacIBuV1": {
+      "displayName": "Commit Message missing",
+      "description": "The commit message has to be specified as a form part with name 'message'."
+    },
+    "CIRacPIOH1": {
+      "displayName": "Filename missing",
+      "description": "A form part is missing the Content-Disposition header or it has no value for 'filename'."
     }
   }
 }

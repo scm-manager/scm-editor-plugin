@@ -1,26 +1,20 @@
 package com.cloudogu.scm.editor;
 
-import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import sonia.scm.BadRequestException;
-import sonia.scm.ContextEntry;
-import sonia.scm.repository.NamespaceAndName;
-import sonia.scm.repository.api.ModifyCommandBuilder;
-import sonia.scm.repository.api.RepositoryService;
-import sonia.scm.repository.api.RepositoryServiceFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -29,46 +23,61 @@ public class EditorResource {
 
   static final String EDITOR_REQUESTS_PATH_V2 = "v2/edit";
 
-  private final RepositoryServiceFactory repositoryServiceFactory;
+  private final EditorService editorService;
 
   @Inject
-  public EditorResource(RepositoryServiceFactory repositoryServiceFactory) {
-    this.repositoryServiceFactory = repositoryServiceFactory;
+  public EditorResource(EditorService editorService) {
+    this.editorService = editorService;
   }
 
+  /**
+   * Uploads files from a request with a multipart form. Each form data with names starting with 'file' will be
+   * expected to have a content disposition header with a value for 'filename' (eg.
+   * <code>Content-Disposition: form-data; name="file1"; filename="pom.xml"</code>). Additionally a form data with
+   * name 'message' with the commit message is required
+   * (eg. <code>Content-Disposition: form-data; name=" message"....My message..</code>).
+   * <br>
+   * To upload two files 'resource.xml' and 'data.json' to a repository 'scmadmin/repo' on branch 'master' in folder
+   * 'src/resources' with curl, you will have to call something like
+   * <pre>
+   * curl -v scmadmin:scmadmin \
+   *   http://localhost:8081/scm/api/v2/edit/scmadmin/repo/src/resources\?branch\=master \
+   *   -F 'file1=@resource.xml' \
+   *   -F 'file2=@data.json' \
+   *   -F 'message=Commit message'
+   * </pre>
+   * @param namespace The namespace of the repository.
+   * @param name The name of the repository.
+   * @param path The destination directory for the new file.
+   * @param input The form data. These will have to have parts with names starting with 'name' for the files to upload
+   *              and part with name 'message' for the commit message.
+   * @param branch The branch the change should be made upon.
+   * @throws IOException Whenever there were exceptions handling the uploaded files.
+   */
   @POST
   @Path("{namespace}/{name}/{path: .*}")
+  @Consumes("multipart/form-data")
   public Response create(
-    @Context UriInfo uriInfo,
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
     @PathParam("path") String path,
     MultipartFormDataInput input,
     @QueryParam("branch") String branch
   ) throws IOException {
-
-    try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
-      ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
-      if (!StringUtils.isEmpty(branch)) {
-        modifyCommand.setBranch(branch);
-      }
-
-      Map<String, List<InputPart>> formParts = input.getFormDataMap();
-
-      modifyCommand.setCommitMessage(extractMessage(formParts.get("message")));
-
-      formParts
-        .entrySet()
-        .stream()
-        .filter(e -> e.getKey().startsWith("file"))
-        .map(Map.Entry::getValue)
-        .forEach(inputParts -> uploadFile(path, modifyCommand, inputParts));
-      String targetRevision = modifyCommand.execute();
-      return Response.status(200).entity(targetRevision).build();
-    }
+    Map<String, List<InputPart>> formParts = input.getFormDataMap();
+    String commitMessage = extractMessage(formParts.get("message"));
+    EditorService.FileUploader fileUploader = editorService.prepare(namespace, name, branch, path, commitMessage);
+    formParts
+      .entrySet()
+      .stream()
+      .filter(e -> e.getKey().startsWith("file"))
+      .map(Map.Entry::getValue)
+      .forEach(inputParts -> uploadFile(fileUploader, inputParts));
+    String targetRevision = fileUploader.done();
+    return Response.status(200).entity(targetRevision).build();
   }
 
-  private void uploadFile(String path, ModifyCommandBuilder modifyCommand, List<InputPart> inputParts) {
+  private void uploadFile(EditorService.FileUploader fileUploader, List<InputPart> inputParts) {
     for (InputPart inputPart : inputParts) {
       // Retrieve headers, read the Content-Disposition header to obtain the original name of the file
       MultivaluedMap<String, String> headers = inputPart.getHeaders();
@@ -78,9 +87,7 @@ public class EditorResource {
         // Handle the body of that part with an InputStream
         InputStream stream = inputPart.getBody(InputStream.class, null);
 
-        String completeFileName = path + "/" + fileName;
-
-        modifyCommand.createFile(completeFileName).withData(stream);
+        fileUploader.upload(fileName, stream);
       } catch (IOException e) {
         throw new UploadFailedException(fileName);
       }
@@ -88,11 +95,10 @@ public class EditorResource {
   }
 
   private String extractMessage(List<InputPart> input) throws IOException {
-    for (InputPart inputPart : input) {
-      // Handle the body of that part with an InputStream
-      return inputPart.getBodyAsString();
+    if (input != null && !input.isEmpty()) {
+      return input.get(0).getBodyAsString();
     }
-    return null;
+    throw new MessageMissingException();
   }
 
   // Parse Content-Disposition header to get the original file name
@@ -104,15 +110,29 @@ public class EditorResource {
         return tmp[1].trim().replaceAll("\"", "");
       }
     }
-    return "randomName";
+    throw new FileNameMissingException();
   }
 
-  private static class UploadFailedException extends BadRequestException {
+  private static class MessageMissingException extends BadRequestException {
 
-    private static final String CODE = "4uRaXHBhs1";
+    private static final String CODE = "AnRacIBuV1";
 
-    public UploadFailedException(String fileName) {
-      super(new ContextEntry.ContextBuilder().in("file", fileName).build(), "upload failed");
+    public MessageMissingException() {
+      super(Collections.emptyList(), "form part for commit message with key 'message' missing");
+    }
+
+    @Override
+    public String getCode() {
+      return CODE;
+    }
+  }
+
+  private static class FileNameMissingException extends BadRequestException {
+
+    private static final String CODE = "CIRacPIOH1";
+
+    public FileNameMissingException() {
+      super(Collections.emptyList(), "Content-Disposition header missing or it has no 'filename' value");
     }
 
     @Override
