@@ -31,12 +31,15 @@ class FileUploadButton extends React.Component<Props> {
     const {baseUrl, path, branch, revision} = this.props;
     let uploadUrl = baseUrl.replace("sources", "upload/") + (path ? path : "");
 
-    if (branch) {
-      uploadUrl += "?branch=" + branch
+    //TODO Clear branch confusion
+    if (revision !== "undefined") {
+      uploadUrl += "?branch=" + revision
     }
 
-    if (revision) {
+    {/*if (revision) {
       uploadUrl += branch ? "&revision=" + revision : "?revision=" + revision;
+    }
+    */
     }
 
     return uploadUrl;

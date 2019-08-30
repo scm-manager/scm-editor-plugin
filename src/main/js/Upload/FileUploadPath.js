@@ -21,12 +21,14 @@ const styles = {
     marginBottom: "0 !important"
   },
   topBorder: {
-    borderTop: "solid 1px #dbdbdb"
+    borderTop: "solid 1px #dbdbdb",
+    borderBottom: "none"
   }
 };
 
 type Props = {
   path: any,
+  changePath: string => void,
 
   //context props
   t: string => string,
@@ -34,6 +36,10 @@ type Props = {
 };
 
 class FileUploadPath extends React.Component<Props> {
+
+  handleChange = (path) => {
+    this.props.changePath(path);
+  };
 
   render() {
     const {t, classes} = this.props;
@@ -67,6 +73,7 @@ class FileUploadPath extends React.Component<Props> {
                     disabled={false}
                     value={this.props.path}
                     placeholder={t("scm-editor-plugin.upload.placeholder")}
+                    onChange={(value) => this.handleChange(value)}
                   />
                 </div>
               </div>

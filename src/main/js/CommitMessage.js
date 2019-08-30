@@ -8,24 +8,13 @@ type Props = {
   me: Me,
   //context props
   t: string => string,
-};
-
-type State = {
-  message: string
+  onChange: string => void
 };
 
 class CommitMessage extends React.Component<Props, State> {
 
-  constructor(props: Props) {
-    super(props);
-
-    this.state = {
-      message: ""
-    };
-  }
-
   render() {
-    const {t, me} = this.props;
+    const {t, me, onChange} = this.props;
     return (
       <>
         <span>
@@ -37,6 +26,7 @@ class CommitMessage extends React.Component<Props, State> {
         </span>
         <Textarea
           placeholder={t("scm-editor-plugin.commit.placeholder")}
+          onChange={(message) => onChange(message)}
         />
       </>
     )
