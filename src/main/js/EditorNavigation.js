@@ -11,12 +11,13 @@ type Props = {
 class EditorNavigation extends React.Component<Props> {
 
   render() {
+    const {url} = this.props;
 
     return (
       <Route
         path={`${this.props.url}/upload/:path*`}
         render={() => (
-          <FileUpload/>
+          <FileUpload url={url}/>
         )}
       />
     );

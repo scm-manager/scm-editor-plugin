@@ -10,10 +10,12 @@ import CommitMessage from "../CommitMessage";
 import {compose} from "redux";
 import {connect} from "react-redux";
 import {apiClient} from "@scm-manager/ui-components";
+import FileUploadTable from "./FileUploadTable";
 
 
 type Props = {
   me?: Me,
+  url: string,
   //context props
   t: string => string,
   match: any,
@@ -21,7 +23,7 @@ type Props = {
 };
 
 type State = {
-  files?: File[],
+  files: File[],
   commitMessage?: any
 };
 
@@ -30,19 +32,39 @@ class FileUpload extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      files: []
+    };
   }
 
-  handleFile = (file) => {
-    this.setState({file});
+  handleFile = (files) => {
+    const fileArray = this.state.files ? this.state.files : [];
+    files.forEach(file => fileArray.push(file));
+    this.setState({files: fileArray});
   };
 
-  commitFile(files, branch, commitMessage) {
-    // apiClient.postBinary("url", );
+  removeFileEntry = (entry) => {
+    const filteredFiles = this.state.files.filter(file => file !== entry);
+    this.setState({files: filteredFiles})
+  };
+
+  commitFile() {
+    const {url} = this.props;
+    const {files, commitMessage} = this.state;
+    let formdata = new FormData();
+    files && files.forEach(file => formdata.append("file", file));
+    formdata.append("message", commitMessage);
+
+    {/*apiClient.postBinary(
+      url + "/v2/edit/${namespace}/${name}/" + this.props.match.params.path,
+      formdata
+      );*/
+    }
   };
 
   render() {
     const {t, me} = this.props;
+    const {files} = this.state;
     const filePath = this.props.match.params.path;
     const sourcesLink = this.props.location.pathname.split("upload")[0];
     return (
@@ -50,7 +72,12 @@ class FileUpload extends React.Component<Props, State> {
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")}/>
         <FileUploadPath path={filePath}/>
         <FileUploadDropzone fileHandler={this.handleFile}/>
-        <br/><br/>
+        <br/>
+        {
+          files && files.length > 0 &&
+          <FileUploadTable files={files} removeFileEntry={this.removeFileEntry}/>
+        }
+        <br/>
         <CommitMessage me={me}/>
         <br/>
         <div className={"level"}>
@@ -64,7 +91,7 @@ class FileUpload extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.upload.button.commit")}
                 color={"primary"}
-                action={this.commitFile(this.state.files, "test", this.state.commitMessage)}
+                action={this.commitFile()}
               />
             </ButtonGroup>
           </div>

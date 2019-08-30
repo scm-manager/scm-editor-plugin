@@ -13,10 +13,17 @@
       "button": {
         "abort": "Cancel",
         "commit": "Commit"
+      },
+      "file": {
+        "name": "Filename",
+        "type": "Type",
+        "size": "Size"
       }
     },
     "commit": {
-      "author": "Author"
+      "author": "Author",
+      "placeholder": "Please insert your commit message"
+
     }
   },
   "errors": {

@@ -46,7 +46,7 @@ class FileUploadDropzone extends React.Component<Props> {
   }
 
   onDrop = (acceptedFiles) => {
-    this.props.fileHandler(acceptedFiles[0]);
+    this.props.fileHandler(acceptedFiles);
   };
 
   render() {
