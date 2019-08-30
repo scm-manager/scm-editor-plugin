@@ -24,5 +24,19 @@
       "author": "Autor",
       "placeholder": "Bitte eine Commit Nachricht eintragen"
     }
+  },
+  "errors": {
+    "4uRaXHBhs1": {
+      "displayName": "Upload fehlgeschlagen",
+      "description": "Eine Datei konnte nicht korrekt hochgeladen werden."
+    },
+    "AnRacIBuV1": {
+      "displayName": "Fehlender Commit Text",
+      "description": "Der Commit Text muss als Form Part mit dem Namen 'message' hochgeladen werden."
+    },
+    "CIRacPIOH1": {
+      "displayName": "Fehlender Dateiname",
+      "description": "Ein Form Part hat keinen Content-Disposition Header oder in diesem fehlt ein Wert für 'filename'."
+    }
   }
 }
