@@ -64,7 +64,7 @@ class EditorResourceTest {
     multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), "new commit");
     dispatcher.invoke(request, response);
 
-    assertThat(response.getStatus()).isEqualTo(200);
+    assertThat(response.getStatus()).isEqualTo(201);
     assertThat(response.getContentAsString()).isEqualTo("new commit ref");
     verify(fileUploader).upload(eq("newFile"), eqStreamContent("content"));
   }
