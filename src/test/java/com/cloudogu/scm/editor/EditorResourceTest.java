@@ -70,6 +70,23 @@ class EditorResourceTest {
   }
 
   @Test
+  void shouldProcessEmptyPath() throws IOException, URISyntaxException {
+    when(service.prepare("space", "name", "master", "", "new commit"))
+      .thenReturn(fileUploader);
+    when(fileUploader.done()).thenReturn("new commit ref");
+
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/?branch=master");
+    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), "new commit");
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
+    verify(fileUploader).upload(eq("newFile"), eqStreamContent("content"));
+  }
+
+  @Test
   void shouldFailForMissingCommitMessage() throws IOException, URISyntaxException {
     MockHttpRequest request =
       MockHttpRequest
