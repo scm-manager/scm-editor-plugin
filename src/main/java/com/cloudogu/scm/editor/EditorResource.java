@@ -5,6 +5,7 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import sonia.scm.BadRequestException;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -34,6 +35,23 @@ public class EditorResource {
   }
 
   /**
+   * This equals {@link EditorResource#create(String, String, String, MultipartFormDataInput, String)} with the
+   * difference, that files will be added to the root directory of the repository.
+   * @see #create(String, String, String, MultipartFormDataInput, String)
+   */
+  @POST
+  @Path("{namespace}/{name}")
+  @Consumes("multipart/form-data")
+  public Response createInRoot(
+    @PathParam("namespace") String namespace,
+    @PathParam("name") String name,
+    MultipartFormDataInput input,
+    @QueryParam("branch") String branch
+  ) throws IOException {
+    return create(namespace, name, "", input, branch);
+  }
+
+  /**
    * Uploads files from a request with a multipart form. Each form data with names starting with 'file' will be
    * expected to have a content disposition header with a value for 'filename' (eg.
    * <code>Content-Disposition: form-data; name="file1"; filename="pom.xml"</code>). Additionally a form data with
@@ -49,12 +67,13 @@ public class EditorResource {
    *   -F 'file2=@data.json' \
    *   -F 'message=Commit message'
    * </pre>
+   *
    * @param namespace The namespace of the repository.
-   * @param name The name of the repository.
-   * @param path The destination directory for the new file.
-   * @param input The form data. These will have to have parts with names starting with 'name' for the files to upload
-   *              and part with name 'message' for the commit message.
-   * @param branch The branch the change should be made upon.
+   * @param name      The name of the repository.
+   * @param path      The destination directory for the new file.
+   * @param input     The form data. These will have to have parts with names starting with 'name' for the files to upload
+   *                  and part with name 'message' for the commit message.
+   * @param branch    The branch the change should be made upon.
    * @throws IOException Whenever there were exceptions handling the uploaded files.
    */
   @POST
@@ -63,7 +82,7 @@ public class EditorResource {
   public Response create(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
-    @PathParam("path") String path,
+    @Nullable @PathParam("path") String path,
     MultipartFormDataInput input,
     @QueryParam("branch") String branch
   ) throws IOException {
