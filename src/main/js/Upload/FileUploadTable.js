@@ -1,13 +1,20 @@
 //@flow
 import React from "react";
 import {translate} from "react-i18next";
+import injectSheet from "react-jss";
 
+const styles = {
+  nameColumn: {
+    width: "60%"
+  }
+};
 
 type Props = {
   files: File[],
   removeFile: any => void,
   //context props
-  t: string => string
+  t: string => string,
+  classes: any
 };
 
 class FileUploadTable extends React.Component<Props> {
@@ -31,13 +38,13 @@ class FileUploadTable extends React.Component<Props> {
   }
 
   render() {
-    const {t, files} = this.props;
+    const {t, files, classes} = this.props;
 
     return (
       <table className="card-table table is-hoverable is-fullwidth">
         <thead>
         <tr>
-          <th>{t("scm-editor-plugin.upload.file.name")}</th>
+          <th className={classes.nameColumn}>{t("scm-editor-plugin.upload.file.name")}</th>
           <th>{t("scm-editor-plugin.upload.file.type")}</th>
           <th>{t("scm-editor-plugin.upload.file.size")}</th>
         </tr>
@@ -46,7 +53,7 @@ class FileUploadTable extends React.Component<Props> {
         {files.map((file) => {
           return (
             <tr>
-              <td>{file.name}</td>
+              <td className={classes.nameColumn}>{file.name}</td>
               <td>{file.type}</td>
               <td>{this.humanFileSize(file.size)}</td>
               <td>
@@ -63,4 +70,4 @@ class FileUploadTable extends React.Component<Props> {
   }
 }
 
-export default translate("plugins")(FileUploadTable);
+export default injectSheet(styles)(translate("plugins")(FileUploadTable));

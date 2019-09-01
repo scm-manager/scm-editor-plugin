@@ -9,8 +9,9 @@ const styles = {
   button: {
     height: "40px",
     width: "50px",
+    color: "#33b2e8",
     "&:hover": {
-      color: "#33b2e8"
+      color: "#4a4a4a"
     }
   }
 };
