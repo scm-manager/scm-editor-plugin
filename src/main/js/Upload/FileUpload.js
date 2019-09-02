@@ -69,20 +69,23 @@ class FileUpload extends React.Component<Props, State> {
     const {files, commitMessage, path, branch} = this.state;
     const link = repository._links.fileUpload.href;
 
-    const formdata = formdata => {
-      files.forEach(file => formdata.append("file", file));
-      formdata.append("message", commitMessage);
-    };
-
     const push = () => history.push(url + "/sources/" + branch.replace("/", "%2F") + "/");
 
     if (path) {
       apiClient.postBinary(
-        link.replace("{path}", path) + (branch ? "?branch=" + branch : ""), formdata
+        link.replace("{path}", path) + (branch ? "?branch=" + branch : ""),
+        formdata => {
+          files.forEach(file => formdata.append("file", file));
+          formdata.append("message", commitMessage);
+        }
       ).then(push)
     } else {
       apiClient.postBinary(
-        link.replace("/{path}", "") + (branch ? "?branch=" + branch : ""), formdata
+        link.replace("/{path}", "") + (branch ? "?branch=" + branch : ""),
+        formdata => {
+          files.forEach(file => formdata.append("file", file));
+          formdata.append("message", commitMessage);
+        }
       ).then(push)
     }
   };
