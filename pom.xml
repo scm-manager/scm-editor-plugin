@@ -17,9 +17,9 @@
   <description>Creates, edits and deletes Files</description>
 
   <scm>
-    <connection>scm:hg:http://bitbucket.org/scm-manager/scm-editor-plugin</connection>
-    <developerConnection>scm:hg:https://bitbucket.org/scm-manager/scm-editor-plugin</developerConnection>
-    <url>http://bitbucket.org/scm-manager/scm-editor-plugin</url>
+    <connection>scm:git:https://github.com/scm-manager/scm-editor-plugin</connection>
+    <developerConnection>scm:git:https://github.com/scm-manager/scm-editor-plugin</developerConnection>
+    <url>https://github.com/scm-manager/scm-editor-plugin</url>
   </scm>
 
   <dependencies>
