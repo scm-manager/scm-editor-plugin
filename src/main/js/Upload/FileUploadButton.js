@@ -1,5 +1,6 @@
 // @flow
 import React from "react";
+import {Branch} from "@scm-manager/ui-types";
 import {translate} from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
@@ -19,8 +20,7 @@ const styles = {
 type Props = {
   baseUrl: string,
   path?: string,
-  branch?: string,
-  revision?: string,
+  branch?: Branch,
   // context props
   classes: any,
   t: string => string
@@ -29,25 +29,19 @@ type Props = {
 class FileUploadButton extends React.Component<Props> {
 
   createUploadUrl = () => {
-    const {baseUrl, path, branch, revision} = this.props;
+    const {baseUrl, path, branch} = this.props;
     let uploadUrl = baseUrl.replace("sources", "upload/") + (path ? path : "");
 
-    //TODO Clear branch confusion
-    if (revision !== "undefined") {
-      uploadUrl += "?branch=" + revision
-    }
-
-    {/*if (revision) {
-      uploadUrl += branch ? "&revision=" + revision : "?revision=" + revision;
-    }
-    */
+    if (branch) {
+      uploadUrl += "?branch=" + branch.name;
+      uploadUrl += branch.name ? "&revision=" + branch.revision : "?revision=" + branch.revision;
     }
 
     return uploadUrl;
   };
 
   render() {
-    const {classes, t, path} = this.props;
+    const {classes, t} = this.props;
 
     return (
       <>
