@@ -74,4 +74,14 @@ class EditorServiceTest {
     verify(commandBuilder).execute();
     assertThat(newCommit).isEqualTo(NEW_COMMIT);
   }
+
+  @Test
+  void shouldNotStartPathOfFileWith() throws IOException {
+    String newCommit = editorService
+      .prepare("space", "name", "master", "", "new commit")
+      .upload(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
+      .done();
+
+    verify(commandBuilder).createFile(NEW_FILE);
+  }
 }
