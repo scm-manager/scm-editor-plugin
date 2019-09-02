@@ -9,4 +9,4 @@ import EditorNavigation from "./EditorNavigation";
 binder.bind("repos.sources.tree.row.right", FileDownloadIcon);
 binder.bind("repos.sources.content.actionbar", FileDownloadButton);
 binder.bind("repos.sources.actionbar", FileUploadButton);
-binder.bind("repos.sources.branch.fileUpload", EditorNavigation);
+binder.bind("repository.route", EditorNavigation);
