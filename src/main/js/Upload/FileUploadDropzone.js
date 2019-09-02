@@ -9,7 +9,7 @@ const styles = {
   dropzone: {
     width: "100%",
     height: "20rem",
-    border: "solid 1px #eeeeee",
+    border: "solid 1px #dbdbdb",
     borderRadius: "2px"
   },
   innerBorder: {
