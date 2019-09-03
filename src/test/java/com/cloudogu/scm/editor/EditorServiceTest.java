@@ -62,7 +62,7 @@ class EditorServiceTest {
   @Test
   void shouldBuildCorrectModificationCommand() throws IOException {
     String newCommit = editorService
-      .prepare("space", "name", "master", SOME_PATH, "new commit")
+      .prepare("space", "name", "master", SOME_PATH, "new commit", "expected")
       .upload(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
       .done();
 
@@ -71,14 +71,15 @@ class EditorServiceTest {
     verify(contentLoader).withData(any(InputStream.class));
     verify(commandBuilder).setCommitMessage("new commit");
     verify(commandBuilder).setBranch("master");
+    verify(commandBuilder).setExpectedRevision("expected");
     verify(commandBuilder).execute();
     assertThat(newCommit).isEqualTo(NEW_COMMIT);
   }
 
   @Test
-  void shouldNotStartPathOfFileWith() throws IOException {
+  void shouldNotStartPathOfFileWithSlash() throws IOException {
     String newCommit = editorService
-      .prepare("space", "name", "master", "", "new commit")
+      .prepare("space", "name", "master", "", "new commit", "")
       .upload(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
       .done();
 

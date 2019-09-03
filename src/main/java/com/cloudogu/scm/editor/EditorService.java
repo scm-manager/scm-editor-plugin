@@ -21,12 +21,15 @@ public class EditorService {
     this.repositoryServiceFactory = repositoryServiceFactory;
   }
 
-  FileUploader prepare(String namespace, String name, String branch, String path, String commitMessage) {
+  FileUploader prepare(String namespace, String name, String branch, String path, String commitMessage, String revision) {
     try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
       checkWritePermission(repositoryService);
       ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
       if (!StringUtils.isEmpty(branch)) {
         modifyCommand.setBranch(branch);
+      }
+      if (!StringUtils.isEmpty(revision)) {
+        modifyCommand.setExpectedRevision(revision);
       }
       modifyCommand.setCommitMessage(commitMessage);
       return new FileUploader(modifyCommand, path);
