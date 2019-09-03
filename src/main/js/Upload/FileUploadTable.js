@@ -2,10 +2,21 @@
 import React from "react";
 import {translate} from "react-i18next";
 import injectSheet from "react-jss";
+import classNames from "classnames";
+import {Subtitle} from "@scm-manager/ui-components";
+
 
 const styles = {
   nameColumn: {
     width: "60%"
+  },
+  noBorderLeft: {
+    "& td:first-child": {
+      borderLeft: "none"
+    }
+  },
+  marginTop: {
+    marginTop: "2rem"
   }
 };
 
@@ -41,31 +52,36 @@ class FileUploadTable extends React.Component<Props> {
     const {t, files, classes} = this.props;
 
     return (
-      <table className="card-table table is-hoverable is-fullwidth">
-        <thead>
-        <tr>
-          <th className={classes.nameColumn}>{t("scm-editor-plugin.upload.file.name")}</th>
-          <th>{t("scm-editor-plugin.upload.file.type")}</th>
-          <th>{t("scm-editor-plugin.upload.file.size")}</th>
-        </tr>
-        </thead>
-        <tbody>
-        {files.map((file) => {
-          return (
-            <tr>
-              <td className={classes.nameColumn}>{file.name}</td>
-              <td>{file.type}</td>
-              <td>{this.humanFileSize(file.size)}</td>
-              <td>
-                <a onClick={() => this.removeEntry(file)}>
-                  <i className="fas fa-trash-alt"/>
-                </a>
-              </td>
-            </tr>
-          )
-        })}
-        </tbody>
-      </table>
+      <>
+        <div className={classes.marginTop}>
+          <Subtitle subtitle={t("scm-editor-plugin.upload.file.table.title")}/>
+        </div>
+        <table className={classNames("card-table table is-hoverable is-fullwidth", classes.noBorderLeft)}>
+          <thead>
+          <tr>
+            <th className={classes.nameColumn}>{t("scm-editor-plugin.upload.file.name")}</th>
+            <th>{t("scm-editor-plugin.upload.file.type")}</th>
+            <th>{t("scm-editor-plugin.upload.file.size")}</th>
+          </tr>
+          </thead>
+          <tbody>
+          {files.map((file) => {
+            return (
+              <tr>
+                <td className={classNames(classes.nameColumn)}>{file.name}</td>
+                <td>{file.type}</td>
+                <td>{this.humanFileSize(file.size)}</td>
+                <td>
+                  <a onClick={() => this.removeEntry(file)}>
+                    <i className="fas fa-trash-alt"/>
+                  </a>
+                </td>
+              </tr>
+            )
+          })}
+          </tbody>
+        </table>
+      </>
     );
   }
 }
