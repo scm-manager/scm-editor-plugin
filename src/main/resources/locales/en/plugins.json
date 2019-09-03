@@ -8,8 +8,7 @@
       "title": "Upload file",
       "path": "Path",
       "placeholder": "Insert path here",
-      "clickHere": "Click here to select your file",
-      "dragAndDrop": "Drag and drop your file here",
+      "dragAndDrop": "Drag and drop your files here or click here to select your files",
       "button": {
         "abort": "Cancel",
         "commit": "Commit"
@@ -17,7 +16,10 @@
       "file": {
         "name": "Filename",
         "type": "Type",
-        "size": "Size"
+        "size": "Size",
+        "table": {
+          "title": "Selected files"
+        }
       }
     },
     "commit": {

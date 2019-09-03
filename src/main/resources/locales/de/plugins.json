@@ -8,8 +8,7 @@
       "title": "Datei hochladen",
       "path": "Pfad",
       "placeholder": "Hier den Dateipfad eingeben",
-      "clickHere": "Hier klicken um eine Datei hochzuladen",
-      "dragAndDrop": "Datei zum Hochladen hier einfügen",
+      "dragAndDrop": "Dateien hier einfügen oder zum Auswählen hier klicken",
       "button": {
         "abort": "Abbrechen",
         "commit": "Commit"
@@ -17,7 +16,10 @@
       "file": {
         "name": "Dateiname",
         "type": "Typ",
-        "size": "Größe"
+        "size": "Größe",
+        "table": {
+          "title": "Ausgewählte Dateien"
+        }
       }
     },
     "commit": {

@@ -16,7 +16,8 @@ const styles = {
     margin: "2rem",
     height: "16rem",
     alignSelf: "center",
-    border: "dashed 3px #f5f5f5",
+    border: "dashed 3px #cdcdcd",
+    borderRadius: "2px",
     display: "flex",
     justifyContent: "center"
   },
@@ -62,7 +63,6 @@ class FileUploadDropzone extends React.Component<Props> {
                   <div className={classes.dropzone}>
                     <div className={classes.innerBorder}>
                       <div className={classNames(classes.description, "has-text-grey-light")}>
-                        {t("scm-editor-plugin.upload.clickHere")}
                         <i className={classNames("fas fa-plus-circle fa-2x has-text-grey-lighter", classes.icon)}/>
                         {t("scm-editor-plugin.upload.dragAndDrop")}
                       </div>
