@@ -1,7 +1,7 @@
 // @flow
 import React from "react";
 import {translate} from "react-i18next";
-import {Subtitle, ButtonGroup, Button} from "@scm-manager/ui-components";
+import {Subtitle, ButtonGroup, Button, ErrorNotification} from "@scm-manager/ui-components";
 import {File, Me, Repository} from "@scm-manager/ui-types";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FileUploadPath from "./FileUploadPath";
@@ -30,6 +30,7 @@ type State = {
   files: File[],
   commitMessage: any,
   branch: string,
+  error: Error
 };
 
 class FileUpload extends React.Component<Props, State> {
@@ -41,9 +42,14 @@ class FileUpload extends React.Component<Props, State> {
       files: [],
       path: this.props.match.params.path ? this.props.match.params.path : "",
       commitMessage: "",
-      branch: queryString.parse(this.props.location.search, {ignoreQueryPrefix: true}).branch
+      branch: queryString.parse(this.props.location.search, {ignoreQueryPrefix: true}).branch,
+      revision: queryString.parse(this.props.location.search, {ignoreQueryPrefix: true}).revision
     };
   }
+
+  handleError = (error: Error) => {
+    this.setState({error});
+  };
 
   handleFile = (files) => {
     const fileArray = this.state.files ? this.state.files : [];
@@ -79,6 +85,7 @@ class FileUpload extends React.Component<Props, State> {
           formdata.append("message", commitMessage);
         }
       ).then(push)
+        .catch(this.handleError)
     } else {
       apiClient.postBinary(
         link.replace("/{path}", "") + (branch ? "?branch=" + branch : ""),
@@ -87,13 +94,16 @@ class FileUpload extends React.Component<Props, State> {
           formdata.append("message", commitMessage);
         }
       ).then(push)
+        .catch(this.handleError)
     }
   };
 
   render() {
     const {t, me, location} = this.props;
-    const {files, path, commitMessage} = this.state;
-    const sourcesLink = location.pathname.split("upload")[0];
+    const {files, path, commitMessage, branch, revision, error} = this.state;
+    const sourcesLink =
+      location.pathname.split("upload")[0] + "sources/" + (branch ? branch : revision) + "/" + path;
+
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")}/>
@@ -105,6 +115,10 @@ class FileUpload extends React.Component<Props, State> {
           <FileUploadTable files={files} removeFileEntry={this.removeFileEntry}/>
         }
         <br/>
+        {
+          error &&
+          <ErrorNotification error={error}/>
+        }
         <CommitMessage me={me} commitMessage={commitMessage} onChange={this.changeCommitMessage}/>
         <br/>
         <div className={"level"}>
