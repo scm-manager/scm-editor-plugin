@@ -54,13 +54,13 @@ class EditorResourceTest {
 
   @Test
   void shouldProcessCompleteRequest() throws IOException, URISyntaxException {
-    when(service.prepare("space", "name", "master", "some/path", "new commit"))
+    when(service.prepare("space", "name", "master", "some/path", "new commit", "expected"))
       .thenReturn(fileUploader);
     when(fileUploader.done()).thenReturn("new commit ref");
 
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path?branch=master");
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path?branch=master&revision=expected");
     multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), "new commit");
     dispatcher.invoke(request, response);
 
@@ -71,7 +71,7 @@ class EditorResourceTest {
 
   @Test
   void shouldProcessEmptyPath() throws IOException, URISyntaxException {
-    when(service.prepare("space", "name", "master", "", "new commit"))
+    when(service.prepare("space", "name", "master", "", "new commit", null))
       .thenReturn(fileUploader);
     when(fileUploader.done()).thenReturn("new commit ref");
 

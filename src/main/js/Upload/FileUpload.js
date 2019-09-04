@@ -1,7 +1,7 @@
 // @flow
 import React from "react";
 import {translate} from "react-i18next";
-import {Subtitle, ButtonGroup, Button, ErrorNotification} from "@scm-manager/ui-components";
+import {apiClient, Subtitle, ButtonGroup, Button, ErrorNotification} from "@scm-manager/ui-components";
 import {File, Me, Repository} from "@scm-manager/ui-types";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FileUploadPath from "./FileUploadPath";
@@ -9,7 +9,6 @@ import {withRouter} from "react-router-dom";
 import CommitMessage from "../CommitMessage";
 import {compose} from "redux";
 import {connect} from "react-redux";
-import {apiClient} from "@scm-manager/ui-components";
 import FileUploadTable from "./FileUploadTable";
 import queryString from 'query-string';
 
@@ -75,27 +74,13 @@ class FileUpload extends React.Component<Props, State> {
     const {files, commitMessage, path, branch} = this.state;
     const link = repository._links.fileUpload.href;
 
-    const push = () => history.push(url + "/sources/" + branch.replace("/", "%2F") + "/");
-
-    if (path) {
-      apiClient.postBinary(
-        link.replace("{path}", path) + (branch ? "?branch=" + branch : ""),
-        formdata => {
-          files.forEach(file => formdata.append("file", file));
-          formdata.append("message", commitMessage);
-        }
-      ).then(push)
-        .catch(this.handleError)
-    } else {
-      apiClient.postBinary(
-        link.replace("/{path}", "") + (branch ? "?branch=" + branch : ""),
-        formdata => {
-          files.forEach(file => formdata.append("file", file));
-          formdata.append("message", commitMessage);
-        }
-      ).then(push)
-        .catch(this.handleError)
-    }
+    apiClient.postBinary(
+      link.replace("{path}", path) + (branch ? "?branch=" + branch : ""),
+      formdata => {
+        files.forEach((file, i) => formdata.append("file" + i, file));
+        formdata.append("message", commitMessage);
+      }
+    ).then(() => history.push(url + "/sources/" + branch.replace("/", "%2F") + "/"));
   };
 
   render() {
