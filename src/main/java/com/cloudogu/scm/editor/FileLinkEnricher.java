@@ -9,6 +9,7 @@ import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.plugin.Extension;
 import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.FileObject;
+import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.api.Command;
 import sonia.scm.repository.api.RepositoryService;
@@ -17,6 +18,8 @@ import sonia.scm.repository.api.RepositoryServiceFactory;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.io.IOException;
+
+import static sonia.scm.ContextEntry.ContextBuilder.entity;
 
 @Extension
 @Enrich(FileObject.class)
@@ -44,9 +47,7 @@ public class FileLinkEnricher implements HalEnricher {
             .getBranches()
             .getBranches()
             .stream()
-            .filter(b -> b.getName().equals(requestedRevision))
-            .findAny()
-            .isPresent();
+            .anyMatch(b -> b.getName().equals(requestedRevision));
           if (isRequestWithBranch) {
             if (fileObject.isDirectory()) {
               LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
@@ -57,7 +58,7 @@ public class FileLinkEnricher implements HalEnricher {
             }
           }
         } catch (IOException e) {
-          e.printStackTrace();
+          throw new InternalRepositoryException(entity(service.getRepository()), "could not check branches", e);
         }
       }
     }

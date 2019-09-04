@@ -78,7 +78,7 @@ class EditorServiceTest {
   }
 
   @Test
-  void shouldBuildCorrectModificationCommandForDelete() throws IOException {
+  void shouldBuildCorrectModificationCommandForDelete() {
     String newCommit = editorService
       .delete("space", "name", "master", SOME_PATH, "new commit", "expected");
 
@@ -91,7 +91,7 @@ class EditorServiceTest {
   }
 
   @Test
-  void shouldNotStartPathOfFileWithSlash() throws IOException {
+  void shouldNotStartPathOfFileWithSlash() {
     String newCommit = editorService
       .prepare("space", "name", "master", "", "new commit", "")
       .upload(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
