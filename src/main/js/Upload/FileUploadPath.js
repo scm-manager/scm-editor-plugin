@@ -1,9 +1,9 @@
 // @flow
 import React from "react";
-import {translate} from "react-i18next";
+import { translate } from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
-import {InputField} from "@scm-manager/ui-components";
+import { InputField } from "@scm-manager/ui-components";
 
 const styles = {
   zeroflex: {
@@ -40,7 +40,7 @@ class FileUploadPath extends React.Component<Props> {
   };
 
   render() {
-    const {t, classes} = this.props;
+    const { t, classes } = this.props;
     return (
       <>
         <div className={classNames("panel-heading", classes.topBorder)}>

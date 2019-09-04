@@ -1,8 +1,8 @@
 //@flow
 import React from "react";
-import {Route} from "react-router-dom";
+import { Route } from "react-router-dom";
 import FileUpload from "./Upload/FileUpload";
-import {Repository} from "@scm-manager/ui-types";
+import { Repository } from "@scm-manager/ui-types";
 
 type Props = {
   url: any,
@@ -11,12 +11,12 @@ type Props = {
 
 class EditorNavigation extends React.Component<Props> {
   render() {
-    const {url, repository} = this.props;
+    const { url, repository } = this.props;
 
     return (
       <Route
         path={`${this.props.url}/upload/:path*`}
-        render={() => <FileUpload url={url} repository={repository}/>}
+        render={() => <FileUpload url={url} repository={repository} />}
       />
     );
   }

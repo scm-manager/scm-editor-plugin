@@ -1,14 +1,20 @@
 // @flow
 import React from "react";
-import {translate} from "react-i18next";
-import {apiClient, Button, ButtonGroup, ErrorNotification, Subtitle} from "@scm-manager/ui-components";
-import {File, Me, Repository} from "@scm-manager/ui-types";
+import { translate } from "react-i18next";
+import {
+  apiClient,
+  Button,
+  ButtonGroup,
+  ErrorNotification,
+  Subtitle
+} from "@scm-manager/ui-components";
+import { File, Me, Repository } from "@scm-manager/ui-types";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FileUploadPath from "./FileUploadPath";
-import {withRouter} from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import CommitMessage from "../CommitMessage";
-import {compose} from "redux";
-import {connect} from "react-redux";
+import { compose } from "redux";
+import { connect } from "react-redux";
 import FileUploadTable from "./FileUploadTable";
 import queryString from "query-string";
 
@@ -49,31 +55,31 @@ class FileUpload extends React.Component<Props, State> {
   }
 
   handleError = (error: Error) => {
-    this.setState({error});
+    this.setState({ error });
   };
 
   handleFile = files => {
     const fileArray = this.state.files ? this.state.files : [];
     files.forEach(file => fileArray.push(file));
-    this.setState({files: fileArray});
+    this.setState({ files: fileArray });
   };
 
   changePath = path => {
-    this.setState({path});
+    this.setState({ path });
   };
 
   changeCommitMessage = commitMessage => {
-    this.setState({commitMessage});
+    this.setState({ commitMessage });
   };
 
   removeFileEntry = entry => {
     const filteredFiles = this.state.files.filter(file => file !== entry);
-    this.setState({files: filteredFiles});
+    this.setState({ files: filteredFiles });
   };
 
   commitFile = sourcesLink => {
-    const {repository, history} = this.props;
-    const {files, commitMessage, path, branch} = this.state;
+    const { repository, history } = this.props;
+    const { files, commitMessage, path, branch } = this.state;
     const link = repository._links.fileUpload.href;
 
     apiClient
@@ -89,8 +95,8 @@ class FileUpload extends React.Component<Props, State> {
   };
 
   render() {
-    const {t, me, location} = this.props;
-    const {files, path, commitMessage, branch, revision, error} = this.state;
+    const { t, me, location } = this.props;
+    const { files, path, commitMessage, branch, revision, error } = this.state;
     const sourcesLink =
       location.pathname.split("upload")[0] +
       "sources/" +
@@ -100,27 +106,26 @@ class FileUpload extends React.Component<Props, State> {
 
     return (
       <>
-        <Subtitle subtitle={t("scm-editor-plugin.upload.title")}/>
-        <FileUploadPath path={path} changePath={this.changePath}/>
-        <FileUploadDropzone fileHandler={this.handleFile}/>
-        <br/>
-        {files &&
-        files.length > 0 && (
+        <Subtitle subtitle={t("scm-editor-plugin.upload.title")} />
+        <FileUploadPath path={path} changePath={this.changePath} />
+        <FileUploadDropzone fileHandler={this.handleFile} />
+        <br />
+        {files && files.length > 0 && (
           <FileUploadTable
             files={files}
             removeFileEntry={this.removeFileEntry}
           />
         )}
-        <br/>
-        {error && <ErrorNotification error={error}/>}
+        <br />
+        {error && <ErrorNotification error={error} />}
         <CommitMessage
           me={me}
           commitMessage={commitMessage}
           onChange={this.changeCommitMessage}
         />
-        <br/>
+        <br />
         <div className={"level"}>
-          <div className={"level-left"}/>
+          <div className={"level-left"} />
           <div className={"level-right"}>
             <ButtonGroup>
               <Button
@@ -142,7 +147,7 @@ class FileUpload extends React.Component<Props, State> {
 }
 
 const mapStateToProps = state => {
-  const {auth} = state;
+  const { auth } = state;
   const me = auth.me;
 
   return {

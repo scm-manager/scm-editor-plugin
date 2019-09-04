@@ -1,8 +1,8 @@
 // @flow
 import React from "react";
-import {translate} from "react-i18next";
-import {Textarea} from "@scm-manager/ui-components";
-import {Me} from "@scm-manager/ui-types";
+import { translate } from "react-i18next";
+import { Textarea } from "@scm-manager/ui-components";
+import { Me } from "@scm-manager/ui-types";
 import injectSheet from "react-jss";
 
 const styles = {
@@ -21,7 +21,7 @@ type Props = {
 
 class CommitMessage extends React.Component<Props> {
   render() {
-    const {t, classes, me, onChange} = this.props;
+    const { t, classes, me, onChange } = this.props;
     return (
       <>
         <div className={classes.marginBottom}>

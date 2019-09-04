@@ -1,9 +1,9 @@
 //@flow
 import React from "react";
-import {translate} from "react-i18next";
+import { translate } from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
-import {Subtitle} from "@scm-manager/ui-components";
+import { Subtitle } from "@scm-manager/ui-components";
 
 const styles = {
   nameColumn: {
@@ -47,12 +47,12 @@ class FileUploadTable extends React.Component<Props> {
   }
 
   render() {
-    const {t, files, classes} = this.props;
+    const { t, files, classes } = this.props;
 
     return (
       <>
         <div className={classes.marginTop}>
-          <Subtitle subtitle={t("scm-editor-plugin.upload.file.table.title")}/>
+          <Subtitle subtitle={t("scm-editor-plugin.upload.file.table.title")} />
         </div>
         <table
           className={classNames(
@@ -61,31 +61,31 @@ class FileUploadTable extends React.Component<Props> {
           )}
         >
           <thead>
-          <tr>
-            <th className={classes.nameColumn}>
-              {t("scm-editor-plugin.upload.file.name")}
-            </th>
-            <th>{t("scm-editor-plugin.upload.file.type")}</th>
-            <th>{t("scm-editor-plugin.upload.file.size")}</th>
-          </tr>
+            <tr>
+              <th className={classes.nameColumn}>
+                {t("scm-editor-plugin.upload.file.name")}
+              </th>
+              <th>{t("scm-editor-plugin.upload.file.type")}</th>
+              <th>{t("scm-editor-plugin.upload.file.size")}</th>
+            </tr>
           </thead>
           <tbody>
-          {files.map(file => {
-            return (
-              <tr>
-                <td className={classNames(classes.nameColumn)}>
-                  {file.name}
-                </td>
-                <td>{file.type}</td>
-                <td>{this.humanFileSize(file.size)}</td>
-                <td>
-                  <a onClick={() => this.removeEntry(file)}>
-                    <i className="fas fa-trash-alt"/>
-                  </a>
-                </td>
-              </tr>
-            );
-          })}
+            {files.map(file => {
+              return (
+                <tr>
+                  <td className={classNames(classes.nameColumn)}>
+                    {file.name}
+                  </td>
+                  <td>{file.type}</td>
+                  <td>{this.humanFileSize(file.size)}</td>
+                  <td>
+                    <a onClick={() => this.removeEntry(file)}>
+                      <i className="fas fa-trash-alt" />
+                    </a>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </>

@@ -1,10 +1,10 @@
 // @flow
 import React from "react";
-import {Branch} from "@scm-manager/ui-types";
-import {translate} from "react-i18next";
+import { Branch } from "@scm-manager/ui-types";
+import { translate } from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const styles = {
   button: {
@@ -29,7 +29,7 @@ type Props = {
 
 class FileUploadButton extends React.Component<Props> {
   createUploadUrl = () => {
-    const {baseUrl, path, branch} = this.props;
+    const { baseUrl, path, branch } = this.props;
     let uploadUrl = baseUrl.replace("sources", "upload/") + (path ? path : "");
 
     if (branch) {
@@ -43,7 +43,7 @@ class FileUploadButton extends React.Component<Props> {
   };
 
   render() {
-    const {classes, t, isBranchUrl} = this.props;
+    const { classes, t, isBranchUrl } = this.props;
 
     return (
       <>
@@ -53,7 +53,7 @@ class FileUploadButton extends React.Component<Props> {
               title={t("scm-editor-plugin.upload.tooltip")}
               className={classNames(classes.button, "button")}
             >
-              <i className="fas fa-upload"/>
+              <i className="fas fa-upload" />
             </span>
           </Link>
         )}
