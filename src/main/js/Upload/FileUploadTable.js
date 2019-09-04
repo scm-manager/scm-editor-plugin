@@ -1,9 +1,9 @@
 //@flow
 import React from "react";
-import { translate } from "react-i18next";
+import {translate} from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
-import { Subtitle } from "@scm-manager/ui-components";
+import {Subtitle} from "@scm-manager/ui-components";
 
 const styles = {
   nameColumn: {
@@ -22,7 +22,7 @@ const styles = {
 type Props = {
   files: File[],
   removeFileEntry: any => void,
-  loading: boolean,
+  disabled: boolean,
   //context props
   t: string => string,
   classes: any
@@ -48,7 +48,7 @@ class FileUploadTable extends React.Component<Props> {
   }
 
   render() {
-    const { t, files, classes, loading } = this.props;
+    const {t, files, classes, disabled} = this.props;
 
     return (
       <>
@@ -80,7 +80,7 @@ class FileUploadTable extends React.Component<Props> {
                   <td>{file.type}</td>
                   <td>{this.humanFileSize(file.size)}</td>
                   <td>
-                    <a onClick={() => !loading && this.removeEntry(file)}>
+                    <a onClick={() => !disabled && this.removeEntry(file)}>
                       <i className="fas fa-trash-alt" />
                     </a>
                   </td>

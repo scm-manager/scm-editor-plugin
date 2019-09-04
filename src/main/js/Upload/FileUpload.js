@@ -1,18 +1,12 @@
 // @flow
 import React from "react";
-import { compose } from "redux";
-import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
-import { translate } from "react-i18next";
+import {compose} from "redux";
+import {connect} from "react-redux";
+import {withRouter} from "react-router-dom";
+import {translate} from "react-i18next";
 import queryString from "query-string";
-import type { File, Me, Repository } from "@scm-manager/ui-types";
-import {
-  apiClient,
-  Button,
-  ButtonGroup,
-  ErrorNotification,
-  Subtitle
-} from "@scm-manager/ui-components";
+import type {File, Me, Repository} from "@scm-manager/ui-types";
+import {apiClient, Button, ButtonGroup, ErrorNotification, Subtitle} from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FileUploadPath from "./FileUploadPath";
 import CommitMessage from "../CommitMessage";
@@ -122,13 +116,13 @@ class FileUpload extends React.Component<Props, State> {
       <>
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")} />
         <FileUploadPath path={path} changePath={this.changePath} />
-        <FileUploadDropzone fileHandler={this.handleFile} />
+        <FileUploadDropzone fileHandler={this.handleFile} disabled={loading}/>
         <br />
         {files && files.length > 0 && (
           <FileUploadTable
             files={files}
             removeFileEntry={this.removeFileEntry}
-            loading={loading}
+            disabled={loading}
           />
         )}
         <br />
@@ -137,6 +131,7 @@ class FileUpload extends React.Component<Props, State> {
           me={me}
           commitMessage={commitMessage}
           onChange={this.changeCommitMessage}
+          disabled={loading}
         />
         <br />
         <div className="level">
