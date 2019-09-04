@@ -86,7 +86,9 @@ class FileUpload extends React.Component<Props, State> {
       )
       .then(() =>
         history.push(url + "/sources/" + branch.replace("/", "%2F") + "/")
-      );
+      )
+      .catch(this.handleError)
+    ;
   };
 
   render() {
