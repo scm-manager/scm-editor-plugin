@@ -98,7 +98,7 @@ class FileUpload extends React.Component<Props, State> {
     const sourcesLink =
       location.pathname.split("upload")[0] +
       "sources/" +
-      (branch ? branch : revision) +
+      (branch ? branch.replace("/", "%2F") : revision) +
       "/" +
       path;
 
