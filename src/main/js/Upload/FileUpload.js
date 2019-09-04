@@ -36,7 +36,8 @@ type State = {
   commitMessage: any,
   branch: string,
   revision: string,
-  error: Error
+  error: Error,
+  loading: boolean
 };
 
 class FileUpload extends React.Component<Props, State> {
@@ -44,8 +45,9 @@ class FileUpload extends React.Component<Props, State> {
     super(props);
     this.state = {
       ...this.state,
-      path: this.props.match.params.path ? this.props.match.params.path : "",
+      loading: false,
       files: [],
+      path: this.props.match.params.path ? this.props.match.params.path : "",
       commitMessage: "",
       branch: queryString.parse(this.props.location.search, {
         ignoreQueryPrefix: true
@@ -57,7 +59,7 @@ class FileUpload extends React.Component<Props, State> {
   }
 
   handleError = (error: Error) => {
-    this.setState({ error });
+    this.setState({ error, loading: false });
   };
 
   handleFile = files => {
@@ -84,6 +86,8 @@ class FileUpload extends React.Component<Props, State> {
     const { files, commitMessage, path, branch } = this.state;
     const link = repository._links.fileUpload.href;
 
+    this.setState({ loading: true });
+
     apiClient
       .postBinary(
         link.replace("{path}", path) + (branch ? "?branch=" + branch : ""),
@@ -98,11 +102,19 @@ class FileUpload extends React.Component<Props, State> {
 
   render() {
     const { t, me, location } = this.props;
-    const { files, path, commitMessage, branch, revision, error } = this.state;
+    const {
+      files,
+      path,
+      commitMessage,
+      branch,
+      revision,
+      error,
+      loading
+    } = this.state;
     const sourcesLink =
       location.pathname.split("upload")[0] +
       "sources/" +
-      (branch ? branch : revision) +
+      (branch ? branch.replace("/", "%2F") : revision) +
       "/" +
       path;
 
@@ -116,6 +128,7 @@ class FileUpload extends React.Component<Props, State> {
           <FileUploadTable
             files={files}
             removeFileEntry={this.removeFileEntry}
+            loading={loading}
           />
         )}
         <br />
@@ -126,19 +139,21 @@ class FileUpload extends React.Component<Props, State> {
           onChange={this.changeCommitMessage}
         />
         <br />
-        <div className="level">
-          <div className="level-left" />
-          <div className="level-right">
+        <div className={"level"}>
+          <div className={"level-left"} />
+          <div className={"level-right"}>
             <ButtonGroup>
               <Button
                 label={t("scm-editor-plugin.upload.button.abort")}
                 link={sourcesLink}
+                disabled={loading}
               />
               <Button
                 label={t("scm-editor-plugin.upload.button.commit")}
                 color={"primary"}
                 disabled={!commitMessage || files.length === 0}
                 action={() => this.commitFile(sourcesLink)}
+                loading={loading}
               />
             </ButtonGroup>
           </div>
@@ -158,7 +173,7 @@ const mapStateToProps = state => {
 };
 
 export default compose(
-  withRouter,
   translate("plugins"),
+  withRouter,
   connect(mapStateToProps)
 )(FileUpload);

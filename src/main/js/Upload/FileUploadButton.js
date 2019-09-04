@@ -1,10 +1,10 @@
 // @flow
 import React from "react";
-import injectSheet from "react-jss";
+import type { Branch } from "@scm-manager/ui-types";
 import { translate } from "react-i18next";
+import injectSheet from "react-jss";
 import classNames from "classnames";
 import { Link } from "react-router-dom";
-import type { Branch } from "@scm-manager/ui-types";
 
 const styles = {
   button: {
@@ -32,7 +32,7 @@ class FileUploadButton extends React.Component<Props> {
     let uploadUrl = baseUrl.replace("sources", "upload/") + (path ? path : "");
 
     if (branch) {
-      uploadUrl += "?branch=" + branch.name;
+      uploadUrl += "?branch=" + branch.name.replace("/", "%2F");
       uploadUrl += branch.name
         ? "&revision=" + branch.revision
         : "?revision=" + branch.revision;
