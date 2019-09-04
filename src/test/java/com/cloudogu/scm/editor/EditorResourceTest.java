@@ -53,7 +53,7 @@ class EditorResourceTest {
   }
 
   @Test
-  void shouldProcessCompleteRequest() throws IOException, URISyntaxException {
+  void shouldProcessCreateWithCompleteRequest() throws IOException, URISyntaxException {
     when(service.prepare("space", "name", "master", "some/path", "new commit", "expected"))
       .thenReturn(fileUploader);
     when(fileUploader.done()).thenReturn("new commit ref");
@@ -70,7 +70,7 @@ class EditorResourceTest {
   }
 
   @Test
-  void shouldProcessEmptyPath() throws IOException, URISyntaxException {
+  void shouldProcessCreateWithEmptyPath() throws IOException, URISyntaxException {
     when(service.prepare("space", "name", "master", "", "new commit", null))
       .thenReturn(fileUploader);
     when(fileUploader.done()).thenReturn("new commit ref");
@@ -87,7 +87,7 @@ class EditorResourceTest {
   }
 
   @Test
-  void shouldFailForMissingCommitMessage() throws IOException, URISyntaxException {
+  void shouldFailCreateWithMissingCommitMessage() throws IOException, URISyntaxException {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path?branch=master");
@@ -96,6 +96,21 @@ class EditorResourceTest {
 
     assertThat(response.getStatus()).isEqualTo(400);
     assertThat(response.getContentAsString()).contains("MessageMissingException");
+  }
+
+  @Test
+  void shouldProcessDeleteRequest() throws IOException, URISyntaxException {
+    when(service.delete("space", "name", "master", "some/path/file", "new commit", "expected"))
+      .thenReturn("new commit ref");
+
+    MockHttpRequest request =
+      MockHttpRequest
+        .delete("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path/file?branch=master&revision=expected")
+        .content("new commit".getBytes());
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
   }
 
   private InputStream eqStreamContent(String expectedContent) {

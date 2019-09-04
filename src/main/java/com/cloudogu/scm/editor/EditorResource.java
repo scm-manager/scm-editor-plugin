@@ -7,6 +7,7 @@ import sonia.scm.BadRequestException;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -102,6 +103,33 @@ public class EditorResource {
       .map(Map.Entry::getValue)
       .forEach(inputParts -> uploadFile(fileUploader, inputParts));
     String targetRevision = fileUploader.done();
+    return Response.status(SC_CREATED).entity(targetRevision).build();
+  }
+
+  /**
+   * Deletes a file.
+   *
+   * @param namespace The namespace of the repository.
+   * @param name      The name of the repository.
+   * @param path      The path and name of the file that should be deleted.
+   * @param branch    The branch the change should be made upon (optional). If this is omitted, the default branch will
+   *                  be used.
+   * @param revision  The expected revision the change should be made upon (optional). If this is set, the changes
+   *                  will only be applied if the revision of the branch (either the specified or the default branch)
+   *                  equals the given revision. If this is not the case, a conflict (status code 409) will be
+   *                  returned.
+   */
+  @DELETE
+  @Path("{namespace}/{name}/{path: .*}")
+  public Response delete(
+    @PathParam("namespace") String namespace,
+    @PathParam("name") String name,
+    @Nullable @PathParam("path") String path,
+    String commitMessage,
+    @QueryParam("branch") String branch,
+    @QueryParam("revision") String revision
+  ) {
+    String targetRevision = editorService.delete(namespace, name, branch, path, commitMessage, revision);
     return Response.status(SC_CREATED).entity(targetRevision).build();
   }
 
