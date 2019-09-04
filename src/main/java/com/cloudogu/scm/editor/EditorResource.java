@@ -6,6 +6,7 @@ import sonia.scm.BadRequestException;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -39,6 +40,7 @@ public class EditorResource {
    */
   @POST
   @Path("{namespace}/{name}")
+  @Consumes("multipart/form-data")
   public Response createInRoot(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
@@ -81,6 +83,7 @@ public class EditorResource {
    */
   @POST
   @Path("{namespace}/{name}/{path: .*}")
+  @Consumes("multipart/form-data")
   public Response create(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
