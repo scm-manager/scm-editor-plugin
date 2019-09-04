@@ -7,7 +7,6 @@ import type {File} from "@scm-manager/ui-types";
 
 const styles = {
   button: {
-    height: "40px",
     width: "50px",
     "&:hover": {
       color: "#33b2e8"

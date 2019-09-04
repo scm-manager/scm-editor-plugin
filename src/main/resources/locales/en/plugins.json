@@ -1,5 +1,13 @@
 {
   "scm-editor-plugin": {
+    "delete": {
+      "tooltip": "Delete",
+      "modal": {
+        "title": "Delete file",
+        "confirm": "Confirm",
+        "abort": "Abort"
+      }
+    },
     "download": {
       "tooltip": "Download"
     }
