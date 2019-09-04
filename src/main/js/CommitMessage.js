@@ -26,9 +26,8 @@ class CommitMessage extends React.Component<Props> {
       <>
         <div className={classes.marginBottom}>
           <span>
-            <strong>{t("scm-editor-plugin.commit.author")}</strong>
-            {"   "}
-            {me.displayName + "  <" + me.mail + ">"}
+            <strong>{t("scm-editor-plugin.commit.author")}</strong>{" "}
+            {me.displayName + " <" + me.mail + ">"}
           </span>
         </div>
         <Textarea

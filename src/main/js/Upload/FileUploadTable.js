@@ -21,7 +21,7 @@ const styles = {
 
 type Props = {
   files: File[],
-  removeFile: any => void,
+  removeFileEntry: any => void,
   //context props
   t: string => string,
   classes: any
