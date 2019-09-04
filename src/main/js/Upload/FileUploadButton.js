@@ -1,14 +1,13 @@
 // @flow
 import React from "react";
-import type { Branch } from "@scm-manager/ui-types";
-import { translate } from "react-i18next";
 import injectSheet from "react-jss";
+import { translate } from "react-i18next";
 import classNames from "classnames";
 import { Link } from "react-router-dom";
+import type { Branch } from "@scm-manager/ui-types";
 
 const styles = {
   button: {
-    height: "40px",
     width: "50px",
     color: "#33b2e8",
     "&:hover": {

@@ -1,6 +1,11 @@
 // @flow
 import React from "react";
+import { compose } from "redux";
+import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 import { translate } from "react-i18next";
+import queryString from "query-string";
+import type { File, Me, Repository } from "@scm-manager/ui-types";
 import {
   apiClient,
   Button,
@@ -8,20 +13,16 @@ import {
   ErrorNotification,
   Subtitle
 } from "@scm-manager/ui-components";
-import { File, Me, Repository } from "@scm-manager/ui-types";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FileUploadPath from "./FileUploadPath";
-import { withRouter } from "react-router-dom";
 import CommitMessage from "../CommitMessage";
-import { compose } from "redux";
-import { connect } from "react-redux";
 import FileUploadTable from "./FileUploadTable";
-import queryString from "query-string";
 
 type Props = {
   me?: Me,
   url: string,
   repository: Repository,
+
   //context props
   t: string => string,
   match: any,
@@ -34,16 +35,17 @@ type State = {
   files: File[],
   commitMessage: any,
   branch: string,
+  revision: string,
   error: Error
 };
 
 class FileUpload extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
     this.state = {
-      files: [],
+      ...this.state,
       path: this.props.match.params.path ? this.props.match.params.path : "",
+      files: [],
       commitMessage: "",
       branch: queryString.parse(this.props.location.search, {
         ignoreQueryPrefix: true
@@ -124,9 +126,9 @@ class FileUpload extends React.Component<Props, State> {
           onChange={this.changeCommitMessage}
         />
         <br />
-        <div className={"level"}>
-          <div className={"level-left"} />
-          <div className={"level-right"}>
+        <div className="level">
+          <div className="level-left" />
+          <div className="level-right">
             <ButtonGroup>
               <Button
                 label={t("scm-editor-plugin.upload.button.abort")}
@@ -156,7 +158,7 @@ const mapStateToProps = state => {
 };
 
 export default compose(
-  translate("plugins"),
   withRouter,
+  translate("plugins"),
   connect(mapStateToProps)
 )(FileUpload);

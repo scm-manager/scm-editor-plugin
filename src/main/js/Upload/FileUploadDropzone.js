@@ -13,13 +13,15 @@ const styles = {
     borderRadius: "2px"
   },
   innerBorder: {
+    display: "flex",
     margin: "2rem",
+    padding: "3rem",
     height: "16rem",
     alignSelf: "center",
     border: "dashed 3px #cdcdcd",
     borderRadius: "2px",
-    display: "flex",
-    justifyContent: "center"
+    justifyContent: "center",
+    textAlign: "center"
   },
   description: {
     display: "flex",
@@ -40,10 +42,6 @@ type Props = {
 };
 
 class FileUploadDropzone extends React.Component<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
   onDrop = acceptedFiles => {
     this.props.fileHandler(acceptedFiles);
   };

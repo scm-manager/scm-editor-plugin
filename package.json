@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@scm-manager/ui-extensions": "latest",
-    "react-dropzone": "^10.1.8"
+    "classnames": "^2.2.6",
+    "react-dropzone": "^10.1.8",
+    "react-i18next": "^10.12.2",
+    "react-jss": "^8.6.1"
   },
   "devDependencies": {
     "@scm-manager/ui-bundler": "^0.0.31",

@@ -42,44 +42,36 @@ class FileUploadPath extends React.Component<Props> {
   render() {
     const { t, classes } = this.props;
     return (
-      <>
-        <div className={classNames("panel-heading", classes.topBorder)}>
-          <div className={classNames("field", "is-horizontal")}>
+      <div className={classNames("panel-heading", classes.topBorder)}>
+        <div className={classNames("field", "is-horizontal")}>
+          <div
+            className={classNames("field-label", "is-normal", classes.zeroflex)}
+          >
+            <label className={classNames("label", classes.labelSizing)}>
+              {t("scm-editor-plugin.upload.path")}
+            </label>
+          </div>
+          <div className="field-body">
             <div
               className={classNames(
-                "field-label",
-                "is-normal",
-                classes.zeroflex
+                "field",
+                "is-narrow",
+                classes.noBottomMargin
               )}
             >
-              <label className={classNames("label", classes.labelSizing)}>
-                {t("scm-editor-plugin.upload.path")}
-              </label>
-            </div>
-            <div className="field-body">
-              <div
-                className={classNames(
-                  "field",
-                  "is-narrow",
-                  classes.noBottomMargin
-                )}
-              >
-                <div
-                  className={classNames("control", classes.minWidthOfControl)}
-                >
-                  <InputField
-                    className="is-fullwidth"
-                    disabled={false}
-                    value={this.props.path}
-                    placeholder={t("scm-editor-plugin.upload.placeholder")}
-                    onChange={value => this.handleChange(value)}
-                  />
-                </div>
+              <div className={classNames("control", classes.minWidthOfControl)}>
+                <InputField
+                  className="is-fullwidth"
+                  disabled={false}
+                  value={this.props.path}
+                  placeholder={t("scm-editor-plugin.upload.placeholder")}
+                  onChange={value => this.handleChange(value)}
+                />
               </div>
             </div>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 }
