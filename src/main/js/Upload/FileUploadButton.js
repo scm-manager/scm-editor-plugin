@@ -21,6 +21,7 @@ type Props = {
   baseUrl: string,
   path?: string,
   branch?: Branch,
+  isBranchUrl: boolean,
   // context props
   classes: any,
   t: string => string
@@ -41,11 +42,11 @@ class FileUploadButton extends React.Component<Props> {
   };
 
   render() {
-    const {classes, t} = this.props;
+    const {classes, t, isBranchUrl} = this.props;
 
     return (
       <>
-        {
+        {isBranchUrl &&
           <Link to={this.createUploadUrl()}>
             <span
               title={t("scm-editor-plugin.upload.tooltip")}
