@@ -23,7 +23,6 @@ type Props = {
 };
 
 class FileDownloadButton extends React.Component<Props> {
-
   render() {
     const {file, classes, t} = this.props;
     return (

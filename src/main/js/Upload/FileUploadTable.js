@@ -5,7 +5,6 @@ import injectSheet from "react-jss";
 import classNames from "classnames";
 import {Subtitle} from "@scm-manager/ui-components";
 
-
 const styles = {
   nameColumn: {
     width: "60%"
@@ -29,8 +28,7 @@ type Props = {
 };
 
 class FileUploadTable extends React.Component<Props> {
-
-  removeEntry = (file) => {
+  removeEntry = file => {
     this.props.removeFileEntry(file);
   };
 
@@ -56,19 +54,28 @@ class FileUploadTable extends React.Component<Props> {
         <div className={classes.marginTop}>
           <Subtitle subtitle={t("scm-editor-plugin.upload.file.table.title")}/>
         </div>
-        <table className={classNames("card-table table is-hoverable is-fullwidth", classes.noBorderLeft)}>
+        <table
+          className={classNames(
+            "card-table table is-hoverable is-fullwidth",
+            classes.noBorderLeft
+          )}
+        >
           <thead>
           <tr>
-            <th className={classes.nameColumn}>{t("scm-editor-plugin.upload.file.name")}</th>
+            <th className={classes.nameColumn}>
+              {t("scm-editor-plugin.upload.file.name")}
+            </th>
             <th>{t("scm-editor-plugin.upload.file.type")}</th>
             <th>{t("scm-editor-plugin.upload.file.size")}</th>
           </tr>
           </thead>
           <tbody>
-          {files.map((file) => {
+          {files.map(file => {
             return (
               <tr>
-                <td className={classNames(classes.nameColumn)}>{file.name}</td>
+                <td className={classNames(classes.nameColumn)}>
+                  {file.name}
+                </td>
                 <td>{file.type}</td>
                 <td>{this.humanFileSize(file.size)}</td>
                 <td>

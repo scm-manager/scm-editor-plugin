@@ -37,16 +37,14 @@ type Props = {
   // context props
   t: string => string,
   classes: any
-}
-
+};
 
 class FileUploadDropzone extends React.Component<Props> {
-
   constructor(props: Props) {
     super(props);
   }
 
-  onDrop = (acceptedFiles) => {
+  onDrop = acceptedFiles => {
     this.props.fileHandler(acceptedFiles);
   };
 
@@ -62,8 +60,18 @@ class FileUploadDropzone extends React.Component<Props> {
                   <input {...getInputProps()} />
                   <div className={classes.dropzone}>
                     <div className={classes.innerBorder}>
-                      <div className={classNames(classes.description, "has-text-grey-light")}>
-                        <i className={classNames("fas fa-plus-circle fa-2x has-text-grey-lighter", classes.icon)}/>
+                      <div
+                        className={classNames(
+                          classes.description,
+                          "has-text-grey-light"
+                        )}
+                      >
+                        <i
+                          className={classNames(
+                            "fas fa-plus-circle fa-2x has-text-grey-lighter",
+                            classes.icon
+                          )}
+                        />
                         {t("scm-editor-plugin.upload.dragAndDrop")}
                       </div>
                     </div>

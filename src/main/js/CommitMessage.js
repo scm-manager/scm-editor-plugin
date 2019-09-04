@@ -20,23 +20,20 @@ type Props = {
 };
 
 class CommitMessage extends React.Component<Props> {
-
   render() {
     const {t, classes, me, onChange} = this.props;
     return (
       <>
         <div className={classes.marginBottom}>
           <span>
-          <strong>
-            {t("scm-editor-plugin.commit.author")}
-          </strong>
-          {"   "}
-          {me.displayName + "  <" + me.mail + ">"}
-        </span>
+            <strong>{t("scm-editor-plugin.commit.author")}</strong>
+            {"   "}
+            {me.displayName + "  <" + me.mail + ">"}
+          </span>
         </div>
         <Textarea
           placeholder={t("scm-editor-plugin.commit.placeholder")}
-          onChange={(message) => onChange(message)}
+          onChange={message => onChange(message)}
         />
       </>
     );

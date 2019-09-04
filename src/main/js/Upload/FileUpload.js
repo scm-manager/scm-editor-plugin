@@ -10,8 +10,7 @@ import CommitMessage from "../CommitMessage";
 import {compose} from "redux";
 import {connect} from "react-redux";
 import FileUploadTable from "./FileUploadTable";
-import queryString from 'query-string';
-
+import queryString from "query-string";
 
 type Props = {
   me?: Me,
@@ -33,7 +32,6 @@ type State = {
 };
 
 class FileUpload extends React.Component<Props, State> {
-
   constructor(props: Props) {
     super(props);
 
@@ -41,8 +39,12 @@ class FileUpload extends React.Component<Props, State> {
       files: [],
       path: this.props.match.params.path ? this.props.match.params.path : "",
       commitMessage: "",
-      branch: queryString.parse(this.props.location.search, {ignoreQueryPrefix: true}).branch,
-      revision: queryString.parse(this.props.location.search, {ignoreQueryPrefix: true}).revision
+      branch: queryString.parse(this.props.location.search, {
+        ignoreQueryPrefix: true
+      }).branch,
+      revision: queryString.parse(this.props.location.search, {
+        ignoreQueryPrefix: true
+      }).revision
     };
   }
 
@@ -50,21 +52,21 @@ class FileUpload extends React.Component<Props, State> {
     this.setState({error});
   };
 
-  handleFile = (files) => {
+  handleFile = files => {
     const fileArray = this.state.files ? this.state.files : [];
     files.forEach(file => fileArray.push(file));
     this.setState({files: fileArray});
   };
 
-  changePath = (path) => {
+  changePath = path => {
     this.setState({path});
   };
 
-  changeCommitMessage = (commitMessage) => {
+  changeCommitMessage = commitMessage => {
     this.setState({commitMessage});
   };
 
-  removeFileEntry = (entry) => {
+  removeFileEntry = entry => {
     const filteredFiles = this.state.files.filter(file => file !== entry);
     this.setState({files: filteredFiles});
   };
@@ -74,20 +76,28 @@ class FileUpload extends React.Component<Props, State> {
     const {files, commitMessage, path, branch} = this.state;
     const link = repository._links.fileUpload.href;
 
-    apiClient.postBinary(
-      link.replace("{path}", path) + (branch ? "?branch=" + branch : ""),
-      formdata => {
-        files.forEach((file, i) => formdata.append("file" + i, file));
-        formdata.append("message", commitMessage);
-      }
-    ).then(() => history.push(url + "/sources/" + branch.replace("/", "%2F") + "/"));
+    apiClient
+      .postBinary(
+        link.replace("{path}", path) + (branch ? "?branch=" + branch : ""),
+        formdata => {
+          files.forEach((file, i) => formdata.append("file" + i, file));
+          formdata.append("message", commitMessage);
+        }
+      )
+      .then(() =>
+        history.push(url + "/sources/" + branch.replace("/", "%2F") + "/")
+      );
   };
 
   render() {
     const {t, me, location} = this.props;
     const {files, path, commitMessage, branch, revision, error} = this.state;
     const sourcesLink =
-      location.pathname.split("upload")[0] + "sources/" + (branch ? branch : revision) + "/" + path;
+      location.pathname.split("upload")[0] +
+      "sources/" +
+      (branch ? branch : revision) +
+      "/" +
+      path;
 
     return (
       <>
@@ -95,16 +105,20 @@ class FileUpload extends React.Component<Props, State> {
         <FileUploadPath path={path} changePath={this.changePath}/>
         <FileUploadDropzone fileHandler={this.handleFile}/>
         <br/>
-        {
-          files && files.length > 0 &&
-          <FileUploadTable files={files} removeFileEntry={this.removeFileEntry}/>
-        }
+        {files &&
+        files.length > 0 && (
+          <FileUploadTable
+            files={files}
+            removeFileEntry={this.removeFileEntry}
+          />
+        )}
         <br/>
-        {
-          error &&
-          <ErrorNotification error={error}/>
-        }
-        <CommitMessage me={me} commitMessage={commitMessage} onChange={this.changeCommitMessage}/>
+        {error && <ErrorNotification error={error}/>}
+        <CommitMessage
+          me={me}
+          commitMessage={commitMessage}
+          onChange={this.changeCommitMessage}
+        />
         <br/>
         <div className={"level"}>
           <div className={"level-left"}/>
@@ -128,7 +142,7 @@ class FileUpload extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = state => {
   const {auth} = state;
   const me = auth.me;
 

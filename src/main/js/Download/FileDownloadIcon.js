@@ -2,11 +2,10 @@
 import React from "react";
 
 type Props = {
-  file: any,
+  file: any
 };
 
 class FileDownloadIcon extends React.Component<Props> {
-
   render() {
     const {file} = this.props;
     return (

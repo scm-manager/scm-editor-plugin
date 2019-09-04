@@ -28,14 +28,15 @@ type Props = {
 };
 
 class FileUploadButton extends React.Component<Props> {
-
   createUploadUrl = () => {
     const {baseUrl, path, branch} = this.props;
     let uploadUrl = baseUrl.replace("sources", "upload/") + (path ? path : "");
 
     if (branch) {
       uploadUrl += "?branch=" + branch.name;
-      uploadUrl += branch.name ? "&revision=" + branch.revision : "?revision=" + branch.revision;
+      uploadUrl += branch.name
+        ? "&revision=" + branch.revision
+        : "?revision=" + branch.revision;
     }
 
     return uploadUrl;
@@ -46,16 +47,16 @@ class FileUploadButton extends React.Component<Props> {
 
     return (
       <>
-        {isBranchUrl &&
+        {isBranchUrl && (
           <Link to={this.createUploadUrl()}>
             <span
               title={t("scm-editor-plugin.upload.tooltip")}
               className={classNames(classes.button, "button")}
             >
-                <i className="fas fa-upload"/>
+              <i className="fas fa-upload"/>
             </span>
           </Link>
-        }
+        )}
       </>
     );
   }
