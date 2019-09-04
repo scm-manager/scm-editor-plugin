@@ -2,7 +2,7 @@
 import React from "react";
 import {translate} from "react-i18next";
 import {Textarea} from "@scm-manager/ui-components";
-import {Me} from "@scm-manager/ui-types";
+import type {Me} from "@scm-manager/ui-types";
 import injectSheet from "react-jss";
 
 const styles = {
