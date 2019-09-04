@@ -139,9 +139,9 @@ class FileUpload extends React.Component<Props, State> {
           onChange={this.changeCommitMessage}
         />
         <br />
-        <div className={"level"}>
-          <div className={"level-left"} />
-          <div className={"level-right"}>
+        <div className="level">
+          <div className="level-left" />
+          <div className="level-right">
             <ButtonGroup>
               <Button
                 label={t("scm-editor-plugin.upload.button.abort")}
