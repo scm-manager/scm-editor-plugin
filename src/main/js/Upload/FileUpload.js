@@ -94,7 +94,15 @@ class FileUpload extends React.Component<Props, State> {
 
   render() {
     const {t, me, location} = this.props;
-    const {files, path, commitMessage, branch, revision, error, loading} = this.state;
+    const {
+      files,
+      path,
+      commitMessage,
+      branch,
+      revision,
+      error,
+      loading
+    } = this.state;
     const sourcesLink =
       location.pathname.split("upload")[0] +
       "sources/" +
