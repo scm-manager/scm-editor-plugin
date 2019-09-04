@@ -71,8 +71,8 @@ class FileUpload extends React.Component<Props, State> {
     this.setState({files: filteredFiles});
   };
 
-  commitFile = () => {
-    const {url, repository, history} = this.props;
+  commitFile = sourcesLink => {
+    const {repository, history} = this.props;
     const {files, commitMessage, path, branch} = this.state;
     const link = repository._links.fileUpload.href;
 
@@ -84,11 +84,8 @@ class FileUpload extends React.Component<Props, State> {
           formdata.append("message", commitMessage);
         }
       )
-      .then(() =>
-        history.push(url + "/sources/" + branch.replace("/", "%2F") + "/")
-      )
-      .catch(this.handleError)
-    ;
+      .then(() => history.push(sourcesLink))
+      .catch(this.handleError);
   };
 
   render() {
@@ -134,7 +131,7 @@ class FileUpload extends React.Component<Props, State> {
                 label={t("scm-editor-plugin.upload.button.commit")}
                 color={"primary"}
                 disabled={!commitMessage || files.length === 0}
-                action={() => this.commitFile()}
+                action={() => this.commitFile(sourcesLink)}
               />
             </ButtonGroup>
           </div>
