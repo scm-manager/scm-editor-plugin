@@ -2,7 +2,7 @@
 import React from "react";
 import { Route } from "react-router-dom";
 import FileUpload from "./Upload/FileUpload";
-import { Repository } from "@scm-manager/ui-types";
+import type { Repository } from "@scm-manager/ui-types";
 
 type Props = {
   url: any,

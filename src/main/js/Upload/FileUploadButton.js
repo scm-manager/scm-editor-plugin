@@ -1,6 +1,6 @@
 // @flow
 import React from "react";
-import { Branch } from "@scm-manager/ui-types";
+import type { Branch } from "@scm-manager/ui-types";
 import { translate } from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
