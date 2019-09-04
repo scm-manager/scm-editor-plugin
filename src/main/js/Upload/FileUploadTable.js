@@ -22,6 +22,7 @@ const styles = {
 type Props = {
   files: File[],
   removeFile: any => void,
+  loading: boolean,
   //context props
   t: string => string,
   classes: any
@@ -47,7 +48,7 @@ class FileUploadTable extends React.Component<Props> {
   }
 
   render() {
-    const {t, files, classes} = this.props;
+    const {t, files, classes, loading} = this.props;
 
     return (
       <>
@@ -79,7 +80,7 @@ class FileUploadTable extends React.Component<Props> {
                 <td>{file.type}</td>
                 <td>{this.humanFileSize(file.size)}</td>
                 <td>
-                  <a onClick={() => this.removeEntry(file)}>
+                  <a onClick={() => !loading && this.removeEntry(file)}>
                     <i className="fas fa-trash-alt"/>
                   </a>
                 </td>

@@ -28,7 +28,8 @@ type State = {
   files: File[],
   commitMessage: any,
   branch: string,
-  error: Error
+  error: Error,
+  loading: boolean
 };
 
 class FileUpload extends React.Component<Props, State> {
@@ -36,6 +37,7 @@ class FileUpload extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      loading: false,
       files: [],
       path: this.props.match.params.path ? this.props.match.params.path : "",
       commitMessage: "",
@@ -49,7 +51,7 @@ class FileUpload extends React.Component<Props, State> {
   }
 
   handleError = (error: Error) => {
-    this.setState({error});
+    this.setState({error, loading: false});
   };
 
   handleFile = files => {
@@ -76,6 +78,8 @@ class FileUpload extends React.Component<Props, State> {
     const {files, commitMessage, path, branch} = this.state;
     const link = repository._links.fileUpload.href;
 
+    this.setState({loading: true});
+
     apiClient
       .postBinary(
         link.replace("{path}", path) + (branch ? "?branch=" + branch : ""),
@@ -90,7 +94,7 @@ class FileUpload extends React.Component<Props, State> {
 
   render() {
     const {t, me, location} = this.props;
-    const {files, path, commitMessage, branch, revision, error} = this.state;
+    const {files, path, commitMessage, branch, revision, error, loading} = this.state;
     const sourcesLink =
       location.pathname.split("upload")[0] +
       "sources/" +
@@ -109,6 +113,7 @@ class FileUpload extends React.Component<Props, State> {
           <FileUploadTable
             files={files}
             removeFileEntry={this.removeFileEntry}
+            loading={loading}
           />
         )}
         <br/>
@@ -126,12 +131,14 @@ class FileUpload extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.upload.button.abort")}
                 link={sourcesLink}
+                disabled={loading}
               />
               <Button
                 label={t("scm-editor-plugin.upload.button.commit")}
                 color={"primary"}
                 disabled={!commitMessage || files.length === 0}
                 action={() => this.commitFile(sourcesLink)}
+                loading={loading}
               />
             </ButtonGroup>
           </div>
