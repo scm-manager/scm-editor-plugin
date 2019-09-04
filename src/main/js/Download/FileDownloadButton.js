@@ -1,9 +1,9 @@
 // @flow
 import React from "react";
-import {translate} from "react-i18next";
+import { translate } from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
-import type {File} from "@scm-manager/ui-types";
+import type { File } from "@scm-manager/ui-types";
 
 const styles = {
   button: {
@@ -16,15 +16,15 @@ const styles = {
 
 type Props = {
   file: File,
+
   // context props
   classes: any,
   t: string => string
 };
 
 class FileDownloadButton extends React.Component<Props> {
-
   render() {
-    const {file, classes, t} = this.props;
+    const { file, classes, t } = this.props;
     return (
       <a
         title={t("scm-editor-plugin.download.tooltip")}
@@ -32,9 +32,9 @@ class FileDownloadButton extends React.Component<Props> {
         href={file._links.self.href}
         download={file.name}
       >
-        <i className="fas fa-download"/>
+        <i className="fas fa-download" />
       </a>
-    )
+    );
   }
 }
 

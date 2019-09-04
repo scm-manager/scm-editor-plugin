@@ -10,6 +10,43 @@
     },
     "download": {
       "tooltip": "Download"
+    },
+    "upload": {
+      "tooltip": "Upload",
+      "title": "Upload file",
+      "path": "Path",
+      "placeholder": "Insert path here",
+      "dragAndDrop": "Drag and drop your files here or click here to select your files",
+      "button": {
+        "abort": "Cancel",
+        "commit": "Commit"
+      },
+      "file": {
+        "name": "Filename",
+        "type": "Type",
+        "size": "Size",
+        "table": {
+          "title": "Selected files"
+        }
+      }
+    },
+    "commit": {
+      "author": "Author",
+      "placeholder": "Please insert your commit message"
+    }
+  },
+  "errors": {
+    "4uRaXHBhs1": {
+      "displayName": "Upload failed",
+      "description": "A file could not be uploaded correctly."
+    },
+    "AnRacIBuV1": {
+      "displayName": "Commit Message missing",
+      "description": "The commit message has to be specified as a form part with name 'message'."
+    },
+    "CIRacPIOH1": {
+      "displayName": "Filename missing",
+      "description": "A form part is missing the Content-Disposition header or it has no value for 'filename'."
     }
   }
 }
