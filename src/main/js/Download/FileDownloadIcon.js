@@ -12,10 +12,10 @@ class FileDownloadIcon extends React.Component<Props> {
     return (
       <>
         <a href={file._links.self.href} download={file.name}>
-          <i className={`fas has-text-link fa-download`}/>
+          <i className={"fas has-text-link fa-download"}/>
         </a>
       </>
-    )
+    );
   }
 }
 

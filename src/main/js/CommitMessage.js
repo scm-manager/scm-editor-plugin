@@ -39,7 +39,7 @@ class CommitMessage extends React.Component<Props> {
           onChange={(message) => onChange(message)}
         />
       </>
-    )
+    );
   }
 }
 

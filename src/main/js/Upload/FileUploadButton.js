@@ -57,7 +57,7 @@ class FileUploadButton extends React.Component<Props> {
           </Link>
         }
       </>
-    )
+    );
   }
 }
 

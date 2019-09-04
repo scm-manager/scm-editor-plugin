@@ -35,7 +35,7 @@ class FileDownloadButton extends React.Component<Props> {
       >
         <i className="fas fa-download"/>
       </a>
-    )
+    );
   }
 }
 

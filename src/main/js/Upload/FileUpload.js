@@ -1,7 +1,7 @@
 // @flow
 import React from "react";
 import {translate} from "react-i18next";
-import {apiClient, Subtitle, ButtonGroup, Button, ErrorNotification} from "@scm-manager/ui-components";
+import {apiClient, Button, ButtonGroup, ErrorNotification, Subtitle} from "@scm-manager/ui-components";
 import {File, Me, Repository} from "@scm-manager/ui-types";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FileUploadPath from "./FileUploadPath";
@@ -66,7 +66,7 @@ class FileUpload extends React.Component<Props, State> {
 
   removeFileEntry = (entry) => {
     const filteredFiles = this.state.files.filter(file => file !== entry);
-    this.setState({files: filteredFiles})
+    this.setState({files: filteredFiles});
   };
 
   commitFile = () => {
@@ -124,7 +124,7 @@ class FileUpload extends React.Component<Props, State> {
           </div>
         </div>
       </>
-    )
+    );
   }
 }
 
