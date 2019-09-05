@@ -1,11 +1,13 @@
 {
   "scm-editor-plugin": {
+    "button": {
+      "cancel": "Cancel",
+      "commit": "Commit"
+    },
     "delete": {
       "tooltip": "Delete",
       "modal": {
-        "title": "Delete file",
-        "confirm": "Confirm",
-        "abort": "Abort"
+        "title": "Delete file"
       }
     },
     "download": {
@@ -17,10 +19,6 @@
       "path": "Path",
       "placeholder": "Insert path here",
       "dragAndDrop": "Drag and drop your files here or click here to select your files",
-      "button": {
-        "abort": "Cancel",
-        "commit": "Commit"
-      },
       "file": {
         "name": "Filename",
         "type": "Type",

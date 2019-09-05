@@ -1,9 +1,9 @@
 //@flow
 import React from "react";
-import { compose } from "redux";
-import { connect } from "react-redux";
-import { translate } from "react-i18next";
-import { Button, ButtonGroup, Modal } from "@scm-manager/ui-components";
+import {compose} from "redux";
+import {connect} from "react-redux";
+import {translate} from "react-i18next";
+import {Button, ButtonGroup, Modal} from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
 import type {File, Me} from "@scm-manager/ui-types";
 
@@ -50,13 +50,13 @@ class FileRemoveModal extends React.Component<Props, State> {
       <ButtonGroup>
         <Button
           className="is-marginless"
-          label={t("scm-editor-plugin.delete.modal.abort")}
+          label={t("scm-editor-plugin.button.cancel")}
           action={onClose}
           disabled={loading}
         />
         <Button
           className="is-marginless"
-          label={t("scm-editor-plugin.delete.modal.confirm")}
+          label={t("scm-editor-plugin.button.commit")}
           color="primary"
           disabled={!commitMessage}
           loading={loading}

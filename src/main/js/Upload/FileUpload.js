@@ -139,12 +139,12 @@ class FileUpload extends React.Component<Props, State> {
           <div className="level-right">
             <ButtonGroup>
               <Button
-                label={t("scm-editor-plugin.upload.button.abort")}
+                label={t("scm-editor-plugin.button.cancel")}
                 link={sourcesLink}
                 disabled={loading}
               />
               <Button
-                label={t("scm-editor-plugin.upload.button.commit")}
+                label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
                 disabled={!commitMessage || files.length === 0}
                 action={() => this.commitFile(sourcesLink)}
