@@ -25,6 +25,7 @@ const styles = {
 type Props = {
   file: File,
   revision: string,
+  handleExtensionError: (error: Error) => void,
 
   // context props
   classes: any,
@@ -35,7 +36,8 @@ type Props = {
 
 type State = {
   showModal: boolean,
-  loading: boolean
+  loading: boolean,
+  error: Error
 };
 
 class FileDeleteButton extends React.Component<Props, State> {
@@ -55,21 +57,24 @@ class FileDeleteButton extends React.Component<Props, State> {
   };
 
   deleteFile = (commitMessage: string) => {
-    const { file, revision, history, location } = this.props;
+    const { file, revision, history, location, handleExtensionError } = this.props;
     this.setState({loading: true});
     apiClient
       .post(this.props.file._links.delete.href, {
         commitMessage: commitMessage,
-        branch: revision
+        branch: revision,
+        expectedRevision: file.revision
       })
       .then(() => {
         history.push(location.pathname.substr(0, location.pathname.length - file.name.length - 1));
       })
-      .catch(this.handleError);
+      .catch(error => {
+        this.toggleModal();
+        handleExtensionError(error);
+      });
   };
 
   shouldRender = () => {
-    console.log("LINK:",this.props.file._links.delete);
     return !!this.props.file._links.delete;
   };
 
@@ -92,7 +97,8 @@ class FileDeleteButton extends React.Component<Props, State> {
           >
             <i className="fas fa-trash"/>
           </a>
-        )} </>);
+        )}
+      </>);
   }
 }
 
