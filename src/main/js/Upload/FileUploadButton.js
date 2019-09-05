@@ -1,0 +1,60 @@
+// @flow
+import React from "react";
+import type {Branch} from "@scm-manager/ui-types";
+import {translate} from "react-i18next";
+import injectSheet from "react-jss";
+import classNames from "classnames";
+import {Link} from "react-router-dom";
+
+const styles = {
+  button: {
+    width: "50px"
+  }
+};
+
+type Props = {
+  baseUrl: string,
+  path?: string,
+  branch?: Branch,
+  isBranchUrl: boolean,
+  // context props
+  classes: any,
+  t: string => string
+};
+
+class FileUploadButton extends React.Component<Props> {
+  createUploadUrl = () => {
+    const { baseUrl, path, branch } = this.props;
+    let uploadUrl = baseUrl.replace("sources", "upload/") + (path ? path : "");
+
+    if (branch) {
+      uploadUrl += "?branch=" + encodeURIComponent(branch.name);
+      uploadUrl += branch.name
+        ? "&revision=" + branch.revision
+        : "?revision=" + branch.revision;
+    }
+
+    return uploadUrl;
+  };
+
+  render() {
+    const { classes, t, isBranchUrl } = this.props;
+
+    return (
+      <>
+        {isBranchUrl && (
+          <Link to={this.createUploadUrl()}>
+            <span
+              title={t("scm-editor-plugin.upload.tooltip")}
+              className={classNames(classes.button, "button has-text-link")}
+            >
+              <i className="fas fa-upload" />
+            </span>
+          </Link>
+        )}
+      </>
+    );
+  }
+}
+
+export default injectSheet(styles)(translate("plugins")(FileUploadButton));
