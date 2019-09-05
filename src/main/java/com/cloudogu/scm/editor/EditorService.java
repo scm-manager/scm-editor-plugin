@@ -30,6 +30,14 @@ public class EditorService {
     }
   }
 
+  String delete(String namespace, String name, String branch, String path, String commitMessage, String revision) {
+    try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
+      return initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService)
+        .deleteFile(path)
+        .execute();
+    }
+  }
+
   private ModifyCommandBuilder initializeModifyCommandBuilder(String branch, String commitMessage, String revision, RepositoryService repositoryService) {
     checkWritePermission(repositoryService);
     ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
@@ -46,14 +54,6 @@ public class EditorService {
   @VisibleForTesting
   void checkWritePermission(RepositoryService repositoryService) {
     RepositoryPermissions.modify(repositoryService.getRepository()).check();
-  }
-
-  public String delete(String namespace, String name, String branch, String path, String commitMessage, String revision) {
-    try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
-      return initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService)
-        .deleteFile(path)
-        .execute();
-    }
   }
 
   public static class FileUploader {
