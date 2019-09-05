@@ -1,6 +1,6 @@
 // @flow
 import React from "react";
-import type {Branch} from "@scm-manager/ui-types";
+import type {Branch, Repository} from "@scm-manager/ui-types";
 import {translate} from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
@@ -13,6 +13,7 @@ const styles = {
 };
 
 type Props = {
+  repository: Repository,
   baseUrl: string,
   path?: string,
   branch?: Branch,
@@ -38,11 +39,11 @@ class FileUploadButton extends React.Component<Props> {
   };
 
   render() {
-    const { classes, t, isBranchUrl } = this.props;
+    const {classes, t, isBranchUrl, repository} = this.props;
 
     return (
       <>
-        {isBranchUrl && (
+        {isBranchUrl && repository._links.fileUpload && (
           <Link to={this.createUploadUrl()}>
             <span
               title={t("scm-editor-plugin.upload.tooltip")}
