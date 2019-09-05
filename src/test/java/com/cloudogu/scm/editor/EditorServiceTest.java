@@ -18,6 +18,7 @@ import java.io.InputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,7 +46,7 @@ class EditorServiceTest {
     when(serviceFactory.create(new NamespaceAndName("space", "name")))
       .thenReturn(repositoryService);
     when(repositoryService.getModifyCommand()).thenReturn(commandBuilder);
-    when(commandBuilder.createFile(anyString())).thenReturn(contentLoader);
+    lenient().when(commandBuilder.createFile(anyString())).thenReturn(contentLoader);
     when(commandBuilder.execute()).thenReturn(NEW_COMMIT);
   }
 
@@ -60,7 +61,7 @@ class EditorServiceTest {
   }
 
   @Test
-  void shouldBuildCorrectModificationCommand() throws IOException {
+  void shouldBuildCorrectModificationCommandForCreate() throws IOException {
     String newCommit = editorService
       .prepare("space", "name", "master", SOME_PATH, "new commit", "expected")
       .upload(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
@@ -77,7 +78,20 @@ class EditorServiceTest {
   }
 
   @Test
-  void shouldNotStartPathOfFileWithSlash() throws IOException {
+  void shouldBuildCorrectModificationCommandForDelete() {
+    String newCommit = editorService
+      .delete("space", "name", "master", SOME_PATH, "new commit", "expected");
+
+    verify(commandBuilder).deleteFile(SOME_PATH);
+    verify(commandBuilder).setCommitMessage("new commit");
+    verify(commandBuilder).setBranch("master");
+    verify(commandBuilder).setExpectedRevision("expected");
+    verify(commandBuilder).execute();
+    assertThat(newCommit).isEqualTo(NEW_COMMIT);
+  }
+
+  @Test
+  void shouldNotStartPathOfFileWithSlash() {
     String newCommit = editorService
       .prepare("space", "name", "master", "", "new commit", "")
       .upload(NEW_FILE, new ByteArrayInputStream("content".getBytes()))

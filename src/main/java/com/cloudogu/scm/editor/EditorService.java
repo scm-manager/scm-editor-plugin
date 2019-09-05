@@ -9,6 +9,8 @@ import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -23,17 +25,30 @@ public class EditorService {
 
   FileUploader prepare(String namespace, String name, String branch, String path, String commitMessage, String revision) {
     try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
-      checkWritePermission(repositoryService);
-      ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
-      if (!StringUtils.isEmpty(branch)) {
-        modifyCommand.setBranch(branch);
-      }
-      if (!StringUtils.isEmpty(revision)) {
-        modifyCommand.setExpectedRevision(revision);
-      }
-      modifyCommand.setCommitMessage(commitMessage);
+      ModifyCommandBuilder modifyCommand = initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService);
       return new FileUploader(modifyCommand, path);
     }
+  }
+
+  String delete(String namespace, String name, String branch, String path, String commitMessage, String revision) {
+    try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
+      return initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService)
+        .deleteFile(path)
+        .execute();
+    }
+  }
+
+  private ModifyCommandBuilder initializeModifyCommandBuilder(String branch, String commitMessage, String revision, RepositoryService repositoryService) {
+    checkWritePermission(repositoryService);
+    ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
+    if (!StringUtils.isEmpty(branch)) {
+      modifyCommand.setBranch(branch);
+    }
+    if (!StringUtils.isEmpty(revision)) {
+      modifyCommand.setExpectedRevision(revision);
+    }
+    modifyCommand.setCommitMessage(commitMessage);
+    return modifyCommand;
   }
 
   @VisibleForTesting
