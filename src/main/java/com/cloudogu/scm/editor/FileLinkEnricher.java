@@ -40,6 +40,9 @@ public class FileLinkEnricher implements HalEnricher {
     String requestedRevision = context.oneRequireByType(BrowserResult.class).getRequestedRevision();
     NamespaceAndName namespaceAndName = context.oneRequireByType(NamespaceAndName.class);
     try (RepositoryService service = serviceFactory.create(namespaceAndName)) {
+      if (!service.isSupported(Command.MODIFY)) {
+        return;
+      }
       if (service.isSupported(Command.BRANCHES)) {
         try {
           boolean isRequestWithBranch = service

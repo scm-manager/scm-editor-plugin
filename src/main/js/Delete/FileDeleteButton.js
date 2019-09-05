@@ -1,10 +1,13 @@
 // @flow
 import React from "react";
+import {compose} from "redux";
 import { translate } from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
 import type { File } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
+import {apiClient} from "@scm-manager/ui-components";
+import {withRouter} from "react-router-dom";
 
 const styles = {
   button: {
@@ -21,14 +24,18 @@ const styles = {
 
 type Props = {
   file: File,
+  revision: string,
 
   // context props
   classes: any,
+  location: any,
+  history: any,
   t: string => string
 };
 
 type State = {
-  showModal: boolean
+  showModal: boolean,
+  loading: boolean
 };
 
 class FileDeleteButton extends React.Component<Props, State> {
@@ -36,7 +43,8 @@ class FileDeleteButton extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      showModal: false
+      showModal: false,
+      loading: false
     };
   }
 
@@ -46,27 +54,46 @@ class FileDeleteButton extends React.Component<Props, State> {
     }));
   };
 
+  deleteFile = (commitMessage: string) => {
+    const { file, revision, history, location } = this.props;
+    this.setState({loading: true});
+    apiClient
+      .post(this.props.file._links.delete.href, {
+        commitMessage: commitMessage,
+        branch: revision
+      })
+      .then(() => {
+        history.push(location.pathname.substr(0, location.pathname.length - file.name.length - 1));
+      })
+      .catch(this.handleError);
+  };
+
+  shouldRender = () => {
+    console.log("LINK:",this.props.file._links.delete);
+    return !!this.props.file._links.delete;
+  };
+
   render() {
-    const { classes, t } = this.props;
-    const { showModal } = this.state;
+    const { file, classes, t } = this.props;
+    const { showModal, loading } = this.state;
 
     const modal = showModal ? (
-      <FileDeleteModal onClose={this.toggleModal} />
+      <FileDeleteModal onClose={this.toggleModal} onCommit={this.deleteFile} file={file} loading={loading} />
     ) : null;
 
     return (
       <>
         <div className={classes.pointer}>{modal}</div>
-        <a
-          title={t("scm-editor-plugin.delete.tooltip")}
-          className={classNames(classes.button, "button")}
-          onClick={this.toggleModal}
-        >
-          <i className="fas fa-trash" />
-        </a>
-      </>
-    );
+        {this.shouldRender() && (
+          <a
+            title={t("scm-editor-plugin.delete.tooltip")}
+            className={classNames(classes.button, "button")}
+            onClick={this.toggleModal}
+          >
+            <i className="fas fa-trash"/>
+          </a>
+        )} </>);
   }
 }
 
-export default injectSheet(styles)(translate("plugins")(FileDeleteButton));
+export default compose(injectSheet(styles), translate("plugins"), withRouter)(FileDeleteButton);

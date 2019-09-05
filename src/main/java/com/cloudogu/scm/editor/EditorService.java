@@ -48,7 +48,7 @@ public class EditorService {
     RepositoryPermissions.modify(repositoryService.getRepository()).check();
   }
 
-  public String delete(String namespace, String name, String branch, String path, @NotNull @Size(min = 1) String commitMessage, String revision) {
+  public String delete(String namespace, String name, String branch, String path, String commitMessage, String revision) {
     try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
       return initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService)
         .deleteFile(path)

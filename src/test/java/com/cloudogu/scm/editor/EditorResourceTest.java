@@ -105,8 +105,9 @@ class EditorResourceTest {
 
     MockHttpRequest request =
       MockHttpRequest
-        .delete("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path/file?branch=master&revision=expected")
-        .content("new commit".getBytes());
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path/file?branch=master&revision=expected")
+        .contentType("application/json")
+        .content("{'commitMessage':'new commit', 'branch':'master', 'expectedRevision':'expected'}".replaceAll("'", "\"").getBytes());
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
