@@ -1,9 +1,9 @@
 // @flow
 import React from "react";
-import { translate } from "react-i18next";
+import {translate} from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
-import { InputField } from "@scm-manager/ui-components";
+import {InputField} from "@scm-manager/ui-components";
 
 const styles = {
   zeroflex: {
@@ -11,7 +11,7 @@ const styles = {
     flexGrow: 0
   },
   minWidthOfControl: {
-    minWidth: "10rem"
+    minWidth: "30rem"
   },
   labelSizing: {
     fontSize: "1rem !important"
