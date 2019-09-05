@@ -62,8 +62,7 @@ class FileDeleteButton extends React.Component<Props, State> {
     apiClient
       .post(this.props.file._links.delete.href, {
         commitMessage: commitMessage,
-        branch: revision,
-        expectedRevision: file.revision
+        branch: revision
       })
       .then(() => {
         history.push(location.pathname.substr(0, location.pathname.length - file.name.length - 1));
