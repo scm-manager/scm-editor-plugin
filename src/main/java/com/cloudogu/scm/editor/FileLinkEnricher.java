@@ -1,5 +1,6 @@
 package com.cloudogu.scm.editor;
 
+import com.google.common.annotations.VisibleForTesting;
 import sonia.scm.api.v2.resources.Enrich;
 import sonia.scm.api.v2.resources.HalAppender;
 import sonia.scm.api.v2.resources.HalEnricher;
@@ -40,30 +41,53 @@ public class FileLinkEnricher implements HalEnricher {
     String requestedRevision = context.oneRequireByType(BrowserResult.class).getRequestedRevision();
     NamespaceAndName namespaceAndName = context.oneRequireByType(NamespaceAndName.class);
     try (RepositoryService service = serviceFactory.create(namespaceAndName)) {
-      if (!service.isSupported(Command.MODIFY)) {
+      if (!service.isSupported(Command.MODIFY) || !service.isSupported(Command.BRANCHES)) {
         return;
       }
-      if (service.isSupported(Command.BRANCHES)) {
-        try {
-          boolean isRequestWithBranch = service
-            .getBranchesCommand()
-            .getBranches()
-            .getBranches()
-            .stream()
-            .anyMatch(b -> b.getName().equals(requestedRevision));
-          if (isRequestWithBranch) {
-            if (fileObject.isDirectory()) {
-              LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
-              appender.appendLink("fileUpload", linkBuilder.method("create").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href() + "?branch=" + requestedRevision);
-            } else {
-              LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
-              appender.appendLink("delete", linkBuilder.method("delete").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href() + "?branch=" + requestedRevision);
-            }
-          }
-        } catch (IOException e) {
-          throw new InternalRepositoryException(entity(service.getRepository()), "could not check branches", e);
+      try {
+        if (isRequestWithBranch(requestedRevision, service)) {
+          appendLinks(appender, fileObject, requestedRevision, namespaceAndName);
         }
+      } catch (IOException e) {
+        throw new InternalRepositoryException(entity(service.getRepository()), "could not check branches", e);
       }
     }
+  }
+
+  private void appendLinks(HalAppender appender, FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName) {
+    if (fileObject.isDirectory()) {
+      appendDirectoryLinks(appender, fileObject, requestedRevision, namespaceAndName);
+    } else {
+      appendFileLinks(appender, fileObject, requestedRevision, namespaceAndName);
+    }
+  }
+
+  private void appendDirectoryLinks(HalAppender appender, FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName) {
+    LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
+    appender.appendLink("fileUpload", createUploadLink(fileObject, requestedRevision, namespaceAndName, linkBuilder));
+  }
+
+  private void appendFileLinks(HalAppender appender, FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName) {
+    LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
+    appender.appendLink("delete", createDeleteLink(fileObject, requestedRevision, namespaceAndName, linkBuilder));
+  }
+
+  private boolean isRequestWithBranch(String requestedRevision, RepositoryService service) throws IOException {
+    return service
+      .getBranchesCommand()
+      .getBranches()
+      .getBranches()
+      .stream()
+      .anyMatch(b -> b.getName().equals(requestedRevision));
+  }
+
+  @VisibleForTesting
+  String createUploadLink(FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+    return linkBuilder.method("create").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href() + "?branch=" + requestedRevision;
+  }
+
+  @VisibleForTesting
+  String createDeleteLink(FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+    return linkBuilder.method("delete").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href() + "?branch=" + requestedRevision;
   }
 }
