@@ -1,7 +1,7 @@
 // @flow
 import React from "react";
 import Dropzone from "react-dropzone";
-import { translate } from "react-i18next";
+import {translate} from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
 
@@ -36,6 +36,7 @@ const styles = {
 
 type Props = {
   fileHandler: any,
+  disabled: boolean,
   // context props
   t: string => string,
   classes: any
@@ -47,7 +48,7 @@ class FileUploadDropzone extends React.Component<Props> {
   };
 
   render() {
-    const { t, classes } = this.props;
+    const {t, classes, disabled} = this.props;
     return (
       <>
         <Dropzone onDrop={acceptedFiles => this.onDrop(acceptedFiles)}>
@@ -55,7 +56,7 @@ class FileUploadDropzone extends React.Component<Props> {
             return (
               <section>
                 <div {...getRootProps()}>
-                  <input {...getInputProps()} />
+                  <input {...getInputProps()} disabled={disabled}/>
                   <div className={classes.dropzone}>
                     <div className={classes.innerBorder}>
                       <div
