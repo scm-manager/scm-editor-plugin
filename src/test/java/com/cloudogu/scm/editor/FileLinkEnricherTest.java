@@ -63,13 +63,18 @@ class FileLinkEnricherTest {
   void initBasicMocks() {
     enricher = new FileLinkEnricher(scmPathInfoStoreProvider, serviceFactory) {
       @Override
-      String createUploadLink(FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+      String createUploadLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
         return "http://upload";
       }
 
       @Override
-      String createDeleteLink(FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+      String createDeleteLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
         return "http://delete";
+      }
+
+      @Override
+      String createModifyLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+        return "http://modify";
       }
     };
     when(browserResult.getRequestedRevision()).thenReturn("master");
@@ -130,6 +135,7 @@ class FileLinkEnricherTest {
       enricher.enrich(context, appender);
 
       verify(appender).appendLink("delete", "http://delete");
+      verify(appender).appendLink("modify", "http://modify");
     }
   }
 }
