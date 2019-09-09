@@ -4,6 +4,14 @@
       "cancel": "Cancel",
       "commit": "Commit"
     },
+    "path": {
+      "path": "Path:",
+      "placeholder": {
+        "path": "Insert path here",
+        "filename": "Insert filename here"
+      },
+      "filename": "Filename:"
+    },
     "delete": {
       "tooltip": "Delete",
       "modal": {
@@ -14,13 +22,12 @@
       "tooltip": "Download"
     },
     "edit": {
-      "tooltip": "Edit"
+      "tooltip": "Edit",
+      "subtitle": "File Editor"
     },
     "upload": {
       "tooltip": "Upload",
       "title": "Upload file",
-      "path": "Path",
-      "placeholder": "Insert path here",
       "dragAndDrop": "Drag and drop your files here or click here to select your files",
       "file": {
         "name": "Filename",
