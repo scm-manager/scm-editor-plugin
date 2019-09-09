@@ -63,14 +63,14 @@ class EditorResourceTest {
 
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path");
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create/some/path");
     CommitDto commit = new CommitDto("new commit", "master", "expected");
     multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
     assertThat(response.getContentAsString()).isEqualTo("new commit ref");
-    verify(fileUploader).upload(eq("newFile"), eqStreamContent("content"));
+    verify(fileUploader).create(eq("newFile"), eqStreamContent("content"));
   }
 
   @Test
@@ -81,21 +81,21 @@ class EditorResourceTest {
 
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/");
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create");
     CommitDto commit = new CommitDto("new commit", "master", null);
     multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
     assertThat(response.getContentAsString()).isEqualTo("new commit ref");
-    verify(fileUploader).upload(eq("newFile"), eqStreamContent("content"));
+    verify(fileUploader).create(eq("newFile"), eqStreamContent("content"));
   }
 
   @Test
   void shouldFailCreateWithMissingCommitMessage() throws IOException, URISyntaxException {
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path");
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create/some/path");
     CommitDto commit = new CommitDto(null, "master", null);
     multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
@@ -105,13 +105,49 @@ class EditorResourceTest {
   }
 
   @Test
+  void shouldProcessModifyWithCompleteRequest() throws IOException, URISyntaxException {
+    when(service.prepare("space", "name", "master", "some/path", "new commit", "expected"))
+      .thenReturn(fileUploader);
+    when(fileUploader.done()).thenReturn("new commit ref");
+
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/modify/some/path");
+    CommitDto commit = new CommitDto("new commit", "master", "expected");
+    multipartRequest(request, Collections.singletonMap("changedFile", new ByteArrayInputStream("content".getBytes())), commit);
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
+    verify(fileUploader).modify(eq("changedFile"), eqStreamContent("content"));
+  }
+
+  @Test
+  void shouldProcessModifyWithEmptyPath() throws IOException, URISyntaxException {
+    when(service.prepare("space", "name", "master", "", "new commit", null))
+      .thenReturn(fileUploader);
+    when(fileUploader.done()).thenReturn("new commit ref");
+
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/modify");
+    CommitDto commit = new CommitDto("new commit", "master", null);
+    multipartRequest(request, Collections.singletonMap("changedFile", new ByteArrayInputStream("content".getBytes())), commit);
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
+    verify(fileUploader).modify(eq("changedFile"), eqStreamContent("content"));
+  }
+
+  @Test
   void shouldProcessDeleteRequest() throws IOException, URISyntaxException {
     when(service.delete("space", "name", "master", "some/path/file", "new commit", "expected"))
       .thenReturn("new commit ref");
 
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path/file?branch=master&revision=expected")
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/delete/some/path/file?branch=master&revision=expected")
         .contentType("application/json")
         .content("{'commitMessage':'new commit', 'branch':'master', 'expectedRevision':'expected'}".replaceAll("'", "\"").getBytes());
     dispatcher.invoke(request, response);
