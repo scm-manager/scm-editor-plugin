@@ -13,6 +13,9 @@
     "download": {
       "tooltip": "Download"
     },
+    "edit": {
+      "tooltip": "Bearbeiten"
+    },
     "upload": {
       "tooltip": "Upload",
       "title": "Datei hochladen",
