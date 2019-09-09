@@ -1,5 +1,7 @@
 package com.cloudogu.scm.editor;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.mock.MockDispatcherFactory;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Collections;
@@ -60,8 +63,9 @@ class EditorResourceTest {
 
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path?branch=master&revision=expected");
-    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), "new commit");
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path");
+    CommitDto commit = new CommitDto("new commit", "master", "expected");
+    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
@@ -77,8 +81,9 @@ class EditorResourceTest {
 
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/?branch=master");
-    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), "new commit");
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/");
+    CommitDto commit = new CommitDto("new commit", "master", null);
+    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
@@ -90,8 +95,9 @@ class EditorResourceTest {
   void shouldFailCreateWithMissingCommitMessage() throws IOException, URISyntaxException {
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path?branch=master");
-    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), null);
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path");
+    CommitDto commit = new CommitDto(null, "master", null);
+    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(400);
@@ -130,7 +136,7 @@ class EditorResourceTest {
   /**
    * This method is a slightly adapted copy of Lin Zaho's gist at https://gist.github.com/lin-zhao/9985191
    */
-  private MockHttpRequest multipartRequest(MockHttpRequest request, Map<String, InputStream> files, String message) throws IOException {
+  private MockHttpRequest multipartRequest(MockHttpRequest request, Map<String, InputStream> files, CommitDto commit) throws IOException {
     String boundary = UUID.randomUUID().toString();
     request.contentType("multipart/form-data; boundary=" + boundary);
 
@@ -155,10 +161,12 @@ class EditorResourceTest {
         formWriter.append("\n").append("--").append(boundary);
       }
 
-      if (message != null) {
+      if (commit != null) {
         formWriter.append("\n");
-        formWriter.append("Content-Disposition: form-data; name=\"message\"").append("\n\n");
-        formWriter.append(message).append("\n");
+        formWriter.append("Content-Disposition: form-data; name=\"commit\"").append("\n\n");
+        StringWriter commitWriter = new StringWriter();
+        new JsonFactory().createGenerator(commitWriter).setCodec(new ObjectMapper()).writeObject(commit);
+        formWriter.append(commitWriter.getBuffer().toString()).append("\n");
         formWriter.append("--").append(boundary);
       }
 

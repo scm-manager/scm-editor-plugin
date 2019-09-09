@@ -84,10 +84,10 @@ class FileUpload extends React.Component<Props, State> {
 
     apiClient
       .postBinary(
-        link.replace("{path}", path) + (branch ? "?branch=" + branch : ""),
+        link.replace("{path}", path),
         formdata => {
           files.forEach((file, i) => formdata.append("file" + i, file));
-          formdata.append("message", commitMessage);
+          formdata.append("commit", JSON.stringify({commitMessage, branch}));
         }
       )
       .then(() => history.push(sourcesLink))

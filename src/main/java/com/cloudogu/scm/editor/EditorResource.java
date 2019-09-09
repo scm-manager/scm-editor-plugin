@@ -1,5 +1,9 @@
 package com.cloudogu.scm.editor;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import sonia.scm.BadRequestException;
@@ -11,7 +15,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -35,9 +38,9 @@ public class EditorResource {
   }
 
   /**
-   * This equals {@link EditorResource#create(String, String, String, MultipartFormDataInput, String, String)} with the
+   * This equals {@link EditorResource#create(String, String, String, MultipartFormDataInput)} with the
    * difference, that files will be added to the root directory of the repository.
-   * @see #create(String, String, String, MultipartFormDataInput, String, String)
+   * @see #create(String, String, String, MultipartFormDataInput)
    */
   @POST
   @Path("{namespace}/{name}")
@@ -45,11 +48,9 @@ public class EditorResource {
   public Response createInRoot(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
-    MultipartFormDataInput input,
-    @QueryParam("branch") String branch,
-    @QueryParam("revision") String revision
+    MultipartFormDataInput input
   ) throws IOException {
-    return create(namespace, name, "", input, branch, revision);
+    return create(namespace, name, "", input);
   }
 
   /**
@@ -73,13 +74,17 @@ public class EditorResource {
    * @param name      The name of the repository.
    * @param path      The destination directory for the new file.
    * @param input     The form data. These will have to have parts with names starting with 'name' for the files to
-   *                  upload and part with name 'message' for the commit message.
-   * @param branch    The branch the change should be made upon (optional). If this is omitted, the default branch will
-   *                  be used.
-   * @param revision  The expected revision the change should be made upon (optional). If this is set, the changes
-   *                  will only be applied if the revision of the branch (either the specified or the default branch)
-   *                  equals the given revision. If this is not the case, a conflict (status code 409) will be
-   *                  returned.
+   *                  upload and part with name 'commit' for the commit object.
+   *                  This object encapsulates necessary specifications for the new commit:
+   *                  <ul>
+   *                    <li>The commit message for the new commit (this is required).</li>
+   *                    <li>The branch the change should be made upon (optional). If this is omitted, the default
+   *                      branch will be used.</li>
+   *                    <li>The expected revision the change should be made upon (optional). If this is set, the changes
+   *                      will only be applied if the revision of the branch (either the specified or the default branch)
+   *                      equals the given revision. If this is not the case, a conflict (status code 409) will be
+   *                      returned.</li>
+   *                  </ul>
    * @throws IOException Whenever there were exceptions handling the uploaded files.
    */
   @POST
@@ -89,13 +94,12 @@ public class EditorResource {
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
     @Nullable @PathParam("path") String path,
-    MultipartFormDataInput input,
-    @QueryParam("branch") String branch,
-    @QueryParam("revision") String revision
+    MultipartFormDataInput input
   ) throws IOException {
     Map<String, List<InputPart>> formParts = input.getFormDataMap();
-    String commitMessage = extractMessage(formParts.get("message"));
-    EditorService.FileUploader fileUploader = editorService.prepare(namespace, name, branch, path, commitMessage, revision);
+    CommitDto commit = extractCommit(formParts.get("commit"));
+    EditorService.FileUploader fileUploader =
+      editorService.prepare(namespace, name, commit.getBranch(), path, commit.getCommitMessage(), commit.getExpectedRevision());
     formParts
       .entrySet()
       .stream()
@@ -109,19 +113,19 @@ public class EditorResource {
   /**
    * Deletes a file.
    *
-   * @param namespace     The namespace of the repository.
-   * @param name          The name of the repository.
-   * @param path          The path and name of the file that should be deleted.
-   * @param deleteCommand This object encapsulates necessary specifications for the new commit:
-   *                      <ul>
-   *                        <li>The commit message for the new commit (this is required).</li>
-   *                        <li>The branch the change should be made upon (optional). If this is omitted, the default
-   *                          branch will be used.</li>
-   *                        <li>The expected revision the change should be made upon (optional). If this is set, the changes
-   *                          will only be applied if the revision of the branch (either the specified or the default branch)
-   *                          equals the given revision. If this is not the case, a conflict (status code 409) will be
-   *                          returned.</li>
-   *                      </ul>
+   * @param namespace The namespace of the repository.
+   * @param name      The name of the repository.
+   * @param path      The path and name of the file that should be deleted.
+   * @param commit    This object encapsulates necessary specifications for the new commit:
+   *                  <ul>
+   *                    <li>The commit message for the new commit (this is required).</li>
+   *                    <li>The branch the change should be made upon (optional). If this is omitted, the default
+   *                      branch will be used.</li>
+   *                    <li>The expected revision the change should be made upon (optional). If this is set, the changes
+   *                      will only be applied if the revision of the branch (either the specified or the default branch)
+   *                      equals the given revision. If this is not the case, a conflict (status code 409) will be
+   *                      returned.</li>
+   *                  </ul>
    */
   @POST
   @Path("{namespace}/{name}/{path: .*}")
@@ -130,16 +134,16 @@ public class EditorResource {
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
     @Nullable @PathParam("path") String path,
-    @Valid DeleteCommandDto deleteCommand
+    @Valid CommitDto commit
   ) {
     String targetRevision =
       editorService.delete(
         namespace,
         name,
-        deleteCommand.getBranch(),
+        commit.getBranch(),
         path,
-        deleteCommand.getCommitMessage(),
-        deleteCommand.getExpectedRevision());
+        commit.getCommitMessage(),
+        commit.getExpectedRevision());
     return Response.status(SC_CREATED).entity(targetRevision).build();
   }
 
@@ -156,9 +160,17 @@ public class EditorResource {
     }
   }
 
-  private String extractMessage(List<InputPart> input) throws IOException {
+  private CommitDto extractCommit(List<InputPart> input) throws IOException {
     if (input != null && !input.isEmpty()) {
-      return input.get(0).getBodyAsString();
+      String content = input.get(0).getBodyAsString();
+      try (JsonParser parser = new JsonFactory().createParser(content)) {
+        parser.setCodec(new ObjectMapper());
+        CommitDto commitDto = parser.readValueAs(CommitDto.class);
+        if (StringUtils.isEmpty(commitDto.getCommitMessage())) {
+          throw new MessageMissingException();
+        }
+        return commitDto;
+      }
     }
     throw new MessageMissingException();
   }
@@ -190,7 +202,7 @@ public class EditorResource {
     private static final String CODE = "AnRacIBuV1";
 
     public MessageMissingException() {
-      super(Collections.emptyList(), "form part for commit message with key 'message' missing");
+      super(Collections.emptyList(), "form part for commit object with key 'message' missing or without message");
     }
 
     @Override
