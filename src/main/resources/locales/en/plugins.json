@@ -39,6 +39,9 @@
         }
       }
     },
+    "create": {
+      "tooltip": "Create new file"
+    },
     "commit": {
       "author": "Author",
       "placeholder": "Please insert your commit message"
