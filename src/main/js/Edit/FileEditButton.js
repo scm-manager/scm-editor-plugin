@@ -28,7 +28,7 @@ type Props = {
 
 class FileEditButton extends React.Component<Props> {
   shouldRender = () => {
-    return true; //!!this.props.file._links.modify;
+    return !!this.props.file._links.modify;
   };
 
   pushToEditPage() {

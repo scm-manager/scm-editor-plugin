@@ -12,6 +12,7 @@ import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.FileObject;
 import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.NamespaceAndName;
+import sonia.scm.repository.RepositoryPermissions;
 import sonia.scm.repository.api.Command;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
@@ -41,7 +42,9 @@ public class FileLinkEnricher implements HalEnricher {
     String requestedRevision = context.oneRequireByType(BrowserResult.class).getRequestedRevision();
     NamespaceAndName namespaceAndName = context.oneRequireByType(NamespaceAndName.class);
     try (RepositoryService service = serviceFactory.create(namespaceAndName)) {
-      if (!service.isSupported(Command.MODIFY) || !service.isSupported(Command.BRANCHES)) {
+      if (!RepositoryPermissions.modify(service.getRepository()).isPermitted()
+        || !service.isSupported(Command.MODIFY)
+        || !service.isSupported(Command.BRANCHES)) {
         return;
       }
       try {
