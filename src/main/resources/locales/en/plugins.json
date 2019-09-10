@@ -23,7 +23,8 @@
     },
     "edit": {
       "tooltip": "Edit",
-      "subtitle": "File Editor"
+      "subtitle": "File Editor",
+      "selectedBranch": "Selected Branch"
     },
     "upload": {
       "tooltip": "Upload",
