@@ -18,6 +18,7 @@ const styles = {
     "& div": {
       "& div": {
         "& textarea": {
+          fontFamily: "courier",
           "&:not([rows])": {
             minHeight: "30rem",
             maxHeight: "100rem"
