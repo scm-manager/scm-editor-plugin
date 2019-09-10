@@ -20,8 +20,18 @@ const styles = {
     marginBottom: "0 !important"
   },
   topBorder: {
-    borderTop: "solid 1px #dbdbdb",
+    borderTop: "solid 1px #dbdbdb"
+  },
+  noBottomBorder: {
     borderBottom: "none"
+  },
+  alignItemsNormal: {
+    alignItems: "normal"
+  },
+  inputBorder: {
+    "& .input[disabled], .textarea[disabled]": {
+      borderColor: "#b5b5b5"
+    }
   }
 };
 
@@ -30,6 +40,7 @@ type Props = {
   changePath: string => void,
   file?: File,
   changeFileName?: string => void,
+  disabled?: boolean,
 
   //context props
   t: string => string,
@@ -46,12 +57,18 @@ class FilePath extends React.Component<Props> {
   };
 
   render() {
-    const {t, classes, file} = this.props;
+    const {t, classes, file, disabled} = this.props;
     return (
-      <div className={classNames("panel-heading", classes.topBorder)}>
+      <div
+        className={classNames(
+          "panel-heading",
+          classes.topBorder,
+          disabled ? "" : classes.noBottomBorder
+        )}
+      >
         <div className={classNames("field", "is-horizontal")}>
           <div className="field-body level">
-            <div className={"level-left"}>
+            <div className={classNames("level-left", classes.alignItemsNormal)}>
               <div
                 className={classNames(
                   "field-label",
@@ -71,20 +88,28 @@ class FilePath extends React.Component<Props> {
                 )}
               >
                 <div
-                  className={classNames("control", classes.minWidthOfControl)}
+                  className={classNames(
+                    "control",
+                    classes.minWidthOfControl,
+                    disabled && classes.inputBorder
+                  )}
                 >
                   <InputField
-                    className="is-fullwidth"
-                    disabled={false}
+                    className={classNames("is-fullwidth")}
+                    disabled={disabled}
                     value={this.props.path}
-                    placeholder={t("scm-editor-plugin.path.placeholder.path")}
+                    placeholder={
+                      !disabled && t("scm-editor-plugin.path.placeholder.path")
+                    }
                     onChange={value => this.changePath(value)}
                   />
                 </div>
               </div>
             </div>
             {file && (
-              <div className={"level-right"}>
+              <div
+                className={classNames("level-right", classes.alignItemsNormal)}
+              >
                 <div
                   className={classNames(
                     "field-label",
@@ -97,13 +122,20 @@ class FilePath extends React.Component<Props> {
                   </label>
                 </div>
                 <div
-                  className={classNames("control", classes.minWidthOfControl)}
+                  className={classNames(
+                    "control",
+                    classes.minWidthOfControl,
+                    disabled && classes.inputBorder
+                  )}
                 >
                   <InputField
                     className="is-fullwidth"
-                    disabled={false}
+                    disabled={disabled}
                     value={file.name}
-                    placeholder={t("scm-editor-plugin.path.placeholder.filename")}
+                    placeholder={
+                      !disabled &&
+                      t("scm-editor-plugin.path.placeholder.filename")
+                    }
                     onChange={value => this.changeFileName(value)}
                   />
                 </div>

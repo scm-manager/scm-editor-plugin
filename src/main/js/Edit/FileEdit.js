@@ -119,7 +119,7 @@ class FileEdit extends React.Component<Props, State> {
 
   changeFileName = fileName => {
     const {file} = this.state;
-    this.setState({...file, file: {name: fileName}});
+    this.setState({file: {...file, name: fileName}});
   };
 
   changeFileContent = content => {
@@ -141,6 +141,7 @@ class FileEdit extends React.Component<Props, State> {
     if (file) {
       const link = repository._links.modify.href;
       const blob = new Blob([content], {type: file.type});
+      this.setState({loading: true});
 
       apiClient
         .postBinary(
@@ -157,7 +158,6 @@ class FileEdit extends React.Component<Props, State> {
         .then(() => history.goBack())
         .catch(this.handleError);
     }
-    this.setState({loading: true});
   };
 
   render() {
@@ -184,17 +184,20 @@ class FileEdit extends React.Component<Props, State> {
           path={path}
           file={file}
           changeFileName={this.changeFileName}
+          disabled={file || loading}
         />
         <div className={classes.editor}>
           <Textarea
             value={content && content}
             onChange={this.changeFileContent}
+            disabled={loading}
           />
         </div>
         <CommitMessage
           me={me}
           commitMessage={commitMessage}
           onChange={this.changeCommitMessage}
+          disabled={loading}
         />
         {error && <ErrorNotification error={error}/>}
         <div className="level">
