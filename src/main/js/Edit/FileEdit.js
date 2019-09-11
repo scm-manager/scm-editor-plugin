@@ -27,7 +27,7 @@ const styles = {
     "& div": {
       "& div": {
         "& textarea": {
-          fontFamily: "courier",
+          fontFamily: "monospace",
           "&:not([rows])": {
             minHeight: "30rem",
             maxHeight: "100rem"
@@ -46,6 +46,7 @@ const styles = {
 type Props = {
   repository: Repository,
   me: Me,
+  editMode: boolean,
 
   //context props
   t: string => string,
@@ -60,7 +61,7 @@ type State = {
   pathWithFilename: string,
   path: string,
   revision: string,
-  inititalError: Error,
+  initialError: Error,
   initialLoading: boolean,
   error: Error,
   loading: boolean,
@@ -78,13 +79,18 @@ class FileEdit extends React.Component<Props, State> {
       revision: queryString.parse(this.props.location.search, {
         ignoreQueryPrefix: true
       }).branch,
-      file: null,
+      file: this.props.editMode ? null : {},
       path: ""
     };
   }
 
   componentDidMount() {
-    this.fetchFile();
+    if (this.props.editMode) {
+      this.fetchFile();
+    } else {
+      this.setState({initialLoading: false});
+      this.afterLoading();
+    }
   }
 
   fetchFile = () => {
@@ -93,7 +99,7 @@ class FileEdit extends React.Component<Props, State> {
       .then(response => response.json())
       .then(file => this.setState({file}))
       .then(() => this.fetchContent())
-      .catch(inititalError => this.setState({inititalError}));
+      .catch(initialError => this.setState({initialError}));
   };
 
   fetchContent = () => {
@@ -102,12 +108,14 @@ class FileEdit extends React.Component<Props, State> {
       .then(response => response.text())
       .then(content => this.setState({content}))
       .then(() => this.afterLoading())
-      .catch(inititalError => this.setState({inititalError}));
+      .catch(initialError => this.setState({initialError}));
   };
 
   afterLoading = () => {
     const {file, initialLoading, path, pathWithFilename} = this.state;
-    const parentDirPath = pathWithFilename.replace(file.name, "");
+    const parentDirPath = this.props.editMode
+      ? pathWithFilename.replace(file.name, "")
+      : pathWithFilename;
 
     !path && this.setState({path: parentDirPath});
     initialLoading && this.setState({initialLoading: false});
@@ -121,11 +129,15 @@ class FileEdit extends React.Component<Props, State> {
       let base = repository._links.sources.href;
 
       if (!pathWithFilename) {
-        this.setState({initialError: new Error(t("scm-editor-plugin.errors.fileMissing"))})
+        this.setState({
+          initialError: new Error(t("scm-editor-plugin.errors.fileMissing"))
+        });
       }
 
       if (!revision) {
-        this.setState({initialError: new Error(t("scm-editor-plugin.errors.branchMissing"))})
+        this.setState({
+          initialError: new Error(t("scm-editor-plugin.errors.branchMissing"))
+        });
       }
 
       const pathDefined = pathWithFilename ? pathWithFilename : "";
@@ -155,16 +167,24 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   redirectToContentView = () => {
-    //TODO Redirect using the explicit file url
-    this.props.history.goBack();
+    const {repository} = this.props;
+    const {revision} = this.state;
+    this.props.history.push(
+      `/repo/${repository.namespace}/${
+        repository.name
+      }/sources/${encodeURIComponent(revision)}/${this.state.path +
+      this.state.file.name}/`
+    );
   };
 
   commitFile = () => {
-    const {repository} = this.props;
+    const {repository, editMode} = this.props;
     const {file, commitMessage, path, revision, content} = this.state;
 
     if (file) {
-      const link = repository._links.modify.href;
+      const link = editMode
+        ? repository._links.modify.href
+        : repository._links.fileUpload.href;
       const blob = new Blob([content], {type: file.type});
       this.setState({loading: true});
 
@@ -186,7 +206,7 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   render() {
-    const {t, classes, me} = this.props;
+    const {t, classes, me, editMode} = this.props;
     const {
       path,
       file,
@@ -223,7 +243,7 @@ class FileEdit extends React.Component<Props, State> {
           path={path}
           file={file}
           changeFileName={this.changeFileName}
-          disabled={file || loading}
+          disabled={editMode || loading}
         />
         <div className={classes.editor}>
           <Textarea
