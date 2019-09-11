@@ -154,8 +154,13 @@ class FileEdit extends React.Component<Props, State> {
     this.setState({error});
   };
 
+  redirectToContentView = () => {
+    //TODO Redirect using the explicit file url
+    this.props.history.goBack();
+  };
+
   commitFile = () => {
-    const {history, repository} = this.props;
+    const {repository} = this.props;
     const {file, commitMessage, path, revision, content} = this.state;
 
     if (file) {
@@ -175,13 +180,13 @@ class FileEdit extends React.Component<Props, State> {
             );
           }
         )
-        .then(() => history.goBack())
+        .then(this.redirectToContentView)
         .catch(this.handleError);
     }
   };
 
   render() {
-    const {t, classes, me, location} = this.props;
+    const {t, classes, me} = this.props;
     const {
       path,
       file,
@@ -240,8 +245,8 @@ class FileEdit extends React.Component<Props, State> {
             <ButtonGroup>
               <Button
                 label={t("scm-editor-plugin.button.cancel")}
-                link={location.pathname}
                 disabled={loading}
+                action={this.redirectToContentView}
               />
               <Button
                 label={t("scm-editor-plugin.button.commit")}
