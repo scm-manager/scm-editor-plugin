@@ -22,7 +22,11 @@ class EditorNavigation extends React.Component<Props> {
         />
         <Route
           path={`${this.props.url}/edit/:path*`}
-          render={() => <FileEdit url={url} repository={repository}/>}
+          render={() => <FileEdit editMode={true} url={url} repository={repository}/>}
+        />
+        <Route
+          path={`${this.props.url}/create/:path*`}
+          render={() => <FileEdit editMode={false} url={url} repository={repository}/>}
         />
       </>
     );
