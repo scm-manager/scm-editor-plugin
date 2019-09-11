@@ -24,7 +24,8 @@
     "edit": {
       "tooltip": "Bearbeiten",
       "subtitle": "Datei Editor",
-      "selectedBranch": "Ausgewählter Branch"
+      "selectedBranch": "Ausgewählter Branch",
+      "notEditable": "Dateien diesen Typs können innerhalb des SCM-Managers nicht bearbeitet werden"
     },
     "upload": {
       "tooltip": "Upload",
