@@ -8,7 +8,7 @@ import queryString from "query-string";
 import type {File, Me, Repository} from "@scm-manager/ui-types";
 import {apiClient, Button, ButtonGroup, ErrorNotification, Subtitle} from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
-import FileUploadPath from "./FileUploadPath";
+import FilePath from "../FilePath";
 import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 
@@ -84,10 +84,10 @@ class FileUpload extends React.Component<Props, State> {
 
     apiClient
       .postBinary(
-        link.replace("{path}", path) + (branch ? "?branch=" + branch : ""),
+        link.replace("{path}", path),
         formdata => {
           files.forEach((file, i) => formdata.append("file" + i, file));
-          formdata.append("message", commitMessage);
+          formdata.append("commit", JSON.stringify({commitMessage, branch}));
         }
       )
       .then(() => history.push(sourcesLink))
@@ -115,7 +115,7 @@ class FileUpload extends React.Component<Props, State> {
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")} />
-        <FileUploadPath path={path} changePath={this.changePath} />
+        <FilePath path={path} changePath={this.changePath}/>
         <FileUploadDropzone fileHandler={this.handleFile} disabled={loading}/>
         <br />
         {files && files.length > 0 && (

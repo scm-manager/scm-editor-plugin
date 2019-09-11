@@ -9,8 +9,6 @@ import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -65,11 +63,22 @@ public class EditorService {
       this.path = path;
     }
 
-    public FileUploader upload(String fileName, InputStream stream) {
+    public FileUploader create(String fileName, InputStream stream) {
       @SuppressWarnings("squid:S1075") // the path delimiter is for urls, not for os files
       String completeFileName = computeCompleteFileName(fileName);
       try {
         modifyCommand.createFile(completeFileName).withData(stream);
+      } catch (IOException e) {
+        throw new UploadFailedException(fileName);
+      }
+      return this;
+    }
+
+    public FileUploader modify(String fileName, InputStream stream) {
+      @SuppressWarnings("squid:S1075") // the path delimiter is for urls, not for os files
+      String completeFileName = computeCompleteFileName(fileName);
+      try {
+        modifyCommand.modifyFile(completeFileName).withData(stream);
       } catch (IOException e) {
         throw new UploadFailedException(fileName);
       }

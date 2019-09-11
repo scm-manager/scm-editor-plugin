@@ -1,5 +1,7 @@
 package com.cloudogu.scm.editor;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.jboss.resteasy.core.Dispatcher;
 import org.jboss.resteasy.mock.MockDispatcherFactory;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Collections;
@@ -60,13 +63,14 @@ class EditorResourceTest {
 
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path?branch=master&revision=expected");
-    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), "new commit");
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create/some/path");
+    CommitDto commit = new CommitDto("new commit", "master", "expected");
+    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
     assertThat(response.getContentAsString()).isEqualTo("new commit ref");
-    verify(fileUploader).upload(eq("newFile"), eqStreamContent("content"));
+    verify(fileUploader).create(eq("newFile"), eqStreamContent("content"));
   }
 
   @Test
@@ -77,25 +81,63 @@ class EditorResourceTest {
 
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/?branch=master");
-    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), "new commit");
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create");
+    CommitDto commit = new CommitDto("new commit", "master", null);
+    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
     assertThat(response.getContentAsString()).isEqualTo("new commit ref");
-    verify(fileUploader).upload(eq("newFile"), eqStreamContent("content"));
+    verify(fileUploader).create(eq("newFile"), eqStreamContent("content"));
   }
 
   @Test
   void shouldFailCreateWithMissingCommitMessage() throws IOException, URISyntaxException {
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path?branch=master");
-    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), null);
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create/some/path");
+    CommitDto commit = new CommitDto(null, "master", null);
+    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(400);
     assertThat(response.getContentAsString()).contains("MessageMissingException");
+  }
+
+  @Test
+  void shouldProcessModifyWithCompleteRequest() throws IOException, URISyntaxException {
+    when(service.prepare("space", "name", "master", "some/path", "new commit", "expected"))
+      .thenReturn(fileUploader);
+    when(fileUploader.done()).thenReturn("new commit ref");
+
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/modify/some/path");
+    CommitDto commit = new CommitDto("new commit", "master", "expected");
+    multipartRequest(request, Collections.singletonMap("changedFile", new ByteArrayInputStream("content".getBytes())), commit);
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
+    verify(fileUploader).modify(eq("changedFile"), eqStreamContent("content"));
+  }
+
+  @Test
+  void shouldProcessModifyWithEmptyPath() throws IOException, URISyntaxException {
+    when(service.prepare("space", "name", "master", "", "new commit", null))
+      .thenReturn(fileUploader);
+    when(fileUploader.done()).thenReturn("new commit ref");
+
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/modify");
+    CommitDto commit = new CommitDto("new commit", "master", null);
+    multipartRequest(request, Collections.singletonMap("changedFile", new ByteArrayInputStream("content".getBytes())), commit);
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
+    verify(fileUploader).modify(eq("changedFile"), eqStreamContent("content"));
   }
 
   @Test
@@ -105,7 +147,7 @@ class EditorResourceTest {
 
     MockHttpRequest request =
       MockHttpRequest
-        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/some/path/file?branch=master&revision=expected")
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/delete/some/path/file?branch=master&revision=expected")
         .contentType("application/json")
         .content("{'commitMessage':'new commit', 'branch':'master', 'expectedRevision':'expected'}".replaceAll("'", "\"").getBytes());
     dispatcher.invoke(request, response);
@@ -130,7 +172,7 @@ class EditorResourceTest {
   /**
    * This method is a slightly adapted copy of Lin Zaho's gist at https://gist.github.com/lin-zhao/9985191
    */
-  private MockHttpRequest multipartRequest(MockHttpRequest request, Map<String, InputStream> files, String message) throws IOException {
+  private MockHttpRequest multipartRequest(MockHttpRequest request, Map<String, InputStream> files, CommitDto commit) throws IOException {
     String boundary = UUID.randomUUID().toString();
     request.contentType("multipart/form-data; boundary=" + boundary);
 
@@ -155,10 +197,12 @@ class EditorResourceTest {
         formWriter.append("\n").append("--").append(boundary);
       }
 
-      if (message != null) {
+      if (commit != null) {
         formWriter.append("\n");
-        formWriter.append("Content-Disposition: form-data; name=\"message\"").append("\n\n");
-        formWriter.append(message).append("\n");
+        formWriter.append("Content-Disposition: form-data; name=\"commit\"").append("\n\n");
+        StringWriter commitWriter = new StringWriter();
+        new JsonFactory().createGenerator(commitWriter).setCodec(new ObjectMapper()).writeObject(commit);
+        formWriter.append(commitWriter.getBuffer().toString()).append("\n");
         formWriter.append("--").append(boundary);
       }
 

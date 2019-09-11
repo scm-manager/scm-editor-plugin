@@ -28,6 +28,7 @@ class EditorServiceTest {
 
   static final String SOME_PATH = "some/path";
   static final String NEW_FILE = "newFile";
+  static final String CHANGED_FILE = "changedFile";
   static final String NEW_COMMIT = "new ref";
 
   @Mock
@@ -37,7 +38,9 @@ class EditorServiceTest {
   @Mock(answer = Answers.RETURNS_SELF)
   ModifyCommandBuilder commandBuilder;
   @Mock
-  ModifyCommandBuilder.WithOverwriteFlagContentLoader contentLoader;
+  ModifyCommandBuilder.WithOverwriteFlagContentLoader createContentLoader;
+  @Mock
+  ModifyCommandBuilder.SimpleContentLoader modifyContentLoader;
 
   EditorService editorService;
 
@@ -46,7 +49,8 @@ class EditorServiceTest {
     when(serviceFactory.create(new NamespaceAndName("space", "name")))
       .thenReturn(repositoryService);
     when(repositoryService.getModifyCommand()).thenReturn(commandBuilder);
-    lenient().when(commandBuilder.createFile(anyString())).thenReturn(contentLoader);
+    lenient().when(commandBuilder.createFile(anyString())).thenReturn(createContentLoader);
+    lenient().when(commandBuilder.modifyFile(anyString())).thenReturn(modifyContentLoader);
     when(commandBuilder.execute()).thenReturn(NEW_COMMIT);
   }
 
@@ -64,12 +68,28 @@ class EditorServiceTest {
   void shouldBuildCorrectModificationCommandForCreate() throws IOException {
     String newCommit = editorService
       .prepare("space", "name", "master", SOME_PATH, "new commit", "expected")
-      .upload(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
+      .create(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
       .done();
 
-    verify(contentLoader, never()).setOverwrite(true);
+    verify(createContentLoader, never()).setOverwrite(true);
     verify(commandBuilder).createFile(SOME_PATH + "/" + NEW_FILE);
-    verify(contentLoader).withData(any(InputStream.class));
+    verify(createContentLoader).withData(any(InputStream.class));
+    verify(commandBuilder).setCommitMessage("new commit");
+    verify(commandBuilder).setBranch("master");
+    verify(commandBuilder).setExpectedRevision("expected");
+    verify(commandBuilder).execute();
+    assertThat(newCommit).isEqualTo(NEW_COMMIT);
+  }
+
+  @Test
+  void shouldBuildCorrectModificationCommandForModify() throws IOException {
+    String newCommit = editorService
+      .prepare("space", "name", "master", SOME_PATH, "new commit", "expected")
+      .modify(CHANGED_FILE, new ByteArrayInputStream("content".getBytes()))
+      .done();
+
+    verify(commandBuilder).modifyFile(SOME_PATH + "/" + CHANGED_FILE);
+    verify(modifyContentLoader).withData(any(InputStream.class));
     verify(commandBuilder).setCommitMessage("new commit");
     verify(commandBuilder).setBranch("master");
     verify(commandBuilder).setExpectedRevision("expected");
@@ -94,7 +114,7 @@ class EditorServiceTest {
   void shouldNotStartPathOfFileWithSlash() {
     String newCommit = editorService
       .prepare("space", "name", "master", "", "new commit", "")
-      .upload(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
+      .create(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
       .done();
 
     verify(commandBuilder).createFile(NEW_FILE);

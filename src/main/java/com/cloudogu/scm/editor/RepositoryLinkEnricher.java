@@ -36,6 +36,7 @@ public class RepositoryLinkEnricher implements HalEnricher {
       if (RepositoryPermissions.modify(repository).isPermitted() && repositoryService.isSupported(Command.MODIFY)) {
         LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
         appender.appendLink("fileUpload", linkBuilder.method("create").parameters(repository.getNamespace(), repository.getName(), "PATH_PART").href().replace("PATH_PART", "{path}"));
+        appender.appendLink("modify", linkBuilder.method("modify").parameters(repository.getNamespace(), repository.getName(), "PATH_PART").href().replace("PATH_PART", "{path}"));
       }
     }
   }

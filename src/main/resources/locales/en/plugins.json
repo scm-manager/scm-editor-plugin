@@ -4,6 +4,14 @@
       "cancel": "Cancel",
       "commit": "Commit"
     },
+    "path": {
+      "path": "Path:",
+      "placeholder": {
+        "path": "Insert path here",
+        "filename": "Insert filename here"
+      },
+      "filename": "Filename:"
+    },
     "delete": {
       "tooltip": "Delete",
       "modal": {
@@ -13,11 +21,15 @@
     "download": {
       "tooltip": "Download"
     },
+    "edit": {
+      "tooltip": "Edit",
+      "subtitle": "File Editor",
+      "selectedBranch": "Selected Branch",
+      "notEditable": "This file type cannot be edited inside SCM-Manager"
+    },
     "upload": {
       "tooltip": "Upload",
       "title": "Upload file",
-      "path": "Path",
-      "placeholder": "Insert path here",
       "dragAndDrop": "Drag and drop your files here or click here to select your files",
       "file": {
         "name": "Filename",
@@ -31,6 +43,10 @@
     "commit": {
       "author": "Author",
       "placeholder": "Please insert your commit message"
+    },
+    "errors": {
+      "fileMissing": "File not specified in URL",
+      "branchMissing": "Branch not specified in URL"
     }
   },
   "errors": {

@@ -4,6 +4,14 @@
       "cancel": "Abbrechen",
       "commit": "Commit"
     },
+    "path": {
+      "path": "Pfad",
+      "placeholder": {
+        "path": "Hier den Dateipfad eingeben",
+        "filename": "Hier den Dateinamen eingeben"
+      },
+      "filename": "Dateiname:"
+    },
     "delete": {
       "tooltip": "Löschen",
       "modal": {
@@ -13,11 +21,15 @@
     "download": {
       "tooltip": "Download"
     },
+    "edit": {
+      "tooltip": "Bearbeiten",
+      "subtitle": "Datei Editor",
+      "selectedBranch": "Ausgewählter Branch",
+      "notEditable": "Dateien diesen Typs können innerhalb des SCM-Managers nicht bearbeitet werden"
+    },
     "upload": {
       "tooltip": "Upload",
       "title": "Datei hochladen",
-      "path": "Pfad",
-      "placeholder": "Hier den Dateipfad eingeben",
       "dragAndDrop": "Dateien hier einfügen oder zum Auswählen hier klicken",
       "file": {
         "name": "Dateiname",
@@ -31,6 +43,10 @@
     "commit": {
       "author": "Autor",
       "placeholder": "Bitte eine Commit Nachricht eintragen"
+    },
+    "errors": {
+      "fileMissing": "In der URL fehlt der Dateiname",
+      "branchMissing": "In der URL fehlt der Branch"
     }
   },
   "errors": {

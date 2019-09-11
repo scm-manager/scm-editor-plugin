@@ -12,6 +12,7 @@ import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.FileObject;
 import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.NamespaceAndName;
+import sonia.scm.repository.RepositoryPermissions;
 import sonia.scm.repository.api.Command;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
@@ -41,12 +42,14 @@ public class FileLinkEnricher implements HalEnricher {
     String requestedRevision = context.oneRequireByType(BrowserResult.class).getRequestedRevision();
     NamespaceAndName namespaceAndName = context.oneRequireByType(NamespaceAndName.class);
     try (RepositoryService service = serviceFactory.create(namespaceAndName)) {
-      if (!service.isSupported(Command.MODIFY) || !service.isSupported(Command.BRANCHES)) {
+      if (!RepositoryPermissions.modify(service.getRepository()).isPermitted()
+        || !service.isSupported(Command.MODIFY)
+        || !service.isSupported(Command.BRANCHES)) {
         return;
       }
       try {
         if (isRequestWithBranch(requestedRevision, service)) {
-          appendLinks(appender, fileObject, requestedRevision, namespaceAndName);
+          appendLinks(appender, fileObject, namespaceAndName);
         }
       } catch (IOException e) {
         throw new InternalRepositoryException(entity(service.getRepository()), "could not check branches", e);
@@ -54,22 +57,23 @@ public class FileLinkEnricher implements HalEnricher {
     }
   }
 
-  private void appendLinks(HalAppender appender, FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName) {
+  private void appendLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
     if (fileObject.isDirectory()) {
-      appendDirectoryLinks(appender, fileObject, requestedRevision, namespaceAndName);
+      appendDirectoryLinks(appender, fileObject, namespaceAndName);
     } else {
-      appendFileLinks(appender, fileObject, requestedRevision, namespaceAndName);
+      appendFileLinks(appender, fileObject, namespaceAndName);
     }
   }
 
-  private void appendDirectoryLinks(HalAppender appender, FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName) {
+  private void appendDirectoryLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
     LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
-    appender.appendLink("fileUpload", createUploadLink(fileObject, requestedRevision, namespaceAndName, linkBuilder));
+    appender.appendLink("fileUpload", createUploadLink(fileObject, namespaceAndName, linkBuilder));
   }
 
-  private void appendFileLinks(HalAppender appender, FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName) {
+  private void appendFileLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
     LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
-    appender.appendLink("delete", createDeleteLink(fileObject, requestedRevision, namespaceAndName, linkBuilder));
+    appender.appendLink("delete", createDeleteLink(fileObject, namespaceAndName, linkBuilder));
+    appender.appendLink("modify", createModifyLink(fileObject, namespaceAndName, linkBuilder));
   }
 
   private boolean isRequestWithBranch(String requestedRevision, RepositoryService service) throws IOException {
@@ -82,12 +86,17 @@ public class FileLinkEnricher implements HalEnricher {
   }
 
   @VisibleForTesting
-  String createUploadLink(FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
-    return linkBuilder.method("create").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href() + "?branch=" + requestedRevision;
+  String createUploadLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+    return linkBuilder.method("create").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href();
   }
 
   @VisibleForTesting
-  String createDeleteLink(FileObject fileObject, String requestedRevision, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
-    return linkBuilder.method("delete").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href() + "?branch=" + requestedRevision;
+  String createDeleteLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+    return linkBuilder.method("delete").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href();
+  }
+
+  @VisibleForTesting
+  String createModifyLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+    return linkBuilder.method("modify").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href();
   }
 }
