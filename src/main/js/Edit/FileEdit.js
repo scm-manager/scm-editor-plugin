@@ -209,7 +209,7 @@ class FileEdit extends React.Component<Props, State> {
 
     return (
       <>
-        <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle") + "Branch: " + revision}/>
+        <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")}/>
         <div className={classes.branch}>
           <InputField
             label={t("scm-editor-plugin.edit.selectedBranch")}
