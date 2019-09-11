@@ -45,6 +45,10 @@
     "commit": {
       "author": "Autor",
       "placeholder": "Bitte eine Commit Nachricht eintragen"
+    },
+    "errors": {
+      "fileMissing": "Datei existiert nicht",
+      "branchMissing": "Branch existiert nicht"
     }
   },
   "errors": {

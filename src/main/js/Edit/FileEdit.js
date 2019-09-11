@@ -60,8 +60,9 @@ type State = {
   pathWithFilename: string,
   path: string,
   revision: string,
-  error: Error,
+  inititalError: Error,
   initialLoading: boolean,
+  error: Error,
   loading: boolean,
   commitMessage: string
 };
@@ -92,7 +93,7 @@ class FileEdit extends React.Component<Props, State> {
       .then(response => response.json())
       .then(file => this.setState({file}))
       .then(() => this.fetchContent())
-      .catch(error => this.setState({error}));
+      .catch(inititalError => this.setState({inititalError}));
   };
 
   fetchContent = () => {
@@ -101,7 +102,7 @@ class FileEdit extends React.Component<Props, State> {
       .then(response => response.text())
       .then(content => this.setState({content}))
       .then(() => this.afterLoading())
-      .catch(error => this.setState({error}));
+      .catch(inititalError => this.setState({inititalError}));
   };
 
   afterLoading = () => {
@@ -113,14 +114,18 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   createFileUrl = () => {
-    const {repository} = this.props;
+    const {repository, t} = this.props;
     const {revision, pathWithFilename} = this.state;
 
     if (repository._links.sources) {
       let base = repository._links.sources.href;
 
-      if (!revision && !pathWithFilename) {
-        return base;
+      if (!pathWithFilename) {
+        this.setState({initialError: new Error(t("scm-editor-plugin.errors.fileMissing"))})
+      }
+
+      if (!revision) {
+        this.setState({initialError: new Error(t("scm-editor-plugin.errors.branchMissing"))})
       }
 
       const pathDefined = pathWithFilename ? pathWithFilename : "";
@@ -182,6 +187,7 @@ class FileEdit extends React.Component<Props, State> {
       file,
       content,
       initialLoading,
+      initialError,
       loading,
       revision,
       error,
@@ -190,6 +196,10 @@ class FileEdit extends React.Component<Props, State> {
 
     if (initialLoading) {
       return <Loading/>;
+    }
+
+    if (initialError) {
+      return <ErrorNotification error={initialError}/>;
     }
 
     return (

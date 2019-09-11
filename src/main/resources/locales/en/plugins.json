@@ -45,6 +45,10 @@
     "commit": {
       "author": "Author",
       "placeholder": "Please insert your commit message"
+    },
+    "errors": {
+      "fileMissing": "file doesn't exist",
+      "branchMissing": "branch doesn't exist"
     }
   },
   "errors": {
