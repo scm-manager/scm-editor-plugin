@@ -3,7 +3,7 @@ import React from "react";
 import {translate} from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
-import {InputField} from "@scm-manager/ui-components";
+import {InputField, validation as validator} from "@scm-manager/ui-components";
 
 const styles = {
   zeroflex: {
@@ -41,19 +41,49 @@ type Props = {
   file?: File,
   changeFileName?: string => void,
   disabled?: boolean,
+  validate?: void => boolean,
 
   //context props
   t: string => string,
   classes: any
 };
 
-class FilePath extends React.Component<Props> {
+type State = {
+  pathValidationError: boolean,
+  filenameValidationError: boolean
+};
+
+class FilePath extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      pathValidationError: false,
+      filenameValidationError: false
+    };
+  }
+
   changePath = path => {
-    this.props.changePath(path);
+    new Promise(resolve => {
+      resolve(() => this.props.changePath(path));
+    })
+      .then(() =>
+        this.setState({pathValidationError: !validator.isValidPath(path)})
+      )
+      .then(() => this.validate());
   };
 
   changeFileName = fileName => {
-    this.props.changeFileName(fileName);
+    new Promise(resolve => {
+      resolve(() => this.props.changeFileName(fileName));
+    })
+      .then(() => this.setState({filenameValidationError: !fileName}))
+      .then(() => this.validate());
+  };
+
+  validate = () => {
+    this.props.validate(
+      !(this.state.filenameValidationError || this.state.pathValidationError)
+    );
   };
 
   render() {
@@ -98,6 +128,8 @@ class FilePath extends React.Component<Props> {
                     className={classNames("is-fullwidth")}
                     disabled={disabled}
                     value={this.props.path}
+                    validationError={this.state.pathValidationError}
+                    errorMessage={t("scm-editor-plugin.validation.pathInvalid")}
                     placeholder={
                       !disabled && t("scm-editor-plugin.path.placeholder.path")
                     }
@@ -132,6 +164,10 @@ class FilePath extends React.Component<Props> {
                     className="is-fullwidth"
                     disabled={disabled}
                     value={file.name}
+                    validationError={this.state.filenameValidationError}
+                    errorMessage={t(
+                      "scm-editor-plugin.validation.filenameInvalid"
+                    )}
                     placeholder={
                       !disabled &&
                       t("scm-editor-plugin.path.placeholder.filename")

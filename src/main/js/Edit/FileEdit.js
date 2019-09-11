@@ -80,7 +80,8 @@ class FileEdit extends React.Component<Props, State> {
         ignoreQueryPrefix: true
       }).branch,
       file: this.props.editMode ? null : {},
-      path: ""
+      path: "",
+      isValid: true
     };
   }
 
@@ -162,6 +163,10 @@ class FileEdit extends React.Component<Props, State> {
     this.setState({commitMessage});
   };
 
+  validate = isValid => {
+    this.setState({isValid});
+  };
+
   handleError = error => {
     this.setState({error});
   };
@@ -214,8 +219,9 @@ class FileEdit extends React.Component<Props, State> {
       initialLoading,
       initialError,
       loading,
-      revision,
       error,
+      isValid,
+      revision,
       commitMessage
     } = this.state;
 
@@ -244,6 +250,7 @@ class FileEdit extends React.Component<Props, State> {
           file={file}
           changeFileName={this.changeFileName}
           disabled={editMode || loading}
+          validate={this.validate}
         />
         <div className={classes.editor}>
           <Textarea
@@ -271,7 +278,7 @@ class FileEdit extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
-                disabled={!commitMessage || !content}
+                disabled={!commitMessage || !content || !isValid}
                 action={() => this.commitFile()}
                 loading={loading}
               />

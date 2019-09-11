@@ -49,6 +49,10 @@
     "errors": {
       "fileMissing": "file doesn't exist",
       "branchMissing": "branch doesn't exist"
+    },
+    "validation": {
+      "filenameInvalid": "filename invalid",
+      "pathInvalid": "path invalid"
     }
   },
   "errors": {
