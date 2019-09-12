@@ -7,18 +7,15 @@ import {withRouter} from "react-router-dom";
 import {translate} from "react-i18next";
 import queryString from "query-string";
 import type {File, Me, Repository} from "@scm-manager/ui-types";
-import {apiClient, Button, ButtonGroup, ErrorNotification, InputField, Subtitle} from "@scm-manager/ui-components";
+import {apiClient, Button, ButtonGroup, ErrorNotification, Subtitle} from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FilePath from "../FilePath";
 import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
-import classNames from "classnames";
 
 const styles = {
   branch: {
-    "& input": {
-      marginBottom: "2rem"
-    }
+    marginBottom: "1rem"
   },
   border: {
     marginBottom: "2rem",
@@ -145,14 +142,16 @@ class FileUpload extends React.Component<Props, State> {
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")} />
-        <div className={classes.branch}>
-          <InputField
-            label={t("scm-editor-plugin.edit.selectedBranch")}
-            className={classNames("is-fullwidth")}
-            disabled={true}
-            value={branch}
-          />
-        </div>
+        {branch && (
+          <div className={classes.branch}>
+            <span>
+              <strong>
+                {t("scm-editor-plugin.edit.selectedBranch") + ": "}
+              </strong>
+              {branch}
+            </span>
+          </div>
+        )}
         <div className={classes.border}>
           <FilePath path={path} changePath={this.changePath}/>
           <FileUploadDropzone

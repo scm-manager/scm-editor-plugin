@@ -6,19 +6,10 @@ import type {File, Me, Repository} from "@scm-manager/ui-types";
 import {withRouter} from "react-router-dom";
 import Subtitle from "@scm-manager/ui-components/src/layout/Subtitle";
 import FilePath from "../FilePath";
-import {
-  apiClient,
-  Button,
-  ButtonGroup,
-  ErrorNotification,
-  InputField,
-  Loading,
-  Textarea
-} from "@scm-manager/ui-components";
+import {apiClient, Button, ButtonGroup, ErrorNotification, Loading, Textarea} from "@scm-manager/ui-components";
 import queryString from "query-string";
 import {compose} from "redux";
 import {connect} from "react-redux";
-import classNames from "classnames";
 import CommitMessage from "../CommitMessage";
 import {isEditable} from "./isEditable";
 
@@ -42,9 +33,7 @@ const styles = {
     }
   },
   branch: {
-    "& input": {
-      marginBottom: "2rem"
-    }
+    marginBottom: "1rem"
   },
   border: {
     marginBottom: "2rem",
@@ -300,14 +289,16 @@ class FileEdit extends React.Component<Props, State> {
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")}/>
-        <div className={classes.branch}>
-          <InputField
-            label={t("scm-editor-plugin.edit.selectedBranch")}
-            className={classNames("is-fullwidth")}
-            disabled={true}
-            value={revision}
-          />
-        </div>
+        {revision && (
+          <div className={classes.branch}>
+            <span>
+              <strong>
+                {t("scm-editor-plugin.edit.selectedBranch") + ": "}
+              </strong>
+              {revision}
+            </span>
+          </div>
+        )}
         <div className={classes.border}>
           <FilePath
             changePath={this.changePath}
