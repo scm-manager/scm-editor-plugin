@@ -25,7 +25,8 @@
       "tooltip": "Edit",
       "subtitle": "File Editor",
       "selectedBranch": "Selected Branch",
-      "notEditable": "This file type cannot be edited inside SCM-Manager"
+      "notEditable": "This file type cannot be edited inside SCM-Manager",
+      "placeholder": "Start writing your file here"
     },
     "upload": {
       "tooltip": "Upload",

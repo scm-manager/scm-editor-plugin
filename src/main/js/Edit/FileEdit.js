@@ -322,6 +322,7 @@ class FileEdit extends React.Component<Props, State> {
               value={content && content}
               onChange={this.changeFileContent}
               disabled={loading}
+              placeholder={t("scm-editor-plugin.edit.placeholder")}
             />
           </div>
         </div>
