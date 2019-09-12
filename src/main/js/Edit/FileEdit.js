@@ -141,14 +141,10 @@ class FileEdit extends React.Component<Props, State> {
 
       if (!pathWithFilename) {
         reject(new Error(t("scm-editor-plugin.errors.fileMissing")));
-          initialError: new Error(t("scm-editor-plugin.errors.fileMissing"))
-        });
       }
 
       if (!revision) {
         reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
-          initialError: new Error(t("scm-editor-plugin.errors.branchMissing"))
-        });
       }
 
       const pathDefined = pathWithFilename ? pathWithFilename : "";
@@ -253,7 +249,7 @@ class FileEdit extends React.Component<Props, State> {
       return <ErrorNotification error={initialError}/>;
     }
 
-    if (!isEditable(contentType, language)) {
+    if (editMode && !isEditable(contentType, language)) {
       return <ErrorNotification error={{message: t("scm-editor-plugin.edit.notEditable")}} />;
     }
 
