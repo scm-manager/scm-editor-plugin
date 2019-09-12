@@ -2,15 +2,47 @@
 import React from "react";
 import {compose} from "redux";
 import {connect} from "react-redux";
+import injectSheet from "react-jss";
 import {withRouter} from "react-router-dom";
 import {translate} from "react-i18next";
 import queryString from "query-string";
 import type {File, Me, Repository} from "@scm-manager/ui-types";
-import {apiClient, Button, ButtonGroup, ErrorNotification, Subtitle} from "@scm-manager/ui-components";
+import {apiClient, Button, ButtonGroup, ErrorNotification, InputField, Subtitle} from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FilePath from "../FilePath";
 import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
+import classNames from "classnames";
+
+const styles = {
+  branch: {
+    "& input": {
+      marginBottom: "2rem"
+    }
+  },
+  border: {
+    marginBottom: "2rem",
+    border: "1px solid #98d8f3",
+    borderRadius: "4px",
+    "& .input:focus, .input:active, .section:focus, .section:active": {
+      boxShadow: "none"
+    },
+    "&:focus-within": {
+      borderColor: "#33b2e8",
+      boxShadow: "0 0 0 0.125em rgba(51, 178, 232, 0.25)",
+      "&:hover": {
+        borderColor: "#33b2e8"
+      }
+    },
+    "&:hover": {
+      border: "1px solid #b5b5b5",
+      borderRadius: "4px"
+    },
+    "& .input, .textarea": {
+      borderColor: "#dbdbdb"
+    }
+  }
+};
 
 type Props = {
   me?: Me,
@@ -21,7 +53,8 @@ type Props = {
   t: string => string,
   match: any,
   location: any,
-  history: any
+  history: any,
+  classes: any
 };
 
 type State = {
@@ -95,7 +128,7 @@ class FileUpload extends React.Component<Props, State> {
   };
 
   render() {
-    const { t, me, location } = this.props;
+    const {t, me, location, classes} = this.props;
     const {
       files,
       path,
@@ -115,9 +148,18 @@ class FileUpload extends React.Component<Props, State> {
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")} />
-        <FilePath path={path} changePath={this.changePath}/>
-        <FileUploadDropzone fileHandler={this.handleFile} disabled={loading}/>
-        <br />
+        <div className={classes.branch}>
+          <InputField
+            label={t("scm-editor-plugin.edit.selectedBranch")}
+            className={classNames("is-fullwidth")}
+            disabled={true}
+            value={branch}
+          />
+        </div>
+        <div className={classes.border}>
+          <FilePath path={path} changePath={this.changePath}/>
+          <FileUploadDropzone fileHandler={this.handleFile} disabled={loading}/>
+        </div>
         {files && files.length > 0 && (
           <FileUploadTable
             files={files}
@@ -125,7 +167,6 @@ class FileUpload extends React.Component<Props, State> {
             disabled={loading}
           />
         )}
-        <br />
         {error && <ErrorNotification error={error} />}
         <CommitMessage
           me={me}
@@ -168,6 +209,7 @@ const mapStateToProps = state => {
 };
 
 export default compose(
+  injectSheet(styles),
   translate("plugins"),
   withRouter,
   connect(mapStateToProps)
