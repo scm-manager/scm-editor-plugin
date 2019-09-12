@@ -67,7 +67,7 @@ class FilePath extends React.Component<Props, State> {
 
   changePath = path => {
     this.props.changePath(path);
-    this.setState({pathValidationError: !validator.isValidPath(path)});
+    this.setState({pathValidationError: !validator.isPathValid(path)});
   };
 
   changeFileName = fileName => {
