@@ -63,9 +63,13 @@ class FilePath extends React.Component<Props, State> {
   }
 
   changePath = path => {
+    //This promise chain is necessary, because the commit button validation
+    //gets off by one when the states are not changed one after another
     new Promise(resolve => {
-      resolve(() => this.props.changePath(path));
+      resolve(() => {
+      });
     })
+      .then(() => this.props.changePath(path))
       .then(() =>
         this.setState({pathValidationError: !validator.isValidPath(path)})
       )
@@ -73,9 +77,14 @@ class FilePath extends React.Component<Props, State> {
   };
 
   changeFileName = fileName => {
-    new Promise(resolve => {
-      resolve(() => this.props.changeFileName(fileName));
+    //This promise chain is necessary, because the commit button validation
+    //gets off by one when the states are not changed one after another
+    new Promise((resolve) => {
+      resolve(() => {
+      });
+
     })
+      .then(() => this.props.changeFileName(fileName))
       .then(() => this.setState({filenameValidationError: !fileName}))
       .then(() => this.validate());
   };

@@ -173,13 +173,17 @@ class FileEdit extends React.Component<Props, State> {
 
   redirectToContentView = () => {
     const {repository} = this.props;
-    const {revision} = this.state;
-    this.props.history.push(
-      `/repo/${repository.namespace}/${
-        repository.name
-      }/sources/${encodeURIComponent(revision)}/${this.state.path +
-      this.state.file.name}/`
-    );
+    const {revision, path, file} = this.state;
+
+    const pathWithEndingSlash = (path && path.endsWith("/")) ? path : path + "/";
+    const encodedRevision = encodeURIComponent(revision);
+    const encodedFilename = (file && file.name) ? encodeURIComponent(this.state.file.name) + "/" : "";
+
+    const redirectUrl = `/repo/${repository.namespace}/${
+      repository.name
+    }/sources/${encodedRevision}/${pathWithEndingSlash + encodedFilename}`;
+
+    this.props.history.push(redirectUrl);
   };
 
   commitFile = () => {
@@ -190,7 +194,9 @@ class FileEdit extends React.Component<Props, State> {
       const link = editMode
         ? repository._links.modify.href
         : repository._links.fileUpload.href;
-      const blob = new Blob([content], {type: file.type});
+      const blob = new Blob([content], {
+        type: editMode ? file.type : "text/plain"
+      });
       this.setState({loading: true});
 
       apiClient
@@ -278,7 +284,7 @@ class FileEdit extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
-                disabled={!commitMessage || !content || !isValid}
+                disabled={!commitMessage || !content || !isValid || !file.name}
                 action={() => this.commitFile()}
                 loading={loading}
               />
