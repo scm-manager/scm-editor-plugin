@@ -116,13 +116,10 @@ class FileUpload extends React.Component<Props, State> {
     this.setState({ loading: true });
 
     apiClient
-      .postBinary(
-        link.replace("{path}", path),
-        formdata => {
-          files.forEach((file, i) => formdata.append("file" + i, file));
-          formdata.append("commit", JSON.stringify({commitMessage, branch}));
-        }
-      )
+      .postBinary(link.replace("{path}", path), formdata => {
+        files.forEach((file, i) => formdata.append("file" + i, file));
+        formdata.append("commit", JSON.stringify({commitMessage, branch}));
+      })
       .then(() => history.push(sourcesLink))
       .catch(this.handleError);
   };
@@ -158,9 +155,13 @@ class FileUpload extends React.Component<Props, State> {
         </div>
         <div className={classes.border}>
           <FilePath path={path} changePath={this.changePath}/>
-          <FileUploadDropzone fileHandler={this.handleFile} disabled={loading}/>
+          <FileUploadDropzone
+            fileHandler={this.handleFile}
+            disabled={loading}
+          />
         </div>
-        {files && files.length > 0 && (
+        {files &&
+        files.length > 0 && (
           <FileUploadTable
             files={files}
             removeFileEntry={this.removeFileEntry}
