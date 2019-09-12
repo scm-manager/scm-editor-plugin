@@ -24,14 +24,18 @@ import {isEditable} from "./isEditable";
 
 const styles = {
   editor: {
-    marginBottom: "2rem",
     "& div": {
       "& div": {
         "& textarea": {
           fontFamily: "monospace",
           "&:not([rows])": {
             minHeight: "30rem",
-            maxHeight: "100rem"
+            maxHeight: "100rem",
+            border: "none",
+            borderRadius: "4px"
+          },
+          "&:hover": {
+            border: "none"
           }
         }
       }
@@ -40,6 +44,28 @@ const styles = {
   branch: {
     "& input": {
       marginBottom: "2rem"
+    }
+  },
+  border: {
+    marginBottom: "2rem",
+    border: "1px solid #98d8f3",
+    borderRadius: "4px",
+    "& .input:focus, .input:active, .textarea:focus, .textarea:active": {
+      boxShadow: "none"
+    },
+    "&:focus-within": {
+      borderColor: "#33b2e8",
+      boxShadow: "0 0 0 0.125em rgba(51, 178, 232, 0.25)",
+      "&:hover": {
+        borderColor: "#33b2e8"
+      }
+    },
+    "&:hover": {
+      border: "1px solid #b5b5b5",
+      borderRadius: "4px"
+    },
+    "& .input, .textarea": {
+      borderColor: "#dbdbdb"
     }
   }
 };
@@ -111,13 +137,19 @@ class FileEdit extends React.Component<Props, State> {
     apiClient
       .get(this.state.file._links.self.href)
       .then(response => {
-        response.text().then(content =>
-          this.setState({
-              contentType: response.headers.get("Content-Type"),
-              language: response.headers.get("X-Programming-Language"),
-              content
-            }, this.afterLoading))
-      .catch(this.handleInitialError);
+        response
+          .text()
+          .then(content =>
+            this.setState(
+              {
+                contentType: response.headers.get("Content-Type"),
+                language: response.headers.get("X-Programming-Language"),
+                content
+              },
+              this.afterLoading
+            )
+          )
+          .catch(this.handleInitialError);
       })
       .catch(this.handleInitialError);
   };
@@ -132,25 +164,28 @@ class FileEdit extends React.Component<Props, State> {
     initialLoading && this.setState({initialLoading: false});
   };
 
-  createFileUrl = () => new Promise((resolve, reject) => {
-    const {repository, t} = this.props;
-    const {revision, pathWithFilename} = this.state;
+  createFileUrl = () =>
+    new Promise((resolve, reject) => {
+      const {repository, t} = this.props;
+      const {revision, pathWithFilename} = this.state;
 
-    if (repository._links.sources) {
-      let base = repository._links.sources.href;
+      if (repository._links.sources) {
+        let base = repository._links.sources.href;
 
-      if (!pathWithFilename) {
-        reject(new Error(t("scm-editor-plugin.errors.fileMissing")));
+        if (!pathWithFilename) {
+          reject(new Error(t("scm-editor-plugin.errors.fileMissing")));
+        }
+
+        if (!revision) {
+          reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
+        }
+
+        const encodedRevision = encodeURIComponent(revision);
+
+        const pathDefined = pathWithFilename ? pathWithFilename : "";
+        resolve(`${base}${encodedRevision}/${pathDefined}`);
       }
-
-      if (!revision) {
-        reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
-      }
-
-      const pathDefined = pathWithFilename ? pathWithFilename : "";
-      resolve(`${base}${encodeURIComponent(revision)}/${pathDefined}`);
-    }
-  });
+    });
 
   changePath = path => {
     this.setState({path});
@@ -171,7 +206,7 @@ class FileEdit extends React.Component<Props, State> {
   handleInitialError = initialError => {
     this.setState({initialLoading: false, initialError});
   };
-    validate = isValid => {
+  validate = isValid => {
     this.setState({isValid});
   };
 
@@ -183,9 +218,14 @@ class FileEdit extends React.Component<Props, State> {
     const {repository} = this.props;
     const {revision, path, file} = this.state;
 
-    const pathWithEndingSlash = (path && path.endsWith("/")) ? path : path + "/";
+    const pathWithEndingSlash = !path
+      ? ""
+      : path.endsWith("/")
+        ? path
+        : path + "/";
     const encodedRevision = encodeURIComponent(revision);
-    const encodedFilename = (file && file.name) ? encodeURIComponent(this.state.file.name) + "/" : "";
+    const encodedFilename =
+      file && file.name ? encodeURIComponent(this.state.file.name) + "/" : "";
 
     const redirectUrl = `/repo/${repository.namespace}/${
       repository.name
@@ -209,7 +249,7 @@ class FileEdit extends React.Component<Props, State> {
 
       apiClient
         .postBinary(
-          link.replace("{path}", path) +
+          link.replace("{path}", path ? path : "") +
           (revision ? "?branch=" + revision : ""),
           formdata => {
             formdata.append("file", blob, file.name);
@@ -250,7 +290,11 @@ class FileEdit extends React.Component<Props, State> {
     }
 
     if (editMode && !isEditable(contentType, language)) {
-      return <ErrorNotification error={{message: t("scm-editor-plugin.edit.notEditable")}} />;
+      return (
+        <ErrorNotification
+          error={{message: t("scm-editor-plugin.edit.notEditable")}}
+        />
+      );
     }
 
     return (
@@ -264,20 +308,22 @@ class FileEdit extends React.Component<Props, State> {
             value={revision}
           />
         </div>
-        <FilePath
-          changePath={this.changePath}
-          path={path}
-          file={file}
-          changeFileName={this.changeFileName}
-          disabled={editMode || loading}
-          validate={this.validate}
-        />
-        <div className={classes.editor}>
-          <Textarea
-            value={content && content}
-            onChange={this.changeFileContent}
-            disabled={loading}
+        <div className={classes.border}>
+          <FilePath
+            changePath={this.changePath}
+            path={path}
+            file={file}
+            changeFileName={this.changeFileName}
+            disabled={editMode || loading}
+            validate={this.validate}
           />
+          <div className={classes.editor}>
+            <Textarea
+              value={content && content}
+              onChange={this.changeFileContent}
+              disabled={loading}
+            />
+          </div>
         </div>
         <CommitMessage
           me={me}

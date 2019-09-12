@@ -8,7 +8,11 @@ import {Link} from "react-router-dom";
 
 const styles = {
   button: {
-    width: "50px"
+    width: "50px",
+    color: "#33b2e8",
+    "&:hover": {
+      color: "#363636"
+    }
   }
 };
 
@@ -43,14 +47,15 @@ class FileUploadButton extends React.Component<Props> {
 
     return (
       <>
-        {isBranchUrl && repository._links.fileUpload && (
+        {isBranchUrl &&
+        repository._links.fileUpload && (
           <Link to={this.createUploadUrl()}>
-            <span
-              title={t("scm-editor-plugin.upload.tooltip")}
-              className={classNames(classes.button, "button has-text-link")}
-            >
-              <i className="fas fa-upload" />
-            </span>
+              <span
+                title={t("scm-editor-plugin.upload.tooltip")}
+                className={classNames(classes.button, "button")}
+              >
+                <i className="fas fa-upload"/>
+              </span>
           </Link>
         )}
       </>
