@@ -5,6 +5,8 @@ import injectSheet from "react-jss";
 import classNames from "classnames";
 import type {File} from "@scm-manager/ui-types";
 import {withRouter} from "react-router-dom";
+import {apiClient} from "@scm-manager/ui-components";
+import {isEditable} from "./isEditable";
 
 const styles = {
   button: {
@@ -26,9 +28,39 @@ type Props = {
   match: any
 };
 
-class FileEditButton extends React.Component<Props> {
+type State = {
+  contentType: string,
+  language: string,
+  loading: boolean
+}
+
+class FileEditButton extends React.Component<Props, State> {
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {loading: true};
+  }
+
+  componentDidMount() {
+    apiClient
+      .head(this.props.file._links.self.href)
+      .then(response => this.setState({
+          loading: false,
+          contentType: response.headers.get("Content-Type"),
+          language: response.headers.get("X-Programming-Language"),
+        })
+      );
+  }
+
   shouldRender = () => {
-    return true; //!!this.props.file._links.modify;
+    if (!this.props.file._links.modify) {
+      return false
+    }
+    const { loading, language, contentType } = this.state;
+    if (loading) {
+      return false;
+    }
+    return isEditable(contentType, language);
   };
 
   pushToEditPage() {

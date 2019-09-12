@@ -24,7 +24,8 @@
     "edit": {
       "tooltip": "Bearbeiten",
       "subtitle": "Datei Editor",
-      "selectedBranch": "Ausgewählter Branch"
+      "selectedBranch": "Ausgewählter Branch",
+      "notEditable": "Dateien diesen Typs können innerhalb des SCM-Managers nicht bearbeitet werden"
     },
     "upload": {
       "tooltip": "Upload",
@@ -47,8 +48,8 @@
       "placeholder": "Bitte eine Commit Nachricht eintragen"
     },
     "errors": {
-      "fileMissing": "Datei existiert nicht",
-      "branchMissing": "Branch existiert nicht"
+      "fileMissing": "In der URL fehlt der Dateiname",
+      "branchMissing": "In der URL fehlt der Branch"
     },
     "validation": {
       "filenameInvalid": "Dateiname ungültig",

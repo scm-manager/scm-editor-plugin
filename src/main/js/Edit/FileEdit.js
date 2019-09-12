@@ -20,6 +20,7 @@ import {compose} from "redux";
 import {connect} from "react-redux";
 import classNames from "classnames";
 import CommitMessage from "../CommitMessage";
+import {isEditable} from "./isEditable";
 
 const styles = {
   editor: {
@@ -47,6 +48,7 @@ type Props = {
   repository: Repository,
   me: Me,
   editMode: boolean,
+  file: File,
 
   //context props
   t: string => string,
@@ -65,7 +67,9 @@ type State = {
   initialLoading: boolean,
   error: Error,
   loading: boolean,
-  commitMessage: string
+  commitMessage: string,
+  contentType: string,
+  language: string
 };
 
 class FileEdit extends React.Component<Props, State> {
@@ -73,7 +77,7 @@ class FileEdit extends React.Component<Props, State> {
     super(props);
 
     this.state = {
-      initialLoading: false,
+      initialLoading: true,
       loading: false,
       pathWithFilename: this.props.match.params.path,
       revision: queryString.parse(this.props.location.search, {
@@ -95,21 +99,27 @@ class FileEdit extends React.Component<Props, State> {
   }
 
   fetchFile = () => {
-    apiClient
-      .get(this.createFileUrl())
+    this.createFileUrl()
+      .then(apiClient.get)
       .then(response => response.json())
       .then(file => this.setState({file}))
       .then(() => this.fetchContent())
-      .catch(initialError => this.setState({initialError}));
+      .catch(this.handleInitialError);
   };
 
   fetchContent = () => {
     apiClient
       .get(this.state.file._links.self.href)
-      .then(response => response.text())
-      .then(content => this.setState({content}))
-      .then(() => this.afterLoading())
-      .catch(initialError => this.setState({initialError}));
+      .then(response => {
+        response.text().then(content =>
+          this.setState({
+              contentType: response.headers.get("Content-Type"),
+              language: response.headers.get("X-Programming-Language"),
+              content
+            }, this.afterLoading))
+      .catch(this.handleInitialError);
+      })
+      .catch(this.handleInitialError);
   };
 
   afterLoading = () => {
@@ -122,7 +132,7 @@ class FileEdit extends React.Component<Props, State> {
     initialLoading && this.setState({initialLoading: false});
   };
 
-  createFileUrl = () => {
+  createFileUrl = () => new Promise((resolve, reject) => {
     const {repository, t} = this.props;
     const {revision, pathWithFilename} = this.state;
 
@@ -130,21 +140,21 @@ class FileEdit extends React.Component<Props, State> {
       let base = repository._links.sources.href;
 
       if (!pathWithFilename) {
-        this.setState({
+        reject(new Error(t("scm-editor-plugin.errors.fileMissing")));
           initialError: new Error(t("scm-editor-plugin.errors.fileMissing"))
         });
       }
 
       if (!revision) {
-        this.setState({
+        reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
           initialError: new Error(t("scm-editor-plugin.errors.branchMissing"))
         });
       }
 
       const pathDefined = pathWithFilename ? pathWithFilename : "";
-      return `${base}${encodeURIComponent(revision)}/${pathDefined}`;
+      resolve(`${base}${encodeURIComponent(revision)}/${pathDefined}`);
     }
-  };
+  });
 
   changePath = path => {
     this.setState({path});
@@ -162,13 +172,15 @@ class FileEdit extends React.Component<Props, State> {
   changeCommitMessage = commitMessage => {
     this.setState({commitMessage});
   };
-
-  validate = isValid => {
+  handleInitialError = initialError => {
+    this.setState({initialLoading: false, initialError});
+  };
+    validate = isValid => {
     this.setState({isValid});
   };
 
   handleError = error => {
-    this.setState({error});
+    this.setState({initialLoading: false, error});
   };
 
   redirectToContentView = () => {
@@ -228,7 +240,9 @@ class FileEdit extends React.Component<Props, State> {
       error,
       isValid,
       revision,
-      commitMessage
+      commitMessage,
+      contentType,
+      language
     } = this.state;
 
     if (initialLoading) {
@@ -237,6 +251,10 @@ class FileEdit extends React.Component<Props, State> {
 
     if (initialError) {
       return <ErrorNotification error={initialError}/>;
+    }
+
+    if (!isEditable(contentType, language)) {
+      return <ErrorNotification error={{message: t("scm-editor-plugin.edit.notEditable")}} />;
     }
 
     return (
