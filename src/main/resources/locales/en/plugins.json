@@ -25,7 +25,8 @@
       "tooltip": "Edit",
       "subtitle": "File Editor",
       "selectedBranch": "Selected Branch",
-      "notEditable": "This file type cannot be edited inside SCM-Manager"
+      "notEditable": "This file type cannot be edited inside SCM-Manager",
+      "placeholder": "Start writing your file here"
     },
     "upload": {
       "tooltip": "Upload",
@@ -40,6 +41,9 @@
         }
       }
     },
+    "create": {
+      "tooltip": "Create new file"
+    },
     "commit": {
       "author": "Author",
       "placeholder": "Please insert your commit message"
@@ -47,6 +51,10 @@
     "errors": {
       "fileMissing": "File not specified in URL",
       "branchMissing": "Branch not specified in URL"
+    },
+    "validation": {
+      "filenameInvalid": "filename invalid",
+      "pathInvalid": "path invalid"
     }
   },
   "errors": {

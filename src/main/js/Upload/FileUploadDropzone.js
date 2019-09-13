@@ -8,13 +8,11 @@ import classNames from "classnames";
 const styles = {
   dropzone: {
     width: "100%",
-    height: "20rem",
-    border: "solid 1px #dbdbdb",
-    borderRadius: "2px"
+    cursor: "pointer",
+    padding: "2rem"
   },
   innerBorder: {
     display: "flex",
-    margin: "2rem",
     padding: "3rem",
     height: "16rem",
     alignSelf: "center",

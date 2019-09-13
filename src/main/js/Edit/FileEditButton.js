@@ -1,12 +1,12 @@
 // @flow
 import React from "react";
-import {translate} from "react-i18next";
+import { translate } from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
-import type {File} from "@scm-manager/ui-types";
-import {withRouter} from "react-router-dom";
-import {apiClient} from "@scm-manager/ui-components";
-import {isEditable} from "./isEditable";
+import type { File } from "@scm-manager/ui-types";
+import { withRouter } from "react-router-dom";
+import { apiClient } from "@scm-manager/ui-components";
+import { isEditable } from "./isEditable";
 
 const styles = {
   button: {
@@ -24,57 +24,58 @@ type Props = {
   classes: any,
   t: string => string,
   location: any,
-  history: any,
+  history: History,
   match: any
 };
 
 type State = {
   contentType: string,
   language: string,
+  contentLength: number,
   loading: boolean
-}
+};
 
 class FileEditButton extends React.Component<Props, State> {
-
   constructor(props: Props) {
     super(props);
-    this.state = {loading: true};
+    this.state = { loading: true };
   }
 
   componentDidMount() {
-    apiClient
-      .head(this.props.file._links.self.href)
-      .then(response => this.setState({
-          loading: false,
-          contentType: response.headers.get("Content-Type"),
-          language: response.headers.get("X-Programming-Language"),
-        })
-      );
+    apiClient.head(this.props.file._links.self.href).then(response =>
+      this.setState({
+        loading: false,
+        contentLength: parseInt(response.headers.get("Content-Length")),
+        contentType: response.headers.get("Content-Type"),
+        language: response.headers.get("X-Programming-Language")
+      })
+    );
   }
 
   shouldRender = () => {
     if (!this.props.file._links.modify) {
-      return false
+      return false;
     }
-    const { loading, language, contentType } = this.state;
+    const { loading, language, contentType, contentLength } = this.state;
     if (loading) {
       return false;
     }
-    return isEditable(contentType, language);
+    return isEditable(contentType, language, contentLength);
   };
 
   pushToEditPage() {
-    const {match, location, history} = this.props;
+    const { match, location, history } = this.props;
     history.push(
       location.pathname.split("sources/")[0] +
-      "edit/" +
-      match.params.path + "?branch=" +
-      match.params.revision
+        "edit/" +
+        match.params.path +
+        "?branch=" +
+        match.params.revision
     );
   }
 
   render() {
-    const {classes, t} = this.props;
+    const { classes, t } = this.props;
 
     return (
       <>
@@ -84,7 +85,7 @@ class FileEditButton extends React.Component<Props, State> {
             className={classNames(classes.button, "button")}
             onClick={() => this.pushToEditPage()}
           >
-            <i className="fas fa-edit"/>
+            <i className="fas fa-edit" />
           </a>
         )}
       </>
@@ -92,4 +93,6 @@ class FileEditButton extends React.Component<Props, State> {
   }
 }
 
-export default injectSheet(styles)(withRouter(translate("plugins")(FileEditButton)));
+export default injectSheet(styles)(
+  withRouter(translate("plugins")(FileEditButton))
+);

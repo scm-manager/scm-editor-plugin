@@ -1,9 +1,9 @@
 // @flow
 import React from "react";
-import {translate} from "react-i18next";
+import { translate } from "react-i18next";
 import injectSheet from "react-jss";
-import type {File, Me, Repository} from "@scm-manager/ui-types";
-import {withRouter} from "react-router-dom";
+import type { File, Me, Repository } from "@scm-manager/ui-types";
+import { withRouter } from "react-router-dom";
 import Subtitle from "@scm-manager/ui-components/src/layout/Subtitle";
 import FilePath from "../FilePath";
 import {
@@ -11,35 +11,57 @@ import {
   Button,
   ButtonGroup,
   ErrorNotification,
-  InputField,
   Loading,
   Textarea
 } from "@scm-manager/ui-components";
 import queryString from "query-string";
-import {compose} from "redux";
-import {connect} from "react-redux";
-import classNames from "classnames";
+import { compose } from "redux";
+import { connect } from "react-redux";
 import CommitMessage from "../CommitMessage";
-import {isEditable} from "./isEditable";
+import { isEditable } from "./isEditable";
 
 const styles = {
   editor: {
-    marginBottom: "2rem",
     "& div": {
       "& div": {
         "& textarea": {
-          fontFamily: "courier",
+          fontFamily: "monospace",
           "&:not([rows])": {
             minHeight: "30rem",
-            maxHeight: "100rem"
+            maxHeight: "100rem",
+            border: "none",
+            borderRadius: "4px"
+          },
+          "&:hover": {
+            border: "none"
           }
         }
       }
     }
   },
   branch: {
-    "& input": {
-      marginBottom: "2rem"
+    marginBottom: "1rem"
+  },
+  border: {
+    marginBottom: "2rem",
+    border: "1px solid #98d8f3",
+    borderRadius: "4px",
+    "& .input:focus, .input:active, .textarea:focus, .textarea:active": {
+      boxShadow: "none"
+    },
+    "&:focus-within": {
+      borderColor: "#33b2e8",
+      boxShadow: "0 0 0 0.125em rgba(51, 178, 232, 0.25)",
+      "&:hover": {
+        borderColor: "#33b2e8"
+      }
+    },
+    "&:hover": {
+      border: "1px solid #b5b5b5",
+      borderRadius: "4px"
+    },
+    "& .input, .textarea": {
+      borderColor: "#dbdbdb"
     }
   }
 };
@@ -47,6 +69,7 @@ const styles = {
 type Props = {
   repository: Repository,
   me: Me,
+  editMode: boolean,
   file: File,
 
   //context props
@@ -68,7 +91,8 @@ type State = {
   loading: boolean,
   commitMessage: string,
   contentType: string,
-  language: string
+  language: string,
+  contentLength: number
 };
 
 class FileEdit extends React.Component<Props, State> {
@@ -82,20 +106,26 @@ class FileEdit extends React.Component<Props, State> {
       revision: queryString.parse(this.props.location.search, {
         ignoreQueryPrefix: true
       }).branch,
-      file: null,
-      path: ""
+      file: this.props.editMode ? null : {},
+      path: "",
+      isValid: true
     };
   }
 
   componentDidMount() {
-    this.fetchFile();
+    if (this.props.editMode) {
+      this.fetchFile();
+    } else {
+      this.setState({ initialLoading: false });
+      this.afterLoading();
+    }
   }
 
   fetchFile = () => {
     this.createFileUrl()
       .then(apiClient.get)
       .then(response => response.json())
-      .then(file => this.setState({file}))
+      .then(file => this.setState({ file }))
       .then(() => this.fetchContent())
       .catch(this.handleInitialError);
   };
@@ -104,91 +134,126 @@ class FileEdit extends React.Component<Props, State> {
     apiClient
       .get(this.state.file._links.self.href)
       .then(response => {
-        response.text().then(content =>
-          this.setState({
-              contentType: response.headers.get("Content-Type"),
-              language: response.headers.get("X-Programming-Language"),
-              content
-            }, this.afterLoading))
-      .catch(this.handleInitialError);
+        response
+          .text()
+          .then(content =>
+            this.setState(
+              {
+                contentType: response.headers.get("Content-Type"),
+                language: response.headers.get("X-Programming-Language"),
+                contentLength: content.length,
+                content
+              },
+              this.afterLoading
+            )
+          )
+          .catch(this.handleInitialError);
       })
       .catch(this.handleInitialError);
   };
 
   afterLoading = () => {
-    const {file, initialLoading, path, pathWithFilename} = this.state;
-    const parentDirPath = pathWithFilename.replace(file.name, "");
+    const { file, initialLoading, path, pathWithFilename } = this.state;
+    const parentDirPath = this.props.editMode
+      ? pathWithFilename.replace(file.name, "")
+      : pathWithFilename;
 
-    !path && this.setState({path: parentDirPath});
-    initialLoading && this.setState({initialLoading: false});
+    !path && this.setState({ path: parentDirPath });
+    initialLoading && this.setState({ initialLoading: false });
   };
 
-  createFileUrl = () => new Promise((resolve, reject) => {
-    const {repository, t} = this.props;
-    const {revision, pathWithFilename} = this.state;
+  createFileUrl = () =>
+    new Promise((resolve, reject) => {
+      const { repository, t } = this.props;
+      const { revision, pathWithFilename } = this.state;
 
-    if (repository._links.sources) {
-      let base = repository._links.sources.href;
+      if (repository._links.sources) {
+        let base = repository._links.sources.href;
 
-      if (!pathWithFilename) {
-        reject(new Error(t("scm-editor-plugin.errors.fileMissing")));
+        if (!pathWithFilename) {
+          reject(new Error(t("scm-editor-plugin.errors.fileMissing")));
+        }
+
+        if (!revision) {
+          reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
+        }
+
+        const encodedRevision = encodeURIComponent(revision);
+
+        const pathDefined = pathWithFilename ? pathWithFilename : "";
+        resolve(`${base}${encodedRevision}/${pathDefined}`);
       }
-
-      if (!revision) {
-        reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
-      }
-
-      const pathDefined = pathWithFilename ? pathWithFilename : "";
-      resolve(`${base}${encodeURIComponent(revision)}/${pathDefined}`);
-    }
-  });
+    });
 
   changePath = path => {
-    this.setState({path});
+    this.setState({ path });
   };
 
   changeFileName = fileName => {
-    const {file} = this.state;
-    this.setState({file: {...file, name: fileName}});
+    const { file } = this.state;
+    this.setState({ file: { ...file, name: fileName } });
   };
 
   changeFileContent = content => {
-    this.setState({content});
+    this.setState({ content });
   };
 
   changeCommitMessage = commitMessage => {
-    this.setState({commitMessage});
+    this.setState({ commitMessage });
   };
   handleInitialError = initialError => {
-    this.setState({initialLoading: false, initialError});
+    this.setState({ initialLoading: false, initialError });
   };
+  validate = isValid => {
+    this.setState({ isValid });
+  };
+
   handleError = error => {
-    this.setState({initialLoading: false, error});
+    this.setState({ loading: false, initialLoading: false, error });
   };
 
   redirectToContentView = () => {
-    //TODO Redirect using the explicit file url
-    this.props.history.goBack();
+    const { repository } = this.props;
+    const { revision, path, file } = this.state;
+
+    const pathWithEndingSlash = !path
+      ? ""
+      : path.endsWith("/")
+      ? path
+      : path + "/";
+    const encodedRevision = encodeURIComponent(revision);
+    const encodedFilename =
+      file && file.name ? encodeURIComponent(this.state.file.name) + "/" : "";
+
+    const redirectUrl = `/repo/${repository.namespace}/${
+      repository.name
+    }/sources/${encodedRevision}/${pathWithEndingSlash + encodedFilename}`;
+
+    this.props.history.push(redirectUrl);
   };
 
   commitFile = () => {
-    const {repository} = this.props;
-    const {file, commitMessage, path, revision, content} = this.state;
+    const { repository, editMode } = this.props;
+    const { file, commitMessage, path, revision, content } = this.state;
 
     if (file) {
-      const link = repository._links.modify.href;
-      const blob = new Blob([content], {type: file.type});
-      this.setState({loading: true});
+      const link = editMode
+        ? repository._links.modify.href
+        : repository._links.fileUpload.href;
+      const blob = new Blob([content ? content : ""], {
+        type: editMode ? file.type : "text/plain"
+      });
+      this.setState({ loading: true });
 
       apiClient
         .postBinary(
-          link.replace("{path}", path) +
-          (revision ? "?branch=" + revision : ""),
+          link.replace("{path}", path ? path : "") +
+            (revision ? "?branch=" + revision : ""),
           formdata => {
             formdata.append("file", blob, file.name);
             formdata.append(
               "commit",
-              JSON.stringify({commitMessage, branch: revision})
+              JSON.stringify({ commitMessage, branch: revision })
             );
           }
         )
@@ -198,7 +263,7 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   render() {
-    const {t, classes, me} = this.props;
+    const { t, classes, me, editMode } = this.props;
     const {
       path,
       file,
@@ -206,49 +271,61 @@ class FileEdit extends React.Component<Props, State> {
       initialLoading,
       initialError,
       loading,
-      revision,
       error,
+      isValid,
+      revision,
       commitMessage,
       contentType,
-      language
+      language,
+      contentLength
     } = this.state;
 
     if (initialLoading) {
-      return <Loading/>;
+      return <Loading />;
     }
 
     if (initialError) {
-      return <ErrorNotification error={initialError}/>;
+      return <ErrorNotification error={initialError} />;
     }
 
-    if (!isEditable(contentType, language)) {
-      return <ErrorNotification error={{message: t("scm-editor-plugin.edit.notEditable")}} />;
+    if (editMode && !isEditable(contentType, language, contentLength)) {
+      return (
+        <ErrorNotification
+          error={{ message: t("scm-editor-plugin.edit.notEditable") }}
+        />
+      );
     }
 
     return (
       <>
-        <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")}/>
-        <div className={classes.branch}>
-          <InputField
-            label={t("scm-editor-plugin.edit.selectedBranch")}
-            className={classNames("is-fullwidth")}
-            disabled={true}
-            value={revision}
+        <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
+        {revision && (
+          <div className={classes.branch}>
+            <span>
+              <strong>
+                {t("scm-editor-plugin.edit.selectedBranch") + ": "}
+              </strong>
+              {revision}
+            </span>
+          </div>
+        )}
+        <div className={classes.border}>
+          <FilePath
+            changePath={this.changePath}
+            path={path}
+            file={file}
+            changeFileName={this.changeFileName}
+            disabled={editMode || loading}
+            validate={this.validate}
           />
-        </div>
-        <FilePath
-          changePath={this.changePath}
-          path={path}
-          file={file}
-          changeFileName={this.changeFileName}
-          disabled={file || loading}
-        />
-        <div className={classes.editor}>
-          <Textarea
-            value={content && content}
-            onChange={this.changeFileContent}
-            disabled={loading}
-          />
+          <div className={classes.editor}>
+            <Textarea
+              value={content && content}
+              onChange={this.changeFileContent}
+              disabled={loading}
+              placeholder={t("scm-editor-plugin.edit.placeholder")}
+            />
+          </div>
         </div>
         <CommitMessage
           me={me}
@@ -256,9 +333,9 @@ class FileEdit extends React.Component<Props, State> {
           onChange={this.changeCommitMessage}
           disabled={loading}
         />
-        {error && <ErrorNotification error={error}/>}
+        {error && <ErrorNotification error={error} />}
         <div className="level">
-          <div className="level-left"/>
+          <div className="level-left" />
           <div className="level-right">
             <ButtonGroup>
               <Button
@@ -269,7 +346,7 @@ class FileEdit extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
-                disabled={!commitMessage || !content}
+                disabled={!commitMessage || !isValid || !file.name}
                 action={() => this.commitFile()}
                 loading={loading}
               />
@@ -282,7 +359,7 @@ class FileEdit extends React.Component<Props, State> {
 }
 
 const mapStateToProps = state => {
-  const {auth} = state;
+  const { auth } = state;
   const me = auth.me;
 
   return {

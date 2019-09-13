@@ -2,6 +2,7 @@
 import React from "react";
 import {compose} from "redux";
 import {connect} from "react-redux";
+import injectSheet from "react-jss";
 import {withRouter} from "react-router-dom";
 import {translate} from "react-i18next";
 import queryString from "query-string";
@@ -12,6 +13,34 @@ import FilePath from "../FilePath";
 import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 
+const styles = {
+  branch: {
+    marginBottom: "1rem"
+  },
+  border: {
+    marginBottom: "2rem",
+    border: "1px solid #98d8f3",
+    borderRadius: "4px",
+    "& .input:focus, .input:active, .section:focus, .section:active": {
+      boxShadow: "none"
+    },
+    "&:focus-within": {
+      borderColor: "#33b2e8",
+      boxShadow: "0 0 0 0.125em rgba(51, 178, 232, 0.25)",
+      "&:hover": {
+        borderColor: "#33b2e8"
+      }
+    },
+    "&:hover": {
+      border: "1px solid #b5b5b5",
+      borderRadius: "4px"
+    },
+    "& .input, .textarea": {
+      borderColor: "#dbdbdb"
+    }
+  }
+};
+
 type Props = {
   me?: Me,
   url: string,
@@ -21,7 +50,8 @@ type Props = {
   t: string => string,
   match: any,
   location: any,
-  history: any
+  history: History,
+  classes: any
 };
 
 type State = {
@@ -83,19 +113,16 @@ class FileUpload extends React.Component<Props, State> {
     this.setState({ loading: true });
 
     apiClient
-      .postBinary(
-        link.replace("{path}", path),
-        formdata => {
-          files.forEach((file, i) => formdata.append("file" + i, file));
-          formdata.append("commit", JSON.stringify({commitMessage, branch}));
-        }
-      )
+      .postBinary(link.replace("{path}", path), formdata => {
+        files.forEach((file, i) => formdata.append("file" + i, file));
+        formdata.append("commit", JSON.stringify({commitMessage, branch}));
+      })
       .then(() => history.push(sourcesLink))
       .catch(this.handleError);
   };
 
   render() {
-    const { t, me, location } = this.props;
+    const {t, me, location, classes} = this.props;
     const {
       files,
       path,
@@ -115,17 +142,31 @@ class FileUpload extends React.Component<Props, State> {
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")} />
-        <FilePath path={path} changePath={this.changePath}/>
-        <FileUploadDropzone fileHandler={this.handleFile} disabled={loading}/>
-        <br />
-        {files && files.length > 0 && (
+        {branch && (
+          <div className={classes.branch}>
+            <span>
+              <strong>
+                {t("scm-editor-plugin.edit.selectedBranch") + ": "}
+              </strong>
+              {branch}
+            </span>
+          </div>
+        )}
+        <div className={classes.border}>
+          <FilePath path={path} changePath={this.changePath}/>
+          <FileUploadDropzone
+            fileHandler={this.handleFile}
+            disabled={loading}
+          />
+        </div>
+        {files &&
+        files.length > 0 && (
           <FileUploadTable
             files={files}
             removeFileEntry={this.removeFileEntry}
             disabled={loading}
           />
         )}
-        <br />
         {error && <ErrorNotification error={error} />}
         <CommitMessage
           me={me}
@@ -168,6 +209,7 @@ const mapStateToProps = state => {
 };
 
 export default compose(
+  injectSheet(styles),
   translate("plugins"),
   withRouter,
   connect(mapStateToProps)
