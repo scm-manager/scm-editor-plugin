@@ -91,7 +91,8 @@ type State = {
   loading: boolean,
   commitMessage: string,
   contentType: string,
-  language: string
+  language: string,
+  contentLength: number
 };
 
 class FileEdit extends React.Component<Props, State> {
@@ -140,6 +141,7 @@ class FileEdit extends React.Component<Props, State> {
               {
                 contentType: response.headers.get("Content-Type"),
                 language: response.headers.get("X-Programming-Language"),
+                contentLength: content.length,
                 content
               },
               this.afterLoading
@@ -274,7 +276,8 @@ class FileEdit extends React.Component<Props, State> {
       revision,
       commitMessage,
       contentType,
-      language
+      language,
+      contentLength
     } = this.state;
 
     if (initialLoading) {
@@ -285,7 +288,7 @@ class FileEdit extends React.Component<Props, State> {
       return <ErrorNotification error={initialError} />;
     }
 
-    if (editMode && !isEditable(contentType, language)) {
+    if (editMode && !isEditable(contentType, language, contentLength)) {
       return (
         <ErrorNotification
           error={{ message: t("scm-editor-plugin.edit.notEditable") }}
