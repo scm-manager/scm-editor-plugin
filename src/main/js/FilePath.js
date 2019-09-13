@@ -1,9 +1,12 @@
 // @flow
 import React from "react";
-import {translate} from "react-i18next";
+import { translate } from "react-i18next";
 import injectSheet from "react-jss";
 import classNames from "classnames";
-import {InputField, validation as validator} from "@scm-manager/ui-components";
+import {
+  InputField,
+  validation as validator
+} from "@scm-manager/ui-components";
 
 const styles = {
   zeroflex: {
@@ -67,12 +70,12 @@ class FilePath extends React.Component<Props, State> {
 
   changePath = path => {
     this.props.changePath(path);
-    this.setState({pathValidationError: !validator.isPathValid(path)});
+    this.setState({ pathValidationError: !validator.isPathValid(path) });
   };
 
   changeFileName = fileName => {
     this.props.changeFileName(fileName);
-    this.setState({filenameValidationError: !fileName}, this.validate);
+    this.setState({ filenameValidationError: !fileName }, this.validate);
   };
 
   validate = () => {
@@ -82,7 +85,7 @@ class FilePath extends React.Component<Props, State> {
   };
 
   render() {
-    const {t, classes, file, disabled} = this.props;
+    const { t, classes, file, disabled } = this.props;
     return (
       <div className={classes.noTopBorder}>
         <div className={classNames("panel-heading", classes.noBorder)}>

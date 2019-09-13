@@ -30,7 +30,7 @@ type Props = {
   // context props
   classes: any,
   location: any,
-  history: any,
+  history: History,
   t: string => string
 };
 

@@ -24,7 +24,7 @@ type Props = {
   classes: any,
   t: string => string,
   location: any,
-  history: any,
+  history: History,
   match: any
 };
 
@@ -32,7 +32,7 @@ type State = {
   contentType: string,
   language: string,
   loading: boolean
-}
+};
 
 class FileEditButton extends React.Component<Props, State> {
 
@@ -54,9 +54,9 @@ class FileEditButton extends React.Component<Props, State> {
 
   shouldRender = () => {
     if (!this.props.file._links.modify) {
-      return false
+      return false;
     }
-    const { loading, language, contentType } = this.state;
+    const {loading, language, contentType} = this.state;
     if (loading) {
       return false;
     }

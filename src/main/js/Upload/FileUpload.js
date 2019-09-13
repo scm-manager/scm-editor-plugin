@@ -50,7 +50,7 @@ type Props = {
   t: string => string,
   match: any,
   location: any,
-  history: any,
+  history: History,
   classes: any
 };
 
