@@ -209,7 +209,7 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   handleError = error => {
-    this.setState({ initialLoading: false, error });
+    this.setState({ loading: false, initialLoading: false, error });
   };
 
   redirectToContentView = () => {
