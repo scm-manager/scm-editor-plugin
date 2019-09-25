@@ -67,7 +67,7 @@ public class EditorService {
       @SuppressWarnings("squid:S1075") // the path delimiter is for urls, not for os files
       String completeFileName = computeCompleteFileName(fileName);
       try {
-        modifyCommand.createFile(completeFileName).withData(stream);
+        modifyCommand.createFile(completeFileName).setOverwrite(true).withData(stream);
       } catch (IOException e) {
         throw new UploadFailedException(fileName);
       }
