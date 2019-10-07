@@ -4,10 +4,10 @@ import { translate } from "react-i18next";
 import injectSheet from "react-jss";
 import type { File, Me, Repository } from "@scm-manager/ui-types";
 import { withRouter } from "react-router-dom";
-import Subtitle from "@scm-manager/ui-components/src/layout/Subtitle";
 import FilePath from "../FilePath";
 import {
   apiClient,
+  Subtitle,
   Button,
   ButtonGroup,
   ErrorNotification,
