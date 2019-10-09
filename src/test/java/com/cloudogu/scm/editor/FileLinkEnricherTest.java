@@ -114,7 +114,7 @@ class FileLinkEnricherTest {
 
     @BeforeEach
     void giveModifyPermission() {
-      lenient().when(subject.isPermitted("repository:modify:1")).thenReturn(true);
+      lenient().when(subject.isPermitted("repository:push:1")).thenReturn(true);
     }
 
     @Test
@@ -176,7 +176,7 @@ class FileLinkEnricherTest {
 
     @BeforeEach
     void revokeModifyPermission() {
-      when(subject.isPermitted("repository:modify:1")).thenReturn(false);
+      when(subject.isPermitted("repository:push:1")).thenReturn(false);
     }
 
     @Test

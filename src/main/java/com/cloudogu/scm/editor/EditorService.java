@@ -51,7 +51,7 @@ public class EditorService {
 
   @VisibleForTesting
   void checkWritePermission(RepositoryService repositoryService) {
-    RepositoryPermissions.modify(repositoryService.getRepository()).check();
+    RepositoryPermissions.push(repositoryService.getRepository()).check();
   }
 
   public static class FileUploader {
