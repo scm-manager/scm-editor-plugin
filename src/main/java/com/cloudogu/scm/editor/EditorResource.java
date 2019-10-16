@@ -3,6 +3,7 @@ package com.cloudogu.scm.editor;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.ByteSource;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
@@ -18,14 +19,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.http.HttpStatus.SC_CREATED;
 
 @Path(EditorResource.EDITOR_REQUESTS_PATH_V2)
@@ -232,7 +232,7 @@ public class EditorResource {
 
   private CommitDto extractCommit(List<InputPart> input) throws IOException {
     if (input != null && !input.isEmpty()) {
-      String content = readBodyForCommitObject(input).readLine();
+      String content = readBodyForCommitObject(input);
       try (JsonParser parser = new JsonFactory().createParser(content)) {
         parser.setCodec(new ObjectMapper());
         CommitDto commitDto = parser.readValueAs(CommitDto.class);
@@ -245,8 +245,13 @@ public class EditorResource {
     throw new MessageMissingException();
   }
 
-  private BufferedReader readBodyForCommitObject(List<InputPart> input) throws IOException {
-    return new BufferedReader(new InputStreamReader(((MultipartInputImpl.PartImpl) input.get(0)).getBody()));
+  private String readBodyForCommitObject(List<InputPart> input) throws IOException {
+    return new ByteSource() {
+      @Override
+      public InputStream openStream() throws IOException {
+        return ((MultipartInputImpl.PartImpl) input.get(0)).getBody();
+      }
+    }.asCharSource(UTF_8).read();
   }
 
   private String parseFileName(MultivaluedMap<String, String> headers) {
