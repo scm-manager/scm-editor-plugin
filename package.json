@@ -1,27 +1,27 @@
 {
   "name": "@scm-manager/scm-editor-plugin",
+  "private": true,
+  "version": "2.0.0-SNAPSHOT",
   "license": "BSD-3-Clause",
   "main": "src/main/js/index.js",
   "scripts": {
-    "build": "ui-bundler plugin",
-    "watch": "ui-bundler plugin -w",
-    "lint": "ui-bundler lint",
-    "flow": "flow check"
+    "build": "ui-scripts plugin",
+    "watch": "ui-scripts plugin-watch",
+    "test": "jest"
   },
   "dependencies": {
-    "@scm-manager/ui-components": "latest",
-    "@scm-manager/ui-extensions": "^0.1.1",
-    "@scm-manager/ui-types": "latest",
-    "query-string": "5",
-    "classnames": "^2.2.6",
-    "react-dropzone": "^10.1.8",
-    "react-i18next": "^10.12.2",
-    "react-jss": "^8.6.1"
+    "@scm-manager/ui-plugins": "latest"
   },
-  "devDependencies": {
-    "@scm-manager/ui-bundler": "^0.0.31",
-    "jest": "^23.6.0",
-    "prettier": "^1.15.1",
-    "react-router-dom": "^4.3.1"
+  "babel": {
+    "presets": [
+      "@scm-manager/babel-preset"
+    ]
+  },
+  "jest": {
+    "preset": "@scm-manager/jest-preset"
+  },
+  "prettier": "@scm-manager/prettier-config",
+  "eslintConfig": {
+    "extends": "@scm-manager/eslint-config"
   }
 }
