@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartInputImpl;
 import sonia.scm.BadRequestException;
 
 import javax.annotation.Nullable;
@@ -17,8 +18,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -210,13 +213,13 @@ public class EditorResource {
       .stream()
       .filter(e -> e.getKey().startsWith("file"))
       .map(Map.Entry::getValue)
-      .forEach(inputParts -> processFile(fileUploader, inputParts, processor));
+      .forEach(inputParts -> processFile(fileUploader, inputParts, processor, commit));
     return fileUploader.done();
   }
 
-  private void processFile(EditorService.FileUploader fileUploader, List<InputPart> inputParts, UploadProcessor uploadProcessor) {
+  private void processFile(EditorService.FileUploader fileUploader, List<InputPart> inputParts, UploadProcessor uploadProcessor, CommitDto commit) {
     for (InputPart inputPart : inputParts) {
-      String fileName = parseFileName(inputPart.getHeaders());
+      String fileName = commit.getNames().get(parseFileName(inputPart.getHeaders()));
 
       try {
         InputStream stream = inputPart.getBody(InputStream.class, null);
@@ -229,7 +232,7 @@ public class EditorResource {
 
   private CommitDto extractCommit(List<InputPart> input) throws IOException {
     if (input != null && !input.isEmpty()) {
-      String content = input.get(0).getBodyAsString();
+      String content = readBodyForCommitObject(input).readLine();
       try (JsonParser parser = new JsonFactory().createParser(content)) {
         parser.setCodec(new ObjectMapper());
         CommitDto commitDto = parser.readValueAs(CommitDto.class);
@@ -240,6 +243,10 @@ public class EditorResource {
       }
     }
     throw new MessageMissingException();
+  }
+
+  private BufferedReader readBodyForCommitObject(List<InputPart> input) throws IOException {
+    return new BufferedReader(new InputStreamReader(((MultipartInputImpl.PartImpl) input.get(0)).getBody()));
   }
 
   private String parseFileName(MultivaluedMap<String, String> headers) {
