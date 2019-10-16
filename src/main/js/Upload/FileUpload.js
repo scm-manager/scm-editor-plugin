@@ -18,6 +18,7 @@ import FilePath from "../FilePath";
 import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 import styled from "styled-components";
+import type { Commit } from "../commit";
 
 const BranchMarginBottom = styled.div`
   margin-bottom: 1rem;
@@ -123,16 +124,38 @@ class FileUpload extends React.Component<Props, State> {
 
     this.setState({ loading: true });
 
-    const names = {};
-    files.forEach((file, i) => (names["file" + i] = file.name));
-    const commit = { commitMessage, branch, names };
+    const fileAliases: { [string]: File } = this.buildFileAliases(files);
+    const commit: Commit = {
+      commitMessage,
+      branch,
+      names: this.buildFileNameMap(fileAliases)
+    };
+
     apiClient
       .postBinary(link.replace("{path}", path), formdata => {
-        files.forEach((file, i) => formdata.append("file" + i, file, "file" + i));
+        Object.keys(fileAliases).forEach(name =>
+          formdata.append(name, fileAliases[name], name)
+        );
         formdata.append("commit", JSON.stringify(commit));
       })
       .then(() => history.push(sourcesLink))
       .catch(this.handleError);
+  };
+
+  buildFileAliases: (File[]) => { [string]: File } = files => {
+    const fileAliases: { [string]: File } = {};
+    files.forEach((file, i) => (fileAliases["file" + i] = file));
+    return fileAliases;
+  };
+
+  buildFileNameMap: ({ [string]: File }) => {
+    [string]: string
+  } = fileAliases => {
+    const nameMap: { [string]: string } = {};
+    Object.keys(fileAliases).forEach(
+      name => (nameMap[name] = fileAliases[name].name)
+    );
+    return nameMap;
   };
 
   render() {
