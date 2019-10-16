@@ -2,19 +2,16 @@
 import React from "react";
 import type {Branch, Repository} from "@scm-manager/ui-types";
 import {translate} from "react-i18next";
-import injectSheet from "react-jss";
-import classNames from "classnames";
 import {Link} from "react-router-dom";
+import styled from "styled-components";
 
-const styles = {
-  button: {
-    width: "50px",
-    color: "#33b2e8",
-    "&:hover": {
-      color: "#363636"
-    }
+const Button = styled.span`
+  width: 50px;
+  color: #33b2e8;
+  &:hover {
+    color: #363636;
   }
-};
+`;
 
 type Props = {
   repository: Repository,
@@ -23,7 +20,6 @@ type Props = {
   branch?: Branch,
   isBranchUrl: boolean,
   // context props
-  classes: any,
   t: string => string
 };
 
@@ -43,19 +39,18 @@ class FileUploadButton extends React.Component<Props> {
   };
 
   render() {
-    const {classes, t, isBranchUrl, repository} = this.props;
+    const {t, isBranchUrl, repository} = this.props;
 
     return (
       <>
-        {isBranchUrl &&
-        repository._links.fileUpload && (
+        {isBranchUrl && repository._links.fileUpload && (
           <Link to={this.createUploadUrl()}>
-              <span
-                title={t("scm-editor-plugin.upload.tooltip")}
-                className={classNames(classes.button, "button")}
-              >
-                <i className="fas fa-upload"/>
-              </span>
+            <Button
+              title={t("scm-editor-plugin.upload.tooltip")}
+              className="button"
+            >
+              <i className="fas fa-upload"/>
+            </Button>
           </Link>
         )}
       </>
@@ -63,4 +58,4 @@ class FileUploadButton extends React.Component<Props> {
   }
 }
 
-export default injectSheet(styles)(translate("plugins")(FileUploadButton));
+export default translate("plugins")(FileUploadButton);

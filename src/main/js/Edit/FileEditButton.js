@@ -1,27 +1,23 @@
 // @flow
 import React from "react";
-import { translate } from "react-i18next";
-import injectSheet from "react-jss";
-import classNames from "classnames";
-import type { File } from "@scm-manager/ui-types";
-import { withRouter } from "react-router-dom";
-import { apiClient } from "@scm-manager/ui-components";
-import { isEditable } from "./isEditable";
+import {translate} from "react-i18next";
+import type {File} from "@scm-manager/ui-types";
+import {withRouter} from "react-router-dom";
+import {apiClient} from "@scm-manager/ui-components";
+import {isEditable} from "./isEditable";
+import styled from "styled-components";
 
-const styles = {
-  button: {
-    width: "50px",
-    "&:hover": {
-      color: "#33b2e8"
-    }
+const Button = styled.a`
+  width: 50px;
+  &:hover {
+    color: #33b2e8;
   }
-};
+`;
 
 type Props = {
   file: File,
 
   // context props
-  classes: any,
   t: string => string,
   location: any,
   history: History,
@@ -75,24 +71,22 @@ class FileEditButton extends React.Component<Props, State> {
   }
 
   render() {
-    const { classes, t } = this.props;
+    const {t} = this.props;
 
     return (
       <>
         {this.shouldRender() && (
-          <a
+          <Button
             title={t("scm-editor-plugin.edit.tooltip")}
-            className={classNames(classes.button, "button")}
+            className="button"
             onClick={() => this.pushToEditPage()}
           >
             <i className="fas fa-edit" />
-          </a>
+          </Button>
         )}
       </>
     );
   }
 }
 
-export default injectSheet(styles)(
-  withRouter(translate("plugins")(FileEditButton))
-);
+export default withRouter(translate("plugins")(FileEditButton));

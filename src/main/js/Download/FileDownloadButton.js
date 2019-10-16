@@ -1,41 +1,37 @@
 // @flow
 import React from "react";
-import { translate } from "react-i18next";
-import injectSheet from "react-jss";
-import classNames from "classnames";
-import type { File } from "@scm-manager/ui-types";
+import {translate} from "react-i18next";
+import type {File} from "@scm-manager/ui-types";
+import styled from "styled-components";
 
-const styles = {
-  button: {
-    width: "50px",
-    "&:hover": {
-      color: "#33b2e8"
-    }
+const Button = styled.a`
+  width: 50px;
+  &:hover {
+    color: #33b2e8;
   }
-};
+`;
 
 type Props = {
   file: File,
 
   // context props
-  classes: any,
   t: string => string
 };
 
 class FileDownloadButton extends React.Component<Props> {
   render() {
-    const { file, classes, t } = this.props;
+    const {file, t} = this.props;
     return (
-      <a
+      <Button
         title={t("scm-editor-plugin.download.tooltip")}
-        className={classNames(classes.button, "button")}
+        className="button"
         href={file._links.self.href}
         download={file.name}
       >
         <i className="fas fa-download" />
-      </a>
+      </Button>
     );
   }
 }
 
-export default injectSheet(styles)(translate("plugins")(FileDownloadButton));
+export default translate("plugins")(FileDownloadButton);

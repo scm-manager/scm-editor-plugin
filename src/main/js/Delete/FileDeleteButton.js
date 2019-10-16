@@ -1,26 +1,22 @@
 // @flow
 import React from "react";
-import {compose} from "redux";
-import { translate } from "react-i18next";
-import injectSheet from "react-jss";
-import classNames from "classnames";
-import type { File } from "@scm-manager/ui-types";
+import {translate} from "react-i18next";
+import type {File} from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
 import {apiClient} from "@scm-manager/ui-components";
 import {withRouter} from "react-router-dom";
+import styled from "styled-components";
 
-const styles = {
-  button: {
-    width: "50px",
-    "&:hover": {
-      color: "#33b2e8"
-    }
-  },
-  /* resets pointer styling of Sources Content */
-  pointer: {
-    cursor: "initial"
+const Button = styled.a`
+  width: 50px;
+  &:hover {
+    color: #33b2e8;
   }
-};
+`;
+
+const Pointer = styled.div`
+    cursor: initial;
+`;
 
 type Props = {
   file: File,
@@ -28,7 +24,6 @@ type Props = {
   handleExtensionError: (error: Error) => void,
 
   // context props
-  classes: any,
   location: any,
   history: History,
   t: string => string
@@ -57,7 +52,13 @@ class FileDeleteButton extends React.Component<Props, State> {
   };
 
   deleteFile = (commitMessage: string) => {
-    const { file, revision, history, location, handleExtensionError } = this.props;
+    const {
+      file,
+      revision,
+      history,
+      location,
+      handleExtensionError
+    } = this.props;
     this.setState({loading: true});
     apiClient
       .post(this.props.file._links.delete.href, {
@@ -65,7 +66,12 @@ class FileDeleteButton extends React.Component<Props, State> {
         branch: revision
       })
       .then(() => {
-        history.push(location.pathname.substr(0, location.pathname.length - file.name.length - 1));
+        history.push(
+          location.pathname.substr(
+            0,
+            location.pathname.length - file.name.length - 1
+          )
+        );
       })
       .catch(error => {
         this.toggleModal();
@@ -78,27 +84,33 @@ class FileDeleteButton extends React.Component<Props, State> {
   };
 
   render() {
-    const { file, classes, t } = this.props;
+    const {file, t} = this.props;
     const { showModal, loading } = this.state;
 
     const modal = showModal ? (
-      <FileDeleteModal onClose={this.toggleModal} onCommit={this.deleteFile} file={file} loading={loading} />
+      <FileDeleteModal
+        onClose={this.toggleModal}
+        onCommit={this.deleteFile}
+        file={file}
+        loading={loading}
+      />
     ) : null;
 
     return (
       <>
-        <div className={classes.pointer}>{modal}</div>
+        <Pointer>{modal}</Pointer>
         {this.shouldRender() && (
-          <a
+          <Button
             title={t("scm-editor-plugin.delete.tooltip")}
-            className={classNames(classes.button, "button")}
+            className="button"
             onClick={this.toggleModal}
           >
             <i className="fas fa-trash"/>
-          </a>
+          </Button>
         )}
-      </>);
+      </>
+    );
   }
 }
 
-export default compose(injectSheet(styles), translate("plugins"), withRouter)(FileDeleteButton);
+export default withRouter(translate("plugins")(FileDeleteButton));

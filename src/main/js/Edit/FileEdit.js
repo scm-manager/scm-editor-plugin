@@ -1,70 +1,73 @@
 // @flow
 import React from "react";
-import { translate } from "react-i18next";
-import injectSheet from "react-jss";
-import type { File, Me, Repository } from "@scm-manager/ui-types";
-import { withRouter } from "react-router-dom";
+import {translate} from "react-i18next";
+import type {File, Me, Repository} from "@scm-manager/ui-types";
+import {withRouter} from "react-router-dom";
 import FilePath from "../FilePath";
 import {
   apiClient,
-  Subtitle,
   Button,
   ButtonGroup,
   ErrorNotification,
   Loading,
+  Subtitle,
   Textarea
 } from "@scm-manager/ui-components";
 import queryString from "query-string";
-import { compose } from "redux";
-import { connect } from "react-redux";
+import {compose} from "redux";
+import {connect} from "react-redux";
 import CommitMessage from "../CommitMessage";
-import { isEditable } from "./isEditable";
+import {isEditable} from "./isEditable";
+import styled from "styled-components";
 
-const styles = {
-  editor: {
-    "& div": {
-      "& div": {
-        "& textarea": {
-          fontFamily: "monospace",
-          "&:not([rows])": {
-            minHeight: "30rem",
-            maxHeight: "100rem",
-            border: "none",
-            borderRadius: "4px"
-          },
-          "&:hover": {
-            border: "none"
-          }
+const Editor = styled.div`
+  & div {
+    & div {
+      & textarea {
+        font-family: monospace;
+        &:not([rows]) {
+          min-height: 30rem;
+          max-height: 100rem;
+          border: none;
+          border-radius: 4px;
+        },
+          &:hover {
+          border: none;
         }
       }
     }
-  },
-  branch: {
-    marginBottom: "1rem"
-  },
-  border: {
-    marginBottom: "2rem",
-    border: "1px solid #98d8f3",
-    borderRadius: "4px",
-    "& .input:focus, .input:active, .textarea:focus, .textarea:active": {
-      boxShadow: "none"
-    },
-    "&:focus-within": {
-      borderColor: "#33b2e8",
-      boxShadow: "0 0 0 0.125em rgba(51, 178, 232, 0.25)",
-      "&:hover": {
-        borderColor: "#33b2e8"
-      }
-    },
-    "&:hover": {
-      border: "1px solid #b5b5b5",
-      borderRadius: "4px"
-    },
-    "& .input, .textarea": {
-      borderColor: "#dbdbdb"
+  }
+`;
+
+const Branch = styled.div`
+  margin-bottom: 1rem;
+`;
+
+const Border = styled.div`
+  margin-bottom: 2rem;
+  border: 1px solid #98d8f3;
+  border-radius: 4px;
+  & .input:focus, .input:active, .textarea:focus, .textarea:active {
+    box-shadow: none;
+  }
+  ,
+    &:focus-within: {
+    border-color: #33b2e8;
+    box-shadow: 0 0 0 0.125em rgba(51, 178, 232, 0.25);
+    &:hover {
+      border-color: #33b2e8;
     }
   }
-};
+  ,
+    &:hover: {
+    border: 1px solid #b5b5b5;
+    border-radius: 4px;
+  }
+  ,
+    & .input, .textarea: {
+    border-color: #dbdbdb;
+  }
+`;
 
 type Props = {
   repository: Repository,
@@ -75,8 +78,7 @@ type Props = {
   //context props
   t: string => string,
   match: any,
-  location: any,
-  classes: any
+  location: any
 };
 
 type State = {
@@ -263,7 +265,7 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   render() {
-    const { t, classes, me, editMode } = this.props;
+    const {t, me, editMode} = this.props;
     const {
       path,
       file,
@@ -300,16 +302,16 @@ class FileEdit extends React.Component<Props, State> {
       <>
         <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
         {revision && (
-          <div className={classes.branch}>
+          <Branch>
             <span>
               <strong>
                 {t("scm-editor-plugin.edit.selectedBranch") + ": "}
               </strong>
               {revision}
             </span>
-          </div>
+          </Branch>
         )}
-        <div className={classes.border}>
+        <Border>
           <FilePath
             changePath={this.changePath}
             path={path}
@@ -318,15 +320,15 @@ class FileEdit extends React.Component<Props, State> {
             disabled={editMode || loading}
             validate={this.validate}
           />
-          <div className={classes.editor}>
+          <Editor>
             <Textarea
               value={content && content}
               onChange={this.changeFileContent}
               disabled={loading}
               placeholder={t("scm-editor-plugin.edit.placeholder")}
             />
-          </div>
-        </div>
+          </Editor>
+        </Border>
         <CommitMessage
           me={me}
           commitMessage={commitMessage}
@@ -368,7 +370,6 @@ const mapStateToProps = state => {
 };
 
 export default compose(
-  injectSheet(styles),
   withRouter,
   connect(mapStateToProps),
   translate("plugins")

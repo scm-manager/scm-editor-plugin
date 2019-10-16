@@ -3,34 +3,31 @@ import React from "react";
 import {translate} from "react-i18next";
 import {Textarea} from "@scm-manager/ui-components";
 import type {Me} from "@scm-manager/ui-types";
-import injectSheet from "react-jss";
+import styled from "styled-components";
 
-const styles = {
-  marginBottom: {
-    marginBottom: "0.5rem"
-  }
-};
+const MarginBottom = styled.div`
+  margin-bottom: 0.5rem;
+`;
 
 type Props = {
   me: Me,
   onChange: string => void,
   disabled: boolean,
   //context props
-  t: string => string,
-  classes: any
+  t: string => string
 };
 
 class CommitMessage extends React.Component<Props> {
   render() {
-    const {t, classes, me, onChange, disabled} = this.props;
+    const {t, me, onChange, disabled} = this.props;
     return (
       <>
-        <div className={classes.marginBottom}>
+        <MarginBottom>
           <span>
             <strong>{t("scm-editor-plugin.commit.author")}</strong>{" "}
             {me.displayName + " <" + me.mail + ">"}
           </span>
-        </div>
+        </MarginBottom>
         <Textarea
           placeholder={t("scm-editor-plugin.commit.placeholder")}
           onChange={message => onChange(message)}
@@ -41,4 +38,4 @@ class CommitMessage extends React.Component<Props> {
   }
 }
 
-export default injectSheet(styles)(translate("plugins")(CommitMessage));
+export default translate("plugins")(CommitMessage);

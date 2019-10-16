@@ -13,7 +13,7 @@ type Props = {
   handleExtensionError: (error: Error) => void
 };
 
-class SourcesActionbar extends React.Component<Props> {
+class ContentActionbar extends React.Component<Props> {
   render() {
     const {file, revision, handleExtensionError} = this.props;
     return (
@@ -32,4 +32,4 @@ class SourcesActionbar extends React.Component<Props> {
   }
 }
 
-export default SourcesActionbar;
+export default ContentActionbar;

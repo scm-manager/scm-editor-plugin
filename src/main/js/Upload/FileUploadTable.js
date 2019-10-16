@@ -1,31 +1,33 @@
 //@flow
 import React from "react";
 import {translate} from "react-i18next";
-import injectSheet from "react-jss";
-import classNames from "classnames";
 import {FileSize, Subtitle} from "@scm-manager/ui-components";
+import styled from "styled-components";
 
-const styles = {
-  nameColumn: {
-    width: "60%"
-  },
-  noBorderLeft: {
-    "& td:first-child": {
-      borderLeft: "none"
-    }
-  },
-  marginTop: {
-    marginTop: "2rem"
+const NameColumnTH = styled.th`
+  width: 60%;
+`;
+
+const NameColumnTD = styled.td`
+  width: 60%;
+`;
+
+const NoBorderLeft = styled.table`
+  & td:first-child {
+    border-left: none;
   }
-};
+`;
+
+const MarginTop = styled.div`
+  margin-top: 2rem;
+`;
 
 type Props = {
   files: File[],
   removeFileEntry: any => void,
   disabled: boolean,
   //context props
-  t: string => string,
-  classes: any
+  t: string => string
 };
 
 class FileUploadTable extends React.Component<Props> {
@@ -34,35 +36,32 @@ class FileUploadTable extends React.Component<Props> {
   };
 
   render() {
-    const {t, files, classes, disabled} = this.props;
+    const {t, files, disabled} = this.props;
 
     return (
       <>
-        <div className={classes.marginTop}>
+        <MarginTop>
           <Subtitle subtitle={t("scm-editor-plugin.upload.file.table.title")} />
-        </div>
-        <table
-          className={classNames(
-            "card-table table is-hoverable is-fullwidth",
-            classes.noBorderLeft
-          )}
-        >
+        </MarginTop>
+        <NoBorderLeft className="card-table table is-hoverable is-fullwidth">
           <thead>
             <tr>
-              <th className={classes.nameColumn}>
+              <NameColumnTH>
                 {t("scm-editor-plugin.upload.file.name")}
+              </NameColumnTH>
+              <th className="is-hidden-mobile">
+                {t("scm-editor-plugin.upload.file.type")}
               </th>
-              <th className="is-hidden-mobile">{t("scm-editor-plugin.upload.file.type")}</th>
-              <th className="is-hidden-mobile">{t("scm-editor-plugin.upload.file.size")}</th>
+              <th className="is-hidden-mobile">
+                {t("scm-editor-plugin.upload.file.size")}
+              </th>
             </tr>
           </thead>
           <tbody>
             {files.map(file => {
               return (
                 <tr>
-                  <td className={classNames(classes.nameColumn)}>
-                    {file.name}
-                  </td>
+                  <NameColumnTD>{file.name}</NameColumnTD>
                   <td className="is-hidden-mobile">{file.type}</td>
                   <td className="is-hidden-mobile">
                     <FileSize bytes={file.size}/>
@@ -76,10 +75,10 @@ class FileUploadTable extends React.Component<Props> {
               );
             })}
           </tbody>
-        </table>
+        </NoBorderLeft>
       </>
     );
   }
 }
 
-export default injectSheet(styles)(translate("plugins")(FileUploadTable));
+export default translate("plugins")(FileUploadTable);

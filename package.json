@@ -6,11 +6,11 @@
   "main": "src/main/js/index.js",
   "scripts": {
     "build": "ui-scripts plugin",
-    "watch": "ui-scripts plugin-watch",
-    "test": "jest"
+    "watch": "ui-scripts plugin-watch"
   },
   "dependencies": {
-    "@scm-manager/ui-plugins": "latest"
+    "@scm-manager/ui-plugins": "latest",
+    "react-dropzone": "^10.1.8"
   },
   "babel": {
     "presets": [

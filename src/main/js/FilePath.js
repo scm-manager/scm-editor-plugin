@@ -1,42 +1,45 @@
 // @flow
 import React from "react";
 import {translate} from "react-i18next";
-import injectSheet from "react-jss";
 import classNames from "classnames";
 import {InputField, validation as validator} from "@scm-manager/ui-components";
+import styled from "styled-components";
 
-const styles = {
-  labelSizing: {
-    fontSize: "1rem !important"
-  },
-  noBottomMargin: {
-    marginBottom: "0 !important"
-  },
-  noBorder: {
-    border: "none",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    flexWrap: "wrap"
-  },
-  noTopBorder: {
-    "& .panel-heading:first-child, .panel-tabs:first-child, .panel-block:first-child": {
-      border: "none"
-    }
-  },
-  alignItemsNormal: {
-    alignItems: "normal",
-    display: "flex"
-  },
-  inputBorder: {
-    "& .input, .textarea": {
-      borderColor: "#b5b5b5"
-    },
-    "& .input[disabled], .textarea[disabled]": {
-      borderColor: "#b5b5b5"
-    }
+const LabelSizing = styled.label`
+  font-size: 1rem !important;
+`;
+
+const NoBottomMargin = styled.div`
+  margin-bottom: 0 !important;
+`;
+
+const NoBorder = styled.div`
+  border: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+`;
+
+const NoTopBorder = styled.div`
+  & .panel-heading:first-child,
+  .panel-tabs:first-child,
+  .panel-block:first-child {
+    border: none;
   }
-};
+`;
+
+const AlignItemNormal = styled.div`
+  align-items: normal;
+  display: flex;
+`;
+
+const InputBorder = styled.div`
+  ${props =>
+  props.disabled
+    ? " & .input, .textarea {border-color: #b5b5b5\n },\n & .input[disabled], .textarea[disabled] {\n    border-color: #b5b5b5;\n }"
+    : ""};
+`;
 
 type Props = {
   path: any,
@@ -47,8 +50,7 @@ type Props = {
   validate?: void => boolean,
 
   //context props
-  t: string => string,
-  classes: any
+  t: string => string
 };
 
 type State = {
@@ -82,23 +84,18 @@ class FilePath extends React.Component<Props, State> {
   };
 
   render() {
-    const { t, classes, file, disabled } = this.props;
+    const {t, file, disabled} = this.props;
     return (
-      <div className={classes.noTopBorder}>
-        <div className={classNames("panel-heading", classes.noBorder)}>
-          <div className={classes.alignItemsNormal}>
+      <NoTopBorder>
+        <NoBorder className="panel-heading">
+          <AlignItemNormal>
             <div className={classNames("field-label", "is-normal")}>
-              <label className={classNames("label", classes.labelSizing)}>
+              <LabelSizing className="label">
                 {t("scm-editor-plugin.path.path")}
-              </label>
+              </LabelSizing>
             </div>
-            <div className={classNames("field", classes.noBottomMargin)}>
-              <div
-                className={classNames(
-                  "control",
-                  disabled && classes.inputBorder
-                )}
-              >
+            <NoBottomMargin className="field">
+              <InputBorder disabled={disabled} className="control">
                 <InputField
                   className={classNames("is-fullwidth")}
                   disabled={disabled}
@@ -110,22 +107,17 @@ class FilePath extends React.Component<Props, State> {
                   }
                   onChange={value => this.changePath(value)}
                 />
-              </div>
-            </div>
-          </div>
+              </InputBorder>
+            </NoBottomMargin>
+          </AlignItemNormal>
           {file && (
-            <div className={classes.alignItemsNormal}>
+            <AlignItemNormal>
               <div className={classNames("field-label", "is-normal")}>
-                <label className={classNames("label", classes.labelSizing)}>
+                <LabelSizing className="label">
                   {t("scm-editor-plugin.path.filename")}
-                </label>
+                </LabelSizing>
               </div>
-              <div
-                className={classNames(
-                  "control",
-                  disabled && classes.inputBorder
-                )}
-              >
+              <InputBorder disabled={disabled} className="control">
                 <InputField
                   className="is-fullwidth"
                   disabled={disabled}
@@ -140,13 +132,13 @@ class FilePath extends React.Component<Props, State> {
                   }
                   onChange={value => this.changeFileName(value)}
                 />
-              </div>
-            </div>
+              </InputBorder>
+            </AlignItemNormal>
           )}
-        </div>
-      </div>
+        </NoBorder>
+      </NoTopBorder>
     );
   }
 }
 
-export default injectSheet(styles)(translate("plugins")(FilePath));
+export default translate("plugins")(FilePath);
