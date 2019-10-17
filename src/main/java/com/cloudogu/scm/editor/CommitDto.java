@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -18,4 +19,5 @@ public class CommitDto {
   private String commitMessage;
   private String branch;
   private String expectedRevision;
+  private Map<String, String> names;
 }

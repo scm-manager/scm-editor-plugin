@@ -1,17 +1,24 @@
 // @flow
 import React from "react";
-import {compose} from "redux";
-import {connect} from "react-redux";
-import {withRouter} from "react-router-dom";
-import {translate} from "react-i18next";
+import { compose } from "redux";
+import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
+import { translate } from "react-i18next";
 import queryString from "query-string";
-import type {File, Me, Repository} from "@scm-manager/ui-types";
-import {apiClient, Button, ButtonGroup, ErrorNotification, Subtitle} from "@scm-manager/ui-components";
+import type { File, Me, Repository } from "@scm-manager/ui-types";
+import {
+  apiClient,
+  Button,
+  ButtonGroup,
+  ErrorNotification,
+  Subtitle
+} from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FilePath from "../FilePath";
 import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 import styled from "styled-components";
+import type { Commit } from "../commit";
 
 const BranchMarginBottom = styled.div`
   margin-bottom: 1rem;
@@ -117,17 +124,42 @@ class FileUpload extends React.Component<Props, State> {
 
     this.setState({ loading: true });
 
+    const fileAliases: { [string]: File } = this.buildFileAliases(files);
+    const commit: Commit = {
+      commitMessage,
+      branch,
+      names: this.buildFileNameMap(fileAliases)
+    };
+
     apiClient
       .postBinary(link.replace("{path}", path), formdata => {
-        files.forEach((file, i) => formdata.append("file" + i, file));
-        formdata.append("commit", JSON.stringify({commitMessage, branch}));
+        Object.keys(fileAliases).forEach(name =>
+          formdata.append(name, fileAliases[name], name)
+        );
+        formdata.append("commit", JSON.stringify(commit));
       })
       .then(() => history.push(sourcesLink))
       .catch(this.handleError);
   };
 
+  buildFileAliases: (File[]) => { [string]: File } = files => {
+    const fileAliases: { [string]: File } = {};
+    files.forEach((file, i) => (fileAliases["file" + i] = file));
+    return fileAliases;
+  };
+
+  buildFileNameMap: ({ [string]: File }) => {
+    [string]: string
+  } = fileAliases => {
+    const nameMap: { [string]: string } = {};
+    Object.keys(fileAliases).forEach(
+      name => (nameMap[name] = fileAliases[name].name)
+    );
+    return nameMap;
+  };
+
   render() {
-    const {t, me, location} = this.props;
+    const { t, me, location } = this.props;
     const {
       files,
       path,
@@ -158,7 +190,7 @@ class FileUpload extends React.Component<Props, State> {
           </BranchMarginBottom>
         )}
         <Border>
-          <FilePath path={path} changePath={this.changePath}/>
+          <FilePath path={path} changePath={this.changePath} />
           <FileUploadDropzone
             fileHandler={this.handleFile}
             disabled={loading}

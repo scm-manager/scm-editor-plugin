@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -64,8 +66,8 @@ class EditorResourceTest {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create/some/path");
-    CommitDto commit = new CommitDto("new commit", "master", "expected");
-    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
+    CommitDto commit = new CommitDto("new commit", "master", "expected", singletonMap("file0", "newFile"));
+    multipartRequest(request, Collections.singletonMap("file0", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
@@ -82,8 +84,8 @@ class EditorResourceTest {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create");
-    CommitDto commit = new CommitDto("new commit", "master", null);
-    multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
+    CommitDto commit = new CommitDto("new commit", "master", null, singletonMap("file0", "newFile"));
+    multipartRequest(request, Collections.singletonMap("file0", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
@@ -96,7 +98,7 @@ class EditorResourceTest {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create/some/path");
-    CommitDto commit = new CommitDto(null, "master", null);
+    CommitDto commit = new CommitDto(null, "master", null, emptyMap());
     multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
@@ -113,8 +115,8 @@ class EditorResourceTest {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/modify/some/path");
-    CommitDto commit = new CommitDto("new commit", "master", "expected");
-    multipartRequest(request, Collections.singletonMap("changedFile", new ByteArrayInputStream("content".getBytes())), commit);
+    CommitDto commit = new CommitDto("new commit", "master", "expected", singletonMap("file0", "changedFile"));
+    multipartRequest(request, Collections.singletonMap("file0", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
@@ -131,8 +133,8 @@ class EditorResourceTest {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/modify");
-    CommitDto commit = new CommitDto("new commit", "master", null);
-    multipartRequest(request, Collections.singletonMap("changedFile", new ByteArrayInputStream("content".getBytes())), commit);
+    CommitDto commit = new CommitDto("new commit", "master", null, singletonMap("file0", "changedFile"));
+    multipartRequest(request, Collections.singletonMap("file0", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);

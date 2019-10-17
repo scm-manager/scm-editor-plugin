@@ -3,9 +3,11 @@ package com.cloudogu.scm.editor;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.ByteSource;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
+import org.jboss.resteasy.plugins.providers.multipart.MultipartInputImpl;
 import sonia.scm.BadRequestException;
 
 import javax.annotation.Nullable;
@@ -23,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.http.HttpStatus.SC_CREATED;
 
 @Path(EditorResource.EDITOR_REQUESTS_PATH_V2)
@@ -210,13 +213,13 @@ public class EditorResource {
       .stream()
       .filter(e -> e.getKey().startsWith("file"))
       .map(Map.Entry::getValue)
-      .forEach(inputParts -> processFile(fileUploader, inputParts, processor));
+      .forEach(inputParts -> processFile(fileUploader, inputParts, processor, commit));
     return fileUploader.done();
   }
 
-  private void processFile(EditorService.FileUploader fileUploader, List<InputPart> inputParts, UploadProcessor uploadProcessor) {
+  private void processFile(EditorService.FileUploader fileUploader, List<InputPart> inputParts, UploadProcessor uploadProcessor, CommitDto commit) {
     for (InputPart inputPart : inputParts) {
-      String fileName = parseFileName(inputPart.getHeaders());
+      String fileName = commit.getNames().get(parseFileName(inputPart.getHeaders()));
 
       try {
         InputStream stream = inputPart.getBody(InputStream.class, null);
@@ -229,7 +232,7 @@ public class EditorResource {
 
   private CommitDto extractCommit(List<InputPart> input) throws IOException {
     if (input != null && !input.isEmpty()) {
-      String content = input.get(0).getBodyAsString();
+      String content = readBodyForCommitObject(input);
       try (JsonParser parser = new JsonFactory().createParser(content)) {
         parser.setCodec(new ObjectMapper());
         CommitDto commitDto = parser.readValueAs(CommitDto.class);
@@ -240,6 +243,15 @@ public class EditorResource {
       }
     }
     throw new MessageMissingException();
+  }
+
+  private String readBodyForCommitObject(List<InputPart> input) throws IOException {
+    return new ByteSource() {
+      @Override
+      public InputStream openStream() throws IOException {
+        return ((MultipartInputImpl.PartImpl) input.get(0)).getBody();
+      }
+    }.asCharSource(UTF_8).read();
   }
 
   private String parseFileName(MultivaluedMap<String, String> headers) {

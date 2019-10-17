@@ -1,8 +1,8 @@
 // @flow
 import React from "react";
-import {translate} from "react-i18next";
-import type {File, Me, Repository} from "@scm-manager/ui-types";
-import {withRouter} from "react-router-dom";
+import { translate } from "react-i18next";
+import type { File, Me, Repository } from "@scm-manager/ui-types";
+import { withRouter } from "react-router-dom";
 import FilePath from "../FilePath";
 import {
   apiClient,
@@ -14,10 +14,10 @@ import {
   Textarea
 } from "@scm-manager/ui-components";
 import queryString from "query-string";
-import {compose} from "redux";
-import {connect} from "react-redux";
+import { compose } from "redux";
+import { connect } from "react-redux";
 import CommitMessage from "../CommitMessage";
-import {isEditable} from "./isEditable";
+import { isEditable } from "./isEditable";
 import styled from "styled-components";
 
 const Editor = styled.div`
@@ -30,8 +30,9 @@ const Editor = styled.div`
           max-height: 100rem;
           border: none;
           border-radius: 4px;
-        },
-          &:hover {
+        }
+        ,
+        &:hover {
           border: none;
         }
       }
@@ -47,7 +48,10 @@ const Border = styled.div`
   margin-bottom: 2rem;
   border: 1px solid #98d8f3;
   border-radius: 4px;
-  & .input:focus, .input:active, .textarea:focus, .textarea:active {
+  & .input:focus,
+  .input:active,
+  .textarea:focus,
+  .textarea:active {
     box-shadow: none;
   }
   ,
@@ -247,16 +251,18 @@ class FileEdit extends React.Component<Props, State> {
       });
       this.setState({ loading: true });
 
+      const commit = {
+        commitMessage,
+        branch: revision,
+        names: { file: file.name }
+      };
       apiClient
         .postBinary(
           link.replace("{path}", path ? path : "") +
             (revision ? "?branch=" + revision : ""),
           formdata => {
-            formdata.append("file", blob, file.name);
-            formdata.append(
-              "commit",
-              JSON.stringify({ commitMessage, branch: revision })
-            );
+            formdata.append("file", blob, "file");
+            formdata.append("commit", JSON.stringify(commit));
           }
         )
         .then(this.redirectToContentView)
@@ -265,7 +271,7 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   render() {
-    const {t, me, editMode} = this.props;
+    const { t, me, editMode } = this.props;
     const {
       path,
       file,
