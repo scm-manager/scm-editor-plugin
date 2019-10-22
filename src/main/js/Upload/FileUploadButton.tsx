@@ -1,8 +1,7 @@
-// @flow
 import React from "react";
-import type {Branch, Repository} from "@scm-manager/ui-types";
-import {translate} from "react-i18next";
-import {Link} from "react-router-dom";
+import { Branch, Repository } from "@scm-manager/ui-types";
+import { translate } from "react-i18next";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 const Button = styled.span`
@@ -14,13 +13,13 @@ const Button = styled.span`
 `;
 
 type Props = {
-  repository: Repository,
-  baseUrl: string,
-  path?: string,
-  branch?: Branch,
-  isBranchUrl: boolean,
+  repository: Repository;
+  baseUrl: string;
+  path?: string;
+  branch?: Branch;
+  isBranchUrl: boolean;
   // context props
-  t: string => string
+  t: (p: string) => string;
 };
 
 class FileUploadButton extends React.Component<Props> {
@@ -30,26 +29,21 @@ class FileUploadButton extends React.Component<Props> {
 
     if (branch) {
       uploadUrl += "?branch=" + encodeURIComponent(branch.name);
-      uploadUrl += branch.name
-        ? "&revision=" + branch.revision
-        : "?revision=" + branch.revision;
+      uploadUrl += branch.name ? "&revision=" + branch.revision : "?revision=" + branch.revision;
     }
 
     return uploadUrl;
   };
 
   render() {
-    const {t, isBranchUrl, repository} = this.props;
+    const { t, isBranchUrl, repository } = this.props;
 
     return (
       <>
         {isBranchUrl && repository._links.fileUpload && (
           <Link to={this.createUploadUrl()}>
-            <Button
-              title={t("scm-editor-plugin.upload.tooltip")}
-              className="button"
-            >
-              <i className="fas fa-upload"/>
+            <Button title={t("scm-editor-plugin.upload.tooltip")} className="button">
+              <i className="fas fa-upload" />
             </Button>
           </Link>
         )}

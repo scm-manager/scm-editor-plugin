@@ -1,8 +1,7 @@
-// @flow
 import React from "react";
-import {translate} from "react-i18next";
+import { translate } from "react-i18next";
 import classNames from "classnames";
-import {InputField, validation as validator} from "@scm-manager/ui-components";
+import { InputField, validation as validator } from "@scm-manager/ui-components";
 import styled from "styled-components";
 
 const LabelSizing = styled.label`
@@ -36,26 +35,26 @@ const AlignItemNormal = styled.div`
 
 const InputBorder = styled.div`
   ${props =>
-  props.disabled
-    ? " & .input, .textarea {border-color: #b5b5b5\n },\n & .input[disabled], .textarea[disabled] {\n    border-color: #b5b5b5;\n }"
-    : ""};
+    props.disabled
+      ? " & .input, .textarea {border-color: #b5b5b5\n },\n & .input[disabled], .textarea[disabled] {\n    border-color: #b5b5b5;\n }"
+      : ""};
 `;
 
 type Props = {
-  path: any,
-  changePath: string => void,
-  file?: File,
-  changeFileName?: string => void,
-  disabled?: boolean,
-  validate?: void => boolean,
+  path: any;
+  changePath: (p: string) => void;
+  file?: File;
+  changeFileName?: (p: string) => void;
+  disabled?: boolean;
+  validate?: (p: void) => boolean;
 
   //context props
-  t: string => string
+  t: (p: string) => string;
 };
 
 type State = {
-  pathValidationError: boolean,
-  filenameValidationError: boolean
+  pathValidationError: boolean;
+  filenameValidationError: boolean;
 };
 
 class FilePath extends React.Component<Props, State> {
@@ -69,30 +68,33 @@ class FilePath extends React.Component<Props, State> {
 
   changePath = path => {
     this.props.changePath(path);
-    this.setState({ pathValidationError: !validator.isPathValid(path) });
+    this.setState({
+      pathValidationError: !validator.isPathValid(path)
+    });
   };
 
   changeFileName = fileName => {
     this.props.changeFileName(fileName);
-    this.setState({ filenameValidationError: !fileName }, this.validate);
-  };
-
-  validate = () => {
-    this.props.validate(
-      !(this.state.filenameValidationError || this.state.pathValidationError)
+    this.setState(
+      {
+        filenameValidationError: !fileName
+      },
+      this.validate
     );
   };
 
+  validate = () => {
+    this.props.validate(!(this.state.filenameValidationError || this.state.pathValidationError));
+  };
+
   render() {
-    const {t, file, disabled} = this.props;
+    const { t, file, disabled } = this.props;
     return (
       <NoTopBorder>
         <NoBorder className="panel-heading">
           <AlignItemNormal>
             <div className={classNames("field-label", "is-normal")}>
-              <LabelSizing className="label">
-                {t("scm-editor-plugin.path.path")}
-              </LabelSizing>
+              <LabelSizing className="label">{t("scm-editor-plugin.path.path")}</LabelSizing>
             </div>
             <NoBottomMargin className="field">
               <InputBorder disabled={disabled} className="control">
@@ -102,9 +104,7 @@ class FilePath extends React.Component<Props, State> {
                   value={this.props.path}
                   validationError={this.state.pathValidationError}
                   errorMessage={t("scm-editor-plugin.validation.pathInvalid")}
-                  placeholder={
-                    !disabled && t("scm-editor-plugin.path.placeholder.path")
-                  }
+                  placeholder={!disabled && t("scm-editor-plugin.path.placeholder.path")}
                   onChange={value => this.changePath(value)}
                 />
               </InputBorder>
@@ -113,9 +113,7 @@ class FilePath extends React.Component<Props, State> {
           {file && (
             <AlignItemNormal>
               <div className={classNames("field-label", "is-normal")}>
-                <LabelSizing className="label">
-                  {t("scm-editor-plugin.path.filename")}
-                </LabelSizing>
+                <LabelSizing className="label">{t("scm-editor-plugin.path.filename")}</LabelSizing>
               </div>
               <InputBorder disabled={disabled} className="control">
                 <InputField
@@ -123,13 +121,8 @@ class FilePath extends React.Component<Props, State> {
                   disabled={disabled}
                   value={file.name}
                   validationError={this.state.filenameValidationError}
-                  errorMessage={t(
-                    "scm-editor-plugin.validation.filenameInvalid"
-                  )}
-                  placeholder={
-                    !disabled &&
-                    t("scm-editor-plugin.path.placeholder.filename")
-                  }
+                  errorMessage={t("scm-editor-plugin.validation.filenameInvalid")}
+                  placeholder={!disabled && t("scm-editor-plugin.path.placeholder.filename")}
                   onChange={value => this.changeFileName(value)}
                 />
               </InputBorder>

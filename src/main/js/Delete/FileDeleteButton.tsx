@@ -1,10 +1,9 @@
-// @flow
 import React from "react";
-import {translate} from "react-i18next";
-import type {File} from "@scm-manager/ui-types";
+import { translate } from "react-i18next";
+import { File } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
-import {apiClient} from "@scm-manager/ui-components";
-import {withRouter} from "react-router-dom";
+import { apiClient } from "@scm-manager/ui-components";
+import { withRouter } from "react-router-dom";
 import styled from "styled-components";
 
 const Button = styled.a`
@@ -15,24 +14,24 @@ const Button = styled.a`
 `;
 
 const Pointer = styled.div`
-    cursor: initial;
+  cursor: initial;
 `;
 
 type Props = {
-  file: File,
-  revision: string,
-  handleExtensionError: (error: Error) => void,
+  file: File;
+  revision: string;
+  handleExtensionError: (error: Error) => void;
 
   // context props
-  location: any,
-  history: History,
-  t: string => string
+  location: any;
+  history: History;
+  t: (p: string) => string;
 };
 
 type State = {
-  showModal: boolean,
-  loading: boolean,
-  error: Error
+  showModal: boolean;
+  loading: boolean;
+  error: Error;
 };
 
 class FileDeleteButton extends React.Component<Props, State> {
@@ -52,26 +51,17 @@ class FileDeleteButton extends React.Component<Props, State> {
   };
 
   deleteFile = (commitMessage: string) => {
-    const {
-      file,
-      revision,
-      history,
-      location,
-      handleExtensionError
-    } = this.props;
-    this.setState({loading: true});
+    const { file, revision, history, location, handleExtensionError } = this.props;
+    this.setState({
+      loading: true
+    });
     apiClient
       .post(this.props.file._links.delete.href, {
         commitMessage: commitMessage,
         branch: revision
       })
       .then(() => {
-        history.push(
-          location.pathname.substr(
-            0,
-            location.pathname.length - file.name.length - 1
-          )
-        );
+        history.push(location.pathname.substr(0, location.pathname.length - file.name.length - 1));
       })
       .catch(error => {
         this.toggleModal();
@@ -84,28 +74,19 @@ class FileDeleteButton extends React.Component<Props, State> {
   };
 
   render() {
-    const {file, t} = this.props;
+    const { file, t } = this.props;
     const { showModal, loading } = this.state;
 
     const modal = showModal ? (
-      <FileDeleteModal
-        onClose={this.toggleModal}
-        onCommit={this.deleteFile}
-        file={file}
-        loading={loading}
-      />
+      <FileDeleteModal onClose={this.toggleModal} onCommit={this.deleteFile} file={file} loading={loading} />
     ) : null;
 
     return (
       <>
         <Pointer>{modal}</Pointer>
         {this.shouldRender() && (
-          <Button
-            title={t("scm-editor-plugin.delete.tooltip")}
-            className="button"
-            onClick={this.toggleModal}
-          >
-            <i className="fas fa-trash"/>
+          <Button title={t("scm-editor-plugin.delete.tooltip")} className="button" onClick={this.toggleModal}>
+            <i className="fas fa-trash" />
           </Button>
         )}
       </>
