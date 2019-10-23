@@ -18,6 +18,7 @@ type Props = {
   baseUrl: string,
   path?: string,
   branch?: Branch,
+  revision: string,
   isBranchUrl: boolean,
   // context props
   t: string => string
@@ -25,10 +26,10 @@ type Props = {
 
 class FileCreateButton extends React.Component<Props> {
   createCreateUrl = () => {
-    const {baseUrl, path, branch} = this.props;
+    const {baseUrl, path, branch, revision} = this.props;
     let uploadUrl = baseUrl.replace("sources", "create/") + (path ? path : "");
 
-    if (branch) {
+    if (!revision && branch) {
       uploadUrl += "?branch=" + encodeURIComponent(branch.name);
       uploadUrl += branch.name
         ? "&revision=" + branch.revision

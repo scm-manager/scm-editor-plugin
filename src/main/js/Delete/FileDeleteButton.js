@@ -64,8 +64,9 @@ class FileDeleteButton extends React.Component<Props, State> {
       .post(this.props.file._links.delete.href, {
         commitMessage: commitMessage,
         branch: revision
-      })
-      .then(() => {
+      }).then(r => r.text())
+      .then(newRevision => {
+        //TODO fix URL for Redirect
         history.push(
           location.pathname.substr(
             0,

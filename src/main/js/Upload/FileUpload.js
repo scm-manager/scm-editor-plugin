@@ -117,7 +117,7 @@ class FileUpload extends React.Component<Props, State> {
     this.setState({ files: filteredFiles });
   };
 
-  commitFile = sourcesLink => {
+  commitFile = () => {
     const { repository, history } = this.props;
     const { files, commitMessage, path, branch } = this.state;
     const link = repository._links.fileUpload.href;
@@ -138,7 +138,8 @@ class FileUpload extends React.Component<Props, State> {
         );
         formdata.append("commit", JSON.stringify(commit));
       })
-      .then(() => history.push(sourcesLink))
+      .then(r => r.text())
+      .then(newRevision => history.push(this.createSourcesLink(newRevision)))
       .catch(this.handleError);
   };
 
@@ -158,23 +159,39 @@ class FileUpload extends React.Component<Props, State> {
     return nameMap;
   };
 
+  createSourcesLink = newRevision => {
+    const { location } = this.props;
+    const {
+      path,
+      branch,
+      revision
+    } = this.state;
+    let sourcesLink = location.pathname.split("upload")[0] + "sources/";
+
+    if (newRevision) {
+      sourcesLink += newRevision + "/" + path;
+      return sourcesLink;
+    }
+
+    if (branch) {
+      sourcesLink += encodeURIComponent(branch) + "/" + path;
+    }
+    if (!branch && !!revision) {
+      sourcesLink += revision + "/" + path;
+    }
+    return sourcesLink;
+  };
+
   render() {
-    const { t, me, location } = this.props;
+    const { t, me } = this.props;
     const {
       files,
       path,
       commitMessage,
       branch,
-      revision,
       error,
       loading
     } = this.state;
-    const sourcesLink =
-      location.pathname.split("upload")[0] +
-      "sources/" +
-      (branch ? branch.replace("/", "%2F") : revision) +
-      "/" +
-      path;
 
     return (
       <>
@@ -217,14 +234,14 @@ class FileUpload extends React.Component<Props, State> {
             <ButtonGroup>
               <Button
                 label={t("scm-editor-plugin.button.cancel")}
-                link={sourcesLink}
+                link={this.createSourcesLink()}
                 disabled={loading}
               />
               <Button
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
                 disabled={!commitMessage || files.length === 0}
-                action={() => this.commitFile(sourcesLink)}
+                action={this.commitFile}
                 loading={loading}
               />
             </ButtonGroup>

@@ -218,22 +218,22 @@ class FileEdit extends React.Component<Props, State> {
     this.setState({ loading: false, initialLoading: false, error });
   };
 
-  redirectToContentView = () => {
+  redirectToContentView = revision => {
     const { repository } = this.props;
-    const { revision, path, file } = this.state;
+    const { path, file } = this.state;
 
     const pathWithEndingSlash = !path
       ? ""
       : path.endsWith("/")
       ? path
       : path + "/";
-    const encodedRevision = encodeURIComponent(revision);
     const encodedFilename =
       file && file.name ? encodeURIComponent(this.state.file.name) + "/" : "";
 
-    const redirectUrl = `/repo/${repository.namespace}/${
-      repository.name
-    }/sources/${encodedRevision}/${pathWithEndingSlash + encodedFilename}`;
+    let redirectUrl = `/repo/${repository.namespace}/${repository.name}/sources`;
+    if (revision) {
+      redirectUrl += `/${revision}/${pathWithEndingSlash + encodedFilename}`;
+    }
 
     this.props.history.push(redirectUrl);
   };
@@ -265,7 +265,8 @@ class FileEdit extends React.Component<Props, State> {
             formdata.append("commit", JSON.stringify(commit));
           }
         )
-        .then(this.redirectToContentView)
+        .then(r => r.text())
+        .then(newRevision => this.redirectToContentView(newRevision))
         .catch(this.handleError);
     }
   };
@@ -349,7 +350,7 @@ class FileEdit extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.button.cancel")}
                 disabled={loading}
-                action={this.redirectToContentView}
+                action={() => this.redirectToContentView(this.state.revision)}
               />
               <Button
                 label={t("scm-editor-plugin.button.commit")}

@@ -11,12 +11,13 @@ type Props = {
   baseUrl: string,
   path?: string,
   branch?: Branch,
+  revision?: string,
   isBranchUrl: boolean
 };
 
 class SourcesActionbar extends React.Component<Props> {
   render() {
-    const {repository, baseUrl, path, branch, isBranchUrl} = this.props;
+    const {repository, baseUrl, path, branch, revision, isBranchUrl} = this.props;
     return (
       <>
         <ButtonGroup>
@@ -25,6 +26,7 @@ class SourcesActionbar extends React.Component<Props> {
             repository={repository}
             path={path}
             branch={branch}
+            revision={revision}
             isBranchUrl={isBranchUrl}
           />
           <FileUploadButton
@@ -32,6 +34,7 @@ class SourcesActionbar extends React.Component<Props> {
             repository={repository}
             path={path}
             branch={branch}
+            revision={revision}
             isBranchUrl={isBranchUrl}
           />
         </ButtonGroup>
