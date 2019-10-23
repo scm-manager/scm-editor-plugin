@@ -1,8 +1,8 @@
 import React from "react";
 import { translate } from "react-i18next";
 import { File, Me, Repository } from "@scm-manager/ui-types";
-import { withRouter } from "react-router-dom";
-import FilePath from "../FilePath";
+import { withRouter, RouteComponentProps } from "react-router-dom";
+import FilePath from "../FileMetaData";
 import {
   apiClient,
   Button,
@@ -19,6 +19,8 @@ import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
 import styled from "styled-components";
 import Editor from "../Editor";
+import languages from "../languages";
+import findLanguage from "../findLanguage";
 
 const Branch = styled.div`
   margin-bottom: 1rem;
@@ -53,7 +55,7 @@ const Border = styled.div`
   }
 `;
 
-type Props = {
+type Props = RouteComponentProps &  {
   repository: Repository;
   me: Me;
   editMode: boolean;
@@ -61,8 +63,6 @@ type Props = {
 
   //context props
   t: (p: string) => string;
-  match: any;
-  location: any;
 };
 
 type State = {
@@ -273,6 +273,12 @@ class FileEdit extends React.Component<Props, State> {
     }
   };
 
+  changeLanguage = (language: string) => {
+    this.setState({
+      language
+    });
+  };
+
   render() {
     const { t, me, editMode } = this.props;
     const {
@@ -287,7 +293,6 @@ class FileEdit extends React.Component<Props, State> {
       revision,
       commitMessage,
       contentType,
-      language,
       contentLength
     } = this.state;
 
@@ -298,6 +303,12 @@ class FileEdit extends React.Component<Props, State> {
     if (initialError) {
       return <ErrorNotification error={initialError} />;
     }
+
+    console.log(this.state.language);
+
+    const language = findLanguage(this.state.language);
+
+    console.log(language);
 
     if (editMode && !isEditable(contentType, language, contentLength)) {
       return (
@@ -328,6 +339,8 @@ class FileEdit extends React.Component<Props, State> {
             changeFileName={this.changeFileName}
             disabled={editMode || loading}
             validate={this.validate}
+            language={language}
+            changeLanguage={this.changeLanguage}
           />
           <Editor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
         </Border>

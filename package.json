@@ -5,6 +5,7 @@
   "license": "BSD-3-Clause",
   "main": "./src/main/js/index.ts",
   "scripts": {
+    "gen-languages": "node scripts/gen-languages.js",
     "build": "ui-scripts plugin",
     "watch": "ui-scripts plugin-watch"
   },

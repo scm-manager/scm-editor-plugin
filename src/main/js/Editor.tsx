@@ -4,6 +4,7 @@ import { translate } from "react-i18next";
 
 import AceEditor from "react-ace";
 import "./EditorTheme.js";
+import findLanguage from "./findLanguage";
 
 const defaultLanguage = "text";
 
@@ -12,6 +13,7 @@ type Props = {
   language: string;
   disabled: boolean;
   onChange: (value: string, name?: string) => void;
+  // context prop
   t: (key: string) => string;
 };
 
@@ -32,14 +34,21 @@ class Editor extends Component<Props, State> {
 
   getLanguage = () => {
     const { language } = this.props;
-    if (language) {
-      return language.toLowerCase();
-    }
-    return defaultLanguage;
+    return findLanguage(language);
   };
 
   // disabled for now, code splitting seems not work for plugins
   componentDidMount() {
+    this.loadLanguage();
+  }
+
+  componentDidUpdate(prevProps: Readonly<Props>) {
+    if (prevProps.language !== this.props.language) {
+      this.loadLanguage();
+    }
+  }
+
+  loadLanguage = () => {
     const language = this.getLanguage();
     this.setState({
       loading: true,
@@ -50,7 +59,7 @@ class Editor extends Component<Props, State> {
         this.setState({
           loading: false,
           error: undefined,
-          language,
+          language
         });
       })
       .catch(error => {
@@ -60,7 +69,7 @@ class Editor extends Component<Props, State> {
           language: defaultLanguage
         });
       });
-  }
+  };
 
   render() {
     const { content, disabled, onChange, t } = this.props;
@@ -69,22 +78,22 @@ class Editor extends Component<Props, State> {
     if (loading) {
       return <Loading />;
     } else if (error) {
-      return <ErrorNotification error={error}/>;
+      return <ErrorNotification error={error} />;
     }
 
     return (
-        <AceEditor
-          mode={language}
-          theme="arduino-light"
-          onChange={onChange}
-          name="UNIQUE_ID_OF_DIV"
-          value={content}
-          readOnly={disabled}
-          width="100%"
-          fontSize="14px"
-          setOptions={{useWorker: false}}
-          placeholder={t("scm-editor-plugin.edit.placeholder")}
-        />
+      <AceEditor
+        mode={language}
+        theme="arduino-light"
+        onChange={onChange}
+        name="UNIQUE_ID_OF_DIV"
+        value={content}
+        readOnly={disabled}
+        width="100%"
+        fontSize="14px"
+        setOptions={{ useWorker: false }}
+        placeholder={t("scm-editor-plugin.edit.placeholder")}
+      />
     );
   }
 }

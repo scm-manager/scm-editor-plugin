@@ -10,7 +10,8 @@
         "path": "Insert path here",
         "filename": "Insert filename here"
       },
-      "filename": "Filename:"
+      "filename": "Filename:",
+      "language": "Highlighting:"
     },
     "delete": {
       "tooltip": "Delete",

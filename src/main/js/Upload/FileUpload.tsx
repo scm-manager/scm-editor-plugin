@@ -7,7 +7,7 @@ import queryString from "query-string";
 import { File, Me, Repository } from "@scm-manager/ui-types";
 import { apiClient, Button, ButtonGroup, ErrorNotification, Subtitle } from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
-import FilePath from "../FilePath";
+import FilePath from "../FileMetaData";
 import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 import styled from "styled-components";
