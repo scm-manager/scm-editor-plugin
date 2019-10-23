@@ -3,13 +3,9 @@ import { Loading, ErrorNotification } from "@scm-manager/ui-components";
 import { translate } from "react-i18next";
 
 import AceEditor from "react-ace";
+import "./EditorTheme.js";
 
-import "ace-builds/src-noconflict/mode-java";
-import "ace-builds/src-noconflict/mode-json";
-import "ace-builds/src-noconflict/mode-javascript";
-import "ace-builds/src-noconflict/mode-typescript";
-import "ace-builds/src-noconflict/mode-text";
-import "ace-builds/src-noconflict/theme-tomorrow";
+const defaultLanguage = "text";
 
 type Props = {
   content: string;
@@ -22,13 +18,15 @@ type Props = {
 type State = {
   loading?: boolean;
   error?: Error;
+  language?: string;
 };
 
 class Editor extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      loading: false
+      loading: true,
+      language: defaultLanguage
     };
   }
 
@@ -37,11 +35,11 @@ class Editor extends Component<Props, State> {
     if (language) {
       return language.toLowerCase();
     }
-    return "text";
+    return defaultLanguage;
   };
 
   // disabled for now, code splitting seems not work for plugins
-  xcomponentDidMount() {
+  componentDidMount() {
     const language = this.getLanguage();
     this.setState({
       loading: true,
@@ -51,40 +49,40 @@ class Editor extends Component<Props, State> {
       .then(() => {
         this.setState({
           loading: false,
-          error: undefined
+          error: undefined,
+          language,
         });
       })
       .catch(error => {
         this.setState({
           loading: false,
-          error
+          error,
+          language: defaultLanguage
         });
       });
   }
 
   render() {
     const { content, disabled, onChange, t } = this.props;
-    const { loading, error } = this.state;
+    const { language, loading, error } = this.state;
 
     if (loading) {
       return <Loading />;
     } else if (error) {
-      // TODO this is to hard, we should add a small error message
-      // and fallback to text
       return <ErrorNotification error={error}/>;
     }
 
-    const language = this.getLanguage();
     return (
         <AceEditor
           mode={language}
-          theme="tomorrow"
+          theme="arduino-light"
           onChange={onChange}
           name="UNIQUE_ID_OF_DIV"
           value={content}
           readOnly={disabled}
           width="100%"
           fontSize="14px"
+          setOptions={{useWorker: false}}
           placeholder={t("scm-editor-plugin.edit.placeholder")}
         />
     );
