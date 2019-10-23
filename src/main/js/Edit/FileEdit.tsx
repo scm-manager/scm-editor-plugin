@@ -18,26 +18,7 @@ import { connect } from "react-redux";
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
 import styled from "styled-components";
-
-const Editor = styled.div`
-  & div {
-    & div {
-      & textarea {
-        font-family: monospace;
-        &:not([rows]) {
-          min-height: 30rem;
-          max-height: 100rem;
-          border: none;
-          border-radius: 4px;
-        }
-        ,
-        &:hover {
-          border: none;
-        }
-      }
-    }
-  }
-`;
+import Editor from "../Editor";
 
 const Branch = styled.div`
   margin-bottom: 1rem;
@@ -348,14 +329,7 @@ class FileEdit extends React.Component<Props, State> {
             disabled={editMode || loading}
             validate={this.validate}
           />
-          <Editor>
-            <Textarea
-              value={content && content}
-              onChange={this.changeFileContent}
-              disabled={loading}
-              placeholder={t("scm-editor-plugin.edit.placeholder")}
-            />
-          </Editor>
+          <Editor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
         </Border>
         <CommitMessage me={me} commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
         {error && <ErrorNotification error={error} />}
