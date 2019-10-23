@@ -43,12 +43,20 @@ public class FileLinkEnricher implements HalEnricher {
     NamespaceAndName namespaceAndName = context.oneRequireByType(NamespaceAndName.class);
     try (RepositoryService service = serviceFactory.create(namespaceAndName)) {
       if (!RepositoryPermissions.push(service.getRepository()).isPermitted()
-        || !service.isSupported(Command.MODIFY)
-        || !service.isSupported(Command.BRANCHES)) {
+        || !service.isSupported(Command.MODIFY)) {
         return;
       }
       try {
-        if (isRequestWithBranch(requestedRevision, service)) {
+        if (service.getLogCommand().getChangeset(requestedRevision) != null
+          && !service.getLogCommand().getChangeset(requestedRevision).getBranches().isEmpty()) {
+          appendLinks(appender, fileObject, namespaceAndName);
+          return;
+        }
+      } catch (IOException e) {
+        throw new InternalRepositoryException(entity(service.getRepository()), "could not check revision", e);
+      }
+      try {
+        if (service.isSupported(Command.BRANCHES) && isRequestWithBranch(requestedRevision, service)) {
           appendLinks(appender, fileObject, namespaceAndName);
         }
       } catch (IOException e) {
