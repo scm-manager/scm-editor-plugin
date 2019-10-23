@@ -1,13 +1,8 @@
-import React, {FC} from "react";
+import React, { FC } from "react";
 import { translate } from "react-i18next";
-import classNames from "classnames";
 import { InputField, validation as validator } from "@scm-manager/ui-components";
 import styled from "styled-components";
 import LanguageSelector from "./LanguageSelector";
-
-const LabelSizing = styled.label`
-  font-size: 1rem !important;
-`;
 
 const NoBottomMargin = styled.div`
   margin-bottom: 0 !important;
@@ -30,8 +25,12 @@ const NoTopBorder = styled.div`
 `;
 
 const AlignItemNormal = styled.div`
+  flex-basis: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
   align-items: normal;
   display: flex;
+  padding-right: 0.5em;
 `;
 
 type InputBorderProps = {
@@ -39,13 +38,23 @@ type InputBorderProps = {
 };
 
 const InputBorder = styled.div<InputBorderProps>`
-  ${props =>
-    props.disabled
-      ? " & .input, .textarea {border-color: #b5b5b5\n },\n & .input[disabled], .textarea[disabled] {\n    border-color: #b5b5b5;\n }"
-      : ""};
+  ${props => props.disabled && `
+    & .input, 
+    .textarea {
+      border-color: #b5b5b5;
+     }
+     
+     & .input[disabled], 
+     .textarea[disabled] {
+      border-color: #b5b5b5;
+     }`}
 `;
 
-const FieldLabel: FC<{value: string}> = ({value}) => (
+const LabelSizing = styled.label`
+  font-size: 1rem !important;
+`;
+
+const FieldLabel: FC<{ value: string }> = ({ value }) => (
   <div className="field-label is-normal">
     <LabelSizing className="label">{value}</LabelSizing>
   </div>
