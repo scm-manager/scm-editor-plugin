@@ -48,7 +48,7 @@ public class FileLinkEnricher implements HalEnricher {
       }
       try {
         if (service.getLogCommand().getChangeset(requestedRevision) != null
-          && !service.getLogCommand().getChangeset(requestedRevision).getBranches().isEmpty()) {
+          && service.getLogCommand().getChangeset(requestedRevision).getBranches().isEmpty()) {
           appendLinks(appender, fileObject, namespaceAndName);
           return;
         }
