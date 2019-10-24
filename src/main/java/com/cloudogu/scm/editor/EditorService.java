@@ -2,6 +2,7 @@ package com.cloudogu.scm.editor;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
+import sonia.scm.repository.Changeset;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.RepositoryPermissions;
 import sonia.scm.repository.api.ModifyCommandBuilder;
@@ -24,15 +25,16 @@ public class EditorService {
   FileUploader prepare(String namespace, String name, String branch, String path, String commitMessage, String revision) {
     try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
       ModifyCommandBuilder modifyCommand = initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService);
-      return new FileUploader(modifyCommand, path);
+      return new FileUploader(repositoryService, modifyCommand, path);
     }
   }
 
-  String delete(String namespace, String name, String branch, String path, String commitMessage, String revision) {
+  Changeset delete(String namespace, String name, String branch, String path, String commitMessage, String revision) throws IOException {
     try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
-      return initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService)
+      String changesetId = initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService)
         .deleteFile(path)
         .execute();
+      return repositoryService.getLogCommand().getChangeset(changesetId);
     }
   }
 
@@ -54,11 +56,14 @@ public class EditorService {
     RepositoryPermissions.push(repositoryService.getRepository()).check();
   }
 
-  public static class FileUploader {
+  public static class FileUploader implements AutoCloseable {
+
+    private final RepositoryService repositoryService;
     private final ModifyCommandBuilder modifyCommand;
     private final String path;
 
-    private FileUploader(ModifyCommandBuilder modifyCommand, String path) {
+    private FileUploader(RepositoryService repositoryService, ModifyCommandBuilder modifyCommand, String path) {
+      this.repositoryService = repositoryService;
       this.modifyCommand = modifyCommand;
       this.path = path;
     }
@@ -93,8 +98,14 @@ public class EditorService {
       }
     }
 
-    public String done() {
-      return modifyCommand.execute();
+    public Changeset done() throws IOException {
+      String changesetId = modifyCommand.execute();
+      return repositoryService.getLogCommand().getChangeset(changesetId);
+    }
+
+    @Override
+    public void close() {
+      repositoryService.close();
     }
   }
 }

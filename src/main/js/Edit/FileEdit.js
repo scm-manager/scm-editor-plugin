@@ -218,7 +218,7 @@ class FileEdit extends React.Component<Props, State> {
     this.setState({ loading: false, initialLoading: false, error });
   };
 
-  redirectToContentView = revision => {
+  redirectToContentView = newCommit => {
     const { repository } = this.props;
     const { path, file } = this.state;
 
@@ -231,8 +231,9 @@ class FileEdit extends React.Component<Props, State> {
       file && file.name ? encodeURIComponent(this.state.file.name) + "/" : "";
 
     let redirectUrl = `/repo/${repository.namespace}/${repository.name}/sources`;
-    if (revision) {
-      redirectUrl += `/${revision}/${pathWithEndingSlash + encodedFilename}`;
+    if (newCommit) {
+      const newRevision = newCommit._embedded?.branches?.[0].name ? newCommit._embedded.branches[0].name : newCommit.id;
+      redirectUrl += `/${newRevision}/${pathWithEndingSlash + encodedFilename}`;
     }
 
     this.props.history.push(redirectUrl);
@@ -265,8 +266,8 @@ class FileEdit extends React.Component<Props, State> {
             formdata.append("commit", JSON.stringify(commit));
           }
         )
-        .then(r => r.text())
-        .then(newRevision => this.redirectToContentView(newRevision))
+        .then(r => r.json())
+        .then(newCommit => this.redirectToContentView(newCommit))
         .catch(this.handleError);
     }
   };

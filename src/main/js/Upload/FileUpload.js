@@ -138,8 +138,8 @@ class FileUpload extends React.Component<Props, State> {
         );
         formdata.append("commit", JSON.stringify(commit));
       })
-      .then(r => r.text())
-      .then(newRevision => history.push(this.createSourcesLink(newRevision)))
+      .then(r => r.json())
+      .then(newCommit => history.push(this.createSourcesLink(newCommit)))
       .catch(this.handleError);
   };
 
@@ -159,7 +159,7 @@ class FileUpload extends React.Component<Props, State> {
     return nameMap;
   };
 
-  createSourcesLink = newRevision => {
+  createSourcesLink = newCommit => {
     const { location } = this.props;
     const {
       path,
@@ -168,8 +168,9 @@ class FileUpload extends React.Component<Props, State> {
     } = this.state;
     let sourcesLink = location.pathname.split("upload")[0] + "sources/";
 
-    if (newRevision) {
-      sourcesLink += newRevision + "/" + path;
+    if (newCommit) {
+      sourcesLink += newCommit._embedded?.branches?.[0].name ? newCommit._embedded.branches[0].name : newCommit.id;
+      sourcesLink += "/" + path;
       return sourcesLink;
     }
 

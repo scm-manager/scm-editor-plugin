@@ -1,10 +1,10 @@
 // @flow
 import React from "react";
-import {translate} from "react-i18next";
-import type {File} from "@scm-manager/ui-types";
+import { translate } from "react-i18next";
+import type { File } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
-import {apiClient} from "@scm-manager/ui-components";
-import {withRouter} from "react-router-dom";
+import { apiClient } from "@scm-manager/ui-components";
+import { withRouter } from "react-router-dom";
 import styled from "styled-components";
 
 const Button = styled.a`
@@ -15,7 +15,7 @@ const Button = styled.a`
 `;
 
 const Pointer = styled.div`
-    cursor: initial;
+  cursor: initial;
 `;
 
 type Props = {
@@ -59,20 +59,27 @@ class FileDeleteButton extends React.Component<Props, State> {
       location,
       handleExtensionError
     } = this.props;
-    this.setState({loading: true});
+    this.setState({ loading: true });
     apiClient
       .post(this.props.file._links.delete.href, {
         commitMessage: commitMessage,
         branch: revision
-      }).then(r => r.text())
-      .then(newRevision => {
-        //TODO fix URL for Redirect
-        history.push(
-          location.pathname.substr(
-            0,
-            location.pathname.length - file.name.length - 1
-          )
-        );
+      })
+      .then(r => r.json())
+      .then(newCommit => {
+        if (newCommit) {
+          const newRevision = newCommit._embedded?.branches?.[0]?.name
+            ? newCommit._embedded.branches[0].name
+            : newCommit.id;
+          console.log(newCommit);
+          const filePath = location.pathname
+            .substr(0, location.pathname.length - file.name.length - 1)
+            .split("/sources/" + revision)[1];
+          const redirectUrl =
+            location.pathname.split("/sources")[0] +
+            `/sources/${newRevision}${filePath}`;
+          history.push(redirectUrl);
+        }
       })
       .catch(error => {
         this.toggleModal();
@@ -85,7 +92,7 @@ class FileDeleteButton extends React.Component<Props, State> {
   };
 
   render() {
-    const {file, t} = this.props;
+    const { file, t } = this.props;
     const { showModal, loading } = this.state;
 
     const modal = showModal ? (
@@ -106,7 +113,7 @@ class FileDeleteButton extends React.Component<Props, State> {
             className="button"
             onClick={this.toggleModal}
           >
-            <i className="fas fa-trash"/>
+            <i className="fas fa-trash" />
           </Button>
         )}
       </>

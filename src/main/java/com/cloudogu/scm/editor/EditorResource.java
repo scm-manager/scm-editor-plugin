@@ -9,6 +9,11 @@ import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartInputImpl;
 import sonia.scm.BadRequestException;
+import sonia.scm.api.v2.resources.ChangesetDto;
+import sonia.scm.api.v2.resources.ChangesetToChangesetDtoMapper;
+import sonia.scm.repository.Changeset;
+import sonia.scm.repository.NamespaceAndName;
+import sonia.scm.repository.RepositoryManager;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -35,10 +40,14 @@ public class EditorResource {
   static final String EDITOR_REQUESTS_PATH_V2 = "v2/edit";
 
   private final EditorService editorService;
+  private final ChangesetToChangesetDtoMapper changesetMapper;
+  private final RepositoryManager repositoryManager;
 
   @Inject
-  public EditorResource(EditorService editorService) {
+  public EditorResource(EditorService editorService, ChangesetToChangesetDtoMapper changesetMapper, RepositoryManager repositoryManager) {
     this.editorService = editorService;
+    this.changesetMapper = changesetMapper;
+    this.repositoryManager = repositoryManager;
   }
 
   /**
@@ -49,6 +58,7 @@ public class EditorResource {
   @POST
   @Path("{namespace}/{name}/create")
   @Consumes("multipart/form-data")
+  @Produces("application/json")
   public Response createInRoot(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
@@ -94,15 +104,16 @@ public class EditorResource {
   @POST
   @Path("{namespace}/{name}/create/{path: .*}")
   @Consumes("multipart/form-data")
-  @Produces("text/plain")
+  @Produces("application/json")
   public Response create(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
     @Nullable @PathParam("path") String path,
     MultipartFormDataInput input
   ) throws IOException {
-    String targetRevision = processFiles(namespace, name, path, input, EditorService.FileUploader::create);
-    return Response.status(SC_CREATED).entity(targetRevision).build();
+    Changeset newCommit = processFiles(namespace, name, path, input, EditorService.FileUploader::create);
+    ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
+    return Response.status(SC_CREATED).entity(newCommitDto).build();
   }
 
   /**
@@ -113,6 +124,7 @@ public class EditorResource {
   @POST
   @Path("{namespace}/{name}/modify")
   @Consumes("multipart/form-data")
+  @Produces("application/json")
   public Response modifyInRoot(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
@@ -158,15 +170,17 @@ public class EditorResource {
   @POST
   @Path("{namespace}/{name}/modify/{path: .*}")
   @Consumes("multipart/form-data")
-  @Produces("text/plain")
+  @Produces("application/json")
   public Response modify(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
     @Nullable @PathParam("path") String path,
     MultipartFormDataInput input
   ) throws IOException {
-    String targetRevision = processFiles(namespace, name, path, input, EditorService.FileUploader::modify);
-    return Response.status(SC_CREATED).entity(targetRevision).build();
+    Changeset newCommit = processFiles(namespace, name, path, input, EditorService.FileUploader::modify);
+    ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
+
+    return Response.status(SC_CREATED).entity(newCommitDto).build();
   }
 
   /**
@@ -189,14 +203,14 @@ public class EditorResource {
   @POST
   @Path("{namespace}/{name}/delete/{path: .*}")
   @Consumes("application/json")
-  @Produces("text/plain")
+  @Produces("application/json")
   public Response delete(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
     @Nullable @PathParam("path") String path,
     @Valid CommitDto commit
-  ) {
-    String targetRevision =
+  ) throws IOException {
+    Changeset newCommit =
       editorService.delete(
         namespace,
         name,
@@ -204,21 +218,25 @@ public class EditorResource {
         path,
         commit.getCommitMessage(),
         commit.getExpectedRevision());
-    return Response.status(SC_CREATED).entity(targetRevision).build();
+
+    ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
+
+    return Response.status(SC_CREATED).entity(newCommitDto).build();
   }
 
-  private String processFiles(String namespace, String name, String path, MultipartFormDataInput input, UploadProcessor processor) throws IOException {
+  private Changeset processFiles(String namespace, String name, String path, MultipartFormDataInput input, UploadProcessor processor) throws IOException {
     Map<String, List<InputPart>> formParts = input.getFormDataMap();
     CommitDto commit = extractCommit(formParts.get("commit"));
-    EditorService.FileUploader fileUploader =
-      editorService.prepare(namespace, name, commit.getBranch(), path, commit.getCommitMessage(), commit.getExpectedRevision());
-    formParts
-      .entrySet()
-      .stream()
-      .filter(e -> e.getKey().startsWith("file"))
-      .map(Map.Entry::getValue)
-      .forEach(inputParts -> processFile(fileUploader, inputParts, processor, commit));
-    return fileUploader.done();
+    try (EditorService.FileUploader fileUploader =
+      editorService.prepare(namespace, name, commit.getBranch(), path, commit.getCommitMessage(), commit.getExpectedRevision())) {
+      formParts
+        .entrySet()
+        .stream()
+        .filter(e -> e.getKey().startsWith("file"))
+        .map(Map.Entry::getValue)
+        .forEach(inputParts -> processFile(fileUploader, inputParts, processor, commit));
+      return fileUploader.done();
+    }
   }
 
   private void processFile(EditorService.FileUploader fileUploader, List<InputPart> inputParts, UploadProcessor uploadProcessor, CommitDto commit) {
