@@ -19,13 +19,16 @@ import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.repository.Branch;
 import sonia.scm.repository.Branches;
 import sonia.scm.repository.BrowserResult;
+import sonia.scm.repository.Changeset;
 import sonia.scm.repository.FileObject;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.api.BranchesCommandBuilder;
 import sonia.scm.repository.api.Command;
+import sonia.scm.repository.api.LogCommandBuilder;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
+import sonia.scm.repository.spi.LogCommand;
 
 import javax.inject.Provider;
 import java.io.IOException;
@@ -61,6 +64,9 @@ class FileLinkEnricherTest {
 
   @Mock(answer = Answers.RETURNS_SELF)
   BranchesCommandBuilder branchesCommand;
+
+  @Mock(answer = Answers.RETURNS_SELF)
+  LogCommandBuilder logCommandBuilder;
 
   @Mock
   Subject subject;
@@ -130,12 +136,15 @@ class FileLinkEnricherTest {
     class WithModifySupport {
 
       @BeforeEach
-      void initService() {
+      void initService() throws IOException {
         doReturn(true).when(service).isSupported(Command.MODIFY);
-        doReturn(true).when(service).isSupported(Command.BRANCHES);
+        lenient().doReturn(true).when(service).isSupported(Command.BRANCHES);
+        doReturn(true).when(service).isSupported(Command.LOG);
 
-        when(service.getBranchesCommand()).thenReturn(branchesCommand);
+        lenient().when(service.getBranchesCommand()).thenReturn(branchesCommand);
+        when(service.getLogCommand()).thenReturn(logCommandBuilder);
 
+        lenient().when(service.getLogCommand().getChangeset(any())).thenReturn(null);
         lenient().when(scmPathInfoStoreProvider.get()).thenReturn(scmPathInfoStore);
       }
 
@@ -161,6 +170,17 @@ class FileLinkEnricherTest {
       @Test
       void shouldAppendLinksForFile() throws IOException {
         when(branchesCommand.getBranches()).thenReturn(new Branches(Branch.normalBranch("master", "123")));
+        fileObject.setDirectory(false);
+
+        enricher.enrich(context, appender);
+
+        verify(appender).appendLink("delete", "http://delete");
+        verify(appender).appendLink("modify", "http://modify");
+      }
+
+      @Test
+      void shouldAppendLinksForFileWithoutBranches() throws IOException {
+        lenient().when(service.getLogCommand().getChangeset(any())).thenReturn(new Changeset());
         fileObject.setDirectory(false);
 
         enricher.enrich(context, appender);
