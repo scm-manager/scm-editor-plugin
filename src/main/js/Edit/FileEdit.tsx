@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import { File, Me, Repository } from "@scm-manager/ui-types";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import FilePath from "../FileMetaData";
@@ -55,14 +55,11 @@ const Border = styled.div`
   }
 `;
 
-type Props = RouteComponentProps &  {
+type Props = WithTranslation & RouteComponentProps &  {
   repository: Repository;
   me: Me;
   editMode: boolean;
   file: File;
-
-  //context props
-  t: (p: string) => string;
 };
 
 type State = {
@@ -377,5 +374,5 @@ const mapStateToProps = state => {
 export default compose(
   withRouter,
   connect(mapStateToProps),
-  translate("plugins")
+  withTranslation("plugins")
 )(FileEdit);

@@ -1,8 +1,8 @@
 import React from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
-import { withRouter } from "react-router-dom";
-import { translate } from "react-i18next";
+import { withRouter, RouteComponentProps } from "react-router-dom";
+import { WithTranslation, withTranslation } from "react-i18next";
 import queryString from "query-string";
 import { File, Me, Repository } from "@scm-manager/ui-types";
 import { apiClient, Button, ButtonGroup, ErrorNotification, Subtitle } from "@scm-manager/ui-components";
@@ -47,16 +47,10 @@ const Border = styled.div`
   }
 `;
 
-type Props = {
+type Props = WithTranslation & RouteComponentProps & {
   me?: Me;
   url: string;
   repository: Repository;
-
-  //context props
-  t: (p: string) => string;
-  match: any;
-  location: any;
-  history: History;
 };
 
 type State = {
@@ -229,7 +223,7 @@ const mapStateToProps = state => {
 };
 
 export default compose(
-  translate("plugins"),
+  withTranslation("plugins"),
   withRouter,
   connect(mapStateToProps)
 )(FileUpload);

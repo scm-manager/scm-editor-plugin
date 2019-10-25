@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import { InputField, validation as validator } from "@scm-manager/ui-components";
 import styled from "styled-components";
 import LanguageSelector from "./LanguageSelector";
@@ -60,7 +60,7 @@ const FieldLabel: FC<{ value: string }> = ({ value }) => (
   </div>
 );
 
-type Props = {
+type Props = WithTranslation & {
   path: any;
   changePath: (p: string) => void;
   file?: File;
@@ -69,9 +69,6 @@ type Props = {
   validate?: (p: void) => boolean;
   language?: string;
   changeLanguage?: (lang: string) => void;
-
-  //context props
-  t: (p: string) => string;
 };
 
 type State = {
@@ -168,4 +165,4 @@ class FileMetaData extends React.Component<Props, State> {
   }
 }
 
-export default translate("plugins")(FileMetaData);
+export default withTranslation("plugins")(FileMetaData);

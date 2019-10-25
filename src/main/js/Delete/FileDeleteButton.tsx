@@ -1,9 +1,9 @@
 import React from "react";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import { File } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
 import { apiClient } from "@scm-manager/ui-components";
-import { withRouter } from "react-router-dom";
+import { withRouter, RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
 
 const Button = styled.a`
@@ -17,15 +17,10 @@ const Pointer = styled.div`
   cursor: initial;
 `;
 
-type Props = {
+type Props = WithTranslation & RouteComponentProps & {
   file: File;
   revision: string;
   handleExtensionError: (error: Error) => void;
-
-  // context props
-  location: any;
-  history: History;
-  t: (p: string) => string;
 };
 
 type State = {
@@ -94,4 +89,4 @@ class FileDeleteButton extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(translate("plugins")(FileDeleteButton));
+export default withRouter(withTranslation("plugins")(FileDeleteButton));

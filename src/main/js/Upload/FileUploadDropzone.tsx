@@ -1,6 +1,6 @@
 import React from "react";
 import Dropzone from "react-dropzone";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import styled from "styled-components";
 
 const StyledDropzone = styled.div`
@@ -31,11 +31,9 @@ const Icon = styled.i`
   margin: 1rem 0rem;
 `;
 
-type Props = {
+type Props = WithTranslation & {
   fileHandler: any;
   disabled: boolean;
-  // context props
-  t: (p: string) => string;
 };
 
 class FileUploadDropzone extends React.Component<Props> {
@@ -71,4 +69,4 @@ class FileUploadDropzone extends React.Component<Props> {
   }
 }
 
-export default translate("plugins")(FileUploadDropzone);
+export default withTranslation("plugins")(FileUploadDropzone);

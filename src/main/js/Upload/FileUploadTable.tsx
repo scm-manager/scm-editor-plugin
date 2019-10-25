@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import { FileSize, Subtitle } from "@scm-manager/ui-components";
 import styled from "styled-components";
 
@@ -21,12 +21,10 @@ const MarginTop = styled.div`
   margin-top: 2rem;
 `;
 
-type Props = {
+type Props = WithTranslation & {
   files: File[];
   removeFileEntry: (p: any) => void;
   disabled: boolean;
-  //context props
-  t: (p: string) => string;
 };
 
 class FileUploadTable extends React.Component<Props> {
@@ -74,4 +72,4 @@ class FileUploadTable extends React.Component<Props> {
   }
 }
 
-export default translate("plugins")(FileUploadTable);
+export default withTranslation("plugins")(FileUploadTable);

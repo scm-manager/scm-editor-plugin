@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import { File } from "@scm-manager/ui-types";
 import styled from "styled-components";
 
@@ -10,11 +10,8 @@ const Button = styled.a`
   }
 `;
 
-type Props = {
+type Props = WithTranslation & {
   file: File;
-
-  // context props
-  t: (p: string) => string;
 };
 
 class FileDownloadButton extends React.Component<Props> {
@@ -33,4 +30,4 @@ class FileDownloadButton extends React.Component<Props> {
   }
 }
 
-export default translate("plugins")(FileDownloadButton);
+export default withTranslation("plugins")(FileDownloadButton);

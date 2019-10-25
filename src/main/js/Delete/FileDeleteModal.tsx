@@ -1,20 +1,17 @@
 import React from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import { Button, ButtonGroup, Modal } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
 import { File, Me } from "@scm-manager/ui-types";
 
-type Props = {
+type Props = WithTranslation & {
   file: File;
   me?: Me;
   onCommit: (p: string) => void;
   onClose: () => void;
   loading: boolean;
-
-  // context props
-  t: (p: string) => string;
 };
 
 type State = {
@@ -89,6 +86,6 @@ const mapStateToProps = state => {
 };
 
 export default compose(
-  translate("plugins"),
+  withTranslation("plugins"),
   connect(mapStateToProps)
 )(FileRemoveModal);

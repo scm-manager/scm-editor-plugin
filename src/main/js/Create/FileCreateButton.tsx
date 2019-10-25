@@ -1,6 +1,6 @@
 import React from "react";
 import { Branch, Repository } from "@scm-manager/ui-types";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
@@ -12,14 +12,12 @@ const Button = styled.span`
   }
 `;
 
-type Props = {
+type Props = WithTranslation & {
   repository: Repository;
   baseUrl: string;
   path?: string;
   branch?: Branch;
   isBranchUrl: boolean;
-  // context props
-  t: (p: string) => string;
 };
 
 class FileCreateButton extends React.Component<Props> {
@@ -51,4 +49,4 @@ class FileCreateButton extends React.Component<Props> {
   }
 }
 
-export default translate("plugins")(FileCreateButton);
+export default withTranslation("plugins")(FileCreateButton);

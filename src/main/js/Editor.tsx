@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Loading, ErrorNotification } from "@scm-manager/ui-components";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 
 import AceEditor from "react-ace";
 import "./EditorTheme.js";
@@ -8,13 +8,11 @@ import findLanguage from "./findLanguage";
 
 const defaultLanguage = "text";
 
-type Props = {
+type Props = WithTranslation & {
   content: string;
   language: string;
   disabled: boolean;
   onChange: (value: string, name?: string) => void;
-  // context prop
-  t: (key: string) => string;
 };
 
 type State = {
@@ -98,4 +96,4 @@ class Editor extends Component<Props, State> {
   }
 }
 
-export default translate("plugins")(Editor);
+export default withTranslation("plugins")(Editor);

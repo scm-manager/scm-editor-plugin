@@ -1,5 +1,5 @@
 import React from "react";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import { Textarea } from "@scm-manager/ui-components";
 import { Me } from "@scm-manager/ui-types";
 import styled from "styled-components";
@@ -8,12 +8,10 @@ const MarginBottom = styled.div`
   margin-bottom: 0.5rem;
 `;
 
-type Props = {
+type Props = WithTranslation & {
   me: Me;
   onChange: (p: string) => void;
   disabled: boolean;
-  //context props
-  t: (p: string) => string;
 };
 
 class CommitMessage extends React.Component<Props> {
@@ -36,4 +34,4 @@ class CommitMessage extends React.Component<Props> {
   }
 }
 
-export default translate("plugins")(CommitMessage);
+export default withTranslation("plugins")(CommitMessage);

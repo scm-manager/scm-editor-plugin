@@ -1,7 +1,7 @@
 import React from "react";
-import { translate } from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import { File } from "@scm-manager/ui-types";
-import { withRouter } from "react-router-dom";
+import { withRouter, RouteComponentProps } from "react-router-dom";
 import { apiClient } from "@scm-manager/ui-components";
 import { isEditable } from "./isEditable";
 import styled from "styled-components";
@@ -13,14 +13,8 @@ const Button = styled.a`
   }
 `;
 
-type Props = {
+type Props = WithTranslation & RouteComponentProps & {
   file: File;
-
-  // context props
-  t: (p: string) => string;
-  location: any;
-  history: History;
-  match: any;
 };
 
 type State = {
@@ -82,4 +76,4 @@ class FileEditButton extends React.Component<Props, State> {
   }
 }
 
-export default withRouter(translate("plugins")(FileEditButton));
+export default withRouter(withTranslation("plugins")(FileEditButton));
