@@ -1,42 +1,39 @@
-// @flow
 import React from "react";
 import Dropzone from "react-dropzone";
-import {translate} from "react-i18next";
+import { WithTranslation, withTranslation } from "react-i18next";
 import styled from "styled-components";
 
 const StyledDropzone = styled.div`
-    width: 100%;
-    cursor: pointer;
-    padding: 2rem;
+  width: 100%;
+  cursor: pointer;
+  padding: 2rem;
 `;
 
 const InnerBorder = styled.div`
-    display: flex;
-    padding: 3rem;
-    height: 16rem;
-    align-self: center;
-    border: dashed 3px #cdcdcd;
-    border-radius: 2px;
-    justify-content: center;
-    text-align: center;
+  display: flex;
+  padding: 3rem;
+  height: 16rem;
+  align-self: center;
+  border: dashed 3px #cdcdcd;
+  border-radius: 2px;
+  justify-content: center;
+  text-align: center;
 `;
 
 const Description = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 `;
 
 const Icon = styled.i`
   margin: 1rem 0rem;
 `;
 
-type Props = {
-  fileHandler: any,
-  disabled: boolean,
-  // context props
-  t: string => string
+type Props = WithTranslation & {
+  fileHandler: any;
+  disabled: boolean;
 };
 
 class FileUploadDropzone extends React.Component<Props> {
@@ -45,7 +42,7 @@ class FileUploadDropzone extends React.Component<Props> {
   };
 
   render() {
-    const {t, disabled} = this.props;
+    const { t, disabled } = this.props;
     return (
       <>
         <Dropzone onDrop={acceptedFiles => this.onDrop(acceptedFiles)}>
@@ -53,11 +50,11 @@ class FileUploadDropzone extends React.Component<Props> {
             return (
               <section>
                 <div {...getRootProps()}>
-                  <input {...getInputProps()} disabled={disabled}/>
+                  <input {...getInputProps()} disabled={disabled} />
                   <StyledDropzone>
                     <InnerBorder>
                       <Description className="has-text-grey-light">
-                        <Icon className="fas fa-plus-circle fa-2x has-text-grey-lighter"/>
+                        <Icon className="fas fa-plus-circle fa-2x has-text-grey-lighter" />
                         {t("scm-editor-plugin.upload.dragAndDrop")}
                       </Description>
                     </InnerBorder>
@@ -72,4 +69,4 @@ class FileUploadDropzone extends React.Component<Props> {
   }
 }
 
-export default translate("plugins")(FileUploadDropzone);
+export default withTranslation("plugins")(FileUploadDropzone);

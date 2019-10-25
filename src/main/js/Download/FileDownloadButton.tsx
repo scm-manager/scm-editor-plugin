@@ -1,7 +1,6 @@
-// @flow
 import React from "react";
-import {translate} from "react-i18next";
-import type {File} from "@scm-manager/ui-types";
+import { WithTranslation, withTranslation } from "react-i18next";
+import { File } from "@scm-manager/ui-types";
 import styled from "styled-components";
 
 const Button = styled.a`
@@ -11,16 +10,13 @@ const Button = styled.a`
   }
 `;
 
-type Props = {
-  file: File,
-
-  // context props
-  t: string => string
+type Props = WithTranslation & {
+  file: File;
 };
 
 class FileDownloadButton extends React.Component<Props> {
   render() {
-    const {file, t} = this.props;
+    const { file, t } = this.props;
     return (
       <Button
         title={t("scm-editor-plugin.download.tooltip")}
@@ -34,4 +30,4 @@ class FileDownloadButton extends React.Component<Props> {
   }
 }
 
-export default translate("plugins")(FileDownloadButton);
+export default withTranslation("plugins")(FileDownloadButton);
