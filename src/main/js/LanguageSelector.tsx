@@ -17,9 +17,6 @@ type Props = {
 
 const LanguageSelector: FC<Props> = ({disabled, selected = "text", onChange}) => {
   const [language, setLanguage] = useState(selected);
-
-  console.log("selected:", selected);
-
   const changeLanguage = (lang: string) => {
     setLanguage(lang);
     onChange(lang);

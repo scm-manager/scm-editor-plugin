@@ -304,12 +304,7 @@ class FileEdit extends React.Component<Props, State> {
       return <ErrorNotification error={initialError} />;
     }
 
-    console.log(this.state.language);
-
     const language = findLanguage(this.state.language);
-
-    console.log(language);
-
     if (editMode && !isEditable(contentType, language, contentLength)) {
       return (
         <ErrorNotification
