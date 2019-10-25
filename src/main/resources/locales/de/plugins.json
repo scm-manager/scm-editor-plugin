@@ -5,12 +5,13 @@
       "commit": "Commit"
     },
     "path": {
-      "path": "Pfad",
+      "path": "Pfad:",
       "placeholder": {
         "path": "Hier den Dateipfad eingeben",
         "filename": "Hier den Dateinamen eingeben"
       },
-      "filename": "Dateiname:"
+      "filename": "Dateiname:",
+      "language": "Highlighting:"
     },
     "delete": {
       "tooltip": "Löschen",

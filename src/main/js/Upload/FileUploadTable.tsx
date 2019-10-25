@@ -1,7 +1,6 @@
-//@flow
 import React from "react";
-import {translate} from "react-i18next";
-import {FileSize, Subtitle} from "@scm-manager/ui-components";
+import { translate } from "react-i18next";
+import { FileSize, Subtitle } from "@scm-manager/ui-components";
 import styled from "styled-components";
 
 const NameColumnTH = styled.th`
@@ -23,11 +22,11 @@ const MarginTop = styled.div`
 `;
 
 type Props = {
-  files: File[],
-  removeFileEntry: any => void,
-  disabled: boolean,
+  files: File[];
+  removeFileEntry: (p: any) => void;
+  disabled: boolean;
   //context props
-  t: string => string
+  t: (p: string) => string;
 };
 
 class FileUploadTable extends React.Component<Props> {
@@ -36,7 +35,7 @@ class FileUploadTable extends React.Component<Props> {
   };
 
   render() {
-    const {t, files, disabled} = this.props;
+    const { t, files, disabled } = this.props;
 
     return (
       <>
@@ -46,15 +45,9 @@ class FileUploadTable extends React.Component<Props> {
         <NoBorderLeft className="card-table table is-hoverable is-fullwidth">
           <thead>
             <tr>
-              <NameColumnTH>
-                {t("scm-editor-plugin.upload.file.name")}
-              </NameColumnTH>
-              <th className="is-hidden-mobile">
-                {t("scm-editor-plugin.upload.file.type")}
-              </th>
-              <th className="is-hidden-mobile">
-                {t("scm-editor-plugin.upload.file.size")}
-              </th>
+              <NameColumnTH>{t("scm-editor-plugin.upload.file.name")}</NameColumnTH>
+              <th className="is-hidden-mobile">{t("scm-editor-plugin.upload.file.type")}</th>
+              <th className="is-hidden-mobile">{t("scm-editor-plugin.upload.file.size")}</th>
             </tr>
           </thead>
           <tbody>
@@ -64,7 +57,7 @@ class FileUploadTable extends React.Component<Props> {
                   <NameColumnTD>{file.name}</NameColumnTD>
                   <td className="is-hidden-mobile">{file.type}</td>
                   <td className="is-hidden-mobile">
-                    <FileSize bytes={file.size}/>
+                    <FileSize bytes={file.size} />
                   </td>
                   <td>
                     <a onClick={() => !disabled && this.removeEntry(file)}>

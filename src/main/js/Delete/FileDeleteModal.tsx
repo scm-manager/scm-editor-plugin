@@ -1,29 +1,27 @@
-//@flow
 import React from "react";
-import {compose} from "redux";
-import {connect} from "react-redux";
-import {translate} from "react-i18next";
-import {Button, ButtonGroup, Modal} from "@scm-manager/ui-components";
+import { compose } from "redux";
+import { connect } from "react-redux";
+import { translate } from "react-i18next";
+import { Button, ButtonGroup, Modal } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
-import type {File, Me} from "@scm-manager/ui-types";
+import { File, Me } from "@scm-manager/ui-types";
 
 type Props = {
-  file: File,
-  me?: Me,
-  onCommit: string => void,
-  onClose: () => void,
-  loading: boolean,
+  file: File;
+  me?: Me;
+  onCommit: (p: string) => void;
+  onClose: () => void;
+  loading: boolean;
 
   // context props
-  t: string => string
+  t: (p: string) => string;
 };
 
 type State = {
-  commitMessage: string
+  commitMessage: string;
 };
 
 class FileRemoveModal extends React.Component<Props, State> {
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -32,19 +30,23 @@ class FileRemoveModal extends React.Component<Props, State> {
   }
 
   changeCommitMessage = commitMessage => {
-    this.setState({ commitMessage });
+    this.setState({
+      commitMessage
+    });
   };
 
   render() {
     const { onCommit, onClose, loading, me, t } = this.props;
     const { commitMessage } = this.state;
 
-    const body = <CommitMessage
-      me={me}
-      commitMessage={this.state.commitMessage}
-      onChange={this.changeCommitMessage}
-      disabled={loading}
-    />;
+    const body = (
+      <CommitMessage
+        me={me}
+        commitMessage={this.state.commitMessage}
+        onChange={this.changeCommitMessage}
+        disabled={loading}
+      />
+    );
 
     const footer = (
       <ButtonGroup>
@@ -86,4 +88,7 @@ const mapStateToProps = state => {
   };
 };
 
-export default compose(translate("plugins"), connect(mapStateToProps))(FileRemoveModal);
+export default compose(
+  translate("plugins"),
+  connect(mapStateToProps)
+)(FileRemoveModal);

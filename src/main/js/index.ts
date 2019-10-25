@@ -1,5 +1,4 @@
-// @flow
-import {binder} from "@scm-manager/ui-extensions";
+import { binder } from "@scm-manager/ui-extensions";
 import FileDownloadIcon from "./Download/FileDownloadIcon";
 import EditorNavigation from "./EditorNavigation";
 import SourcesActionbar from "./SourcesActionbar";

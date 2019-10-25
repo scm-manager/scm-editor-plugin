@@ -1,24 +1,17 @@
-// @flow
 import React from "react";
 import { compose } from "redux";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { translate } from "react-i18next";
 import queryString from "query-string";
-import type { File, Me, Repository } from "@scm-manager/ui-types";
-import {
-  apiClient,
-  Button,
-  ButtonGroup,
-  ErrorNotification,
-  Subtitle
-} from "@scm-manager/ui-components";
+import { File, Me, Repository } from "@scm-manager/ui-types";
+import { apiClient, Button, ButtonGroup, ErrorNotification, Subtitle } from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
-import FilePath from "../FilePath";
+import FilePath from "../FileMetaData";
 import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 import styled from "styled-components";
-import type { Commit } from "../commit";
+import { Commit } from "../commit";
 
 const BranchMarginBottom = styled.div`
   margin-bottom: 1rem;
@@ -55,25 +48,25 @@ const Border = styled.div`
 `;
 
 type Props = {
-  me?: Me,
-  url: string,
-  repository: Repository,
+  me?: Me;
+  url: string;
+  repository: Repository;
 
   //context props
-  t: string => string,
-  match: any,
-  location: any,
-  history: History
+  t: (p: string) => string;
+  match: any;
+  location: any;
+  history: History;
 };
 
 type State = {
-  path: string,
-  files: File[],
-  commitMessage: any,
-  branch: string,
-  revision: string,
-  error: Error,
-  loading: boolean
+  path: string;
+  files: File[];
+  commitMessage: any;
+  branch: string;
+  revision: string;
+  error: Error;
+  loading: boolean;
 };
 
 class FileUpload extends React.Component<Props, State> {
@@ -95,26 +88,37 @@ class FileUpload extends React.Component<Props, State> {
   }
 
   handleError = (error: Error) => {
-    this.setState({ error, loading: false });
+    this.setState({
+      error,
+      loading: false
+    });
   };
 
   handleFile = files => {
     const fileArray = this.state.files ? this.state.files : [];
     files.forEach(file => fileArray.push(file));
-    this.setState({ files: fileArray });
+    this.setState({
+      files: fileArray
+    });
   };
 
   changePath = path => {
-    this.setState({ path });
+    this.setState({
+      path
+    });
   };
 
   changeCommitMessage = commitMessage => {
-    this.setState({ commitMessage });
+    this.setState({
+      commitMessage
+    });
   };
 
   removeFileEntry = entry => {
     const filteredFiles = this.state.files.filter(file => file !== entry);
-    this.setState({ files: filteredFiles });
+    this.setState({
+      files: filteredFiles
+    });
   };
 
   commitFile = sourcesLink => {
@@ -122,9 +126,13 @@ class FileUpload extends React.Component<Props, State> {
     const { files, commitMessage, path, branch } = this.state;
     const link = repository._links.fileUpload.href;
 
-    this.setState({ loading: true });
+    this.setState({
+      loading: true
+    });
 
-    const fileAliases: { [string]: File } = this.buildFileAliases(files);
+    const fileAliases: {
+      [key: string]: File;
+    } = this.buildFileAliases(files);
     const commit: Commit = {
       commitMessage,
       branch,
@@ -133,48 +141,42 @@ class FileUpload extends React.Component<Props, State> {
 
     apiClient
       .postBinary(link.replace("{path}", path), formdata => {
-        Object.keys(fileAliases).forEach(name =>
-          formdata.append(name, fileAliases[name], name)
-        );
+        Object.keys(fileAliases).forEach(name => formdata.append(name, fileAliases[name], name));
         formdata.append("commit", JSON.stringify(commit));
       })
       .then(() => history.push(sourcesLink))
       .catch(this.handleError);
   };
 
-  buildFileAliases: (File[]) => { [string]: File } = files => {
-    const fileAliases: { [string]: File } = {};
+  buildFileAliases: (
+    p: File[]
+  ) => {
+    [key: string]: File;
+  } = files => {
+    const fileAliases: {
+      [key: string]: File;
+    } = {};
     files.forEach((file, i) => (fileAliases["file" + i] = file));
     return fileAliases;
   };
 
-  buildFileNameMap: ({ [string]: File }) => {
-    [string]: string
+  buildFileNameMap: (p: {
+    [key: string]: File;
+  }) => {
+    [key: string]: string;
   } = fileAliases => {
-    const nameMap: { [string]: string } = {};
-    Object.keys(fileAliases).forEach(
-      name => (nameMap[name] = fileAliases[name].name)
-    );
+    const nameMap: {
+      [key: string]: string;
+    } = {};
+    Object.keys(fileAliases).forEach(name => (nameMap[name] = fileAliases[name].name));
     return nameMap;
   };
 
   render() {
     const { t, me, location } = this.props;
-    const {
-      files,
-      path,
-      commitMessage,
-      branch,
-      revision,
-      error,
-      loading
-    } = this.state;
+    const { files, path, commitMessage, branch, revision, error, loading } = this.state;
     const sourcesLink =
-      location.pathname.split("upload")[0] +
-      "sources/" +
-      (branch ? branch.replace("/", "%2F") : revision) +
-      "/" +
-      path;
+      location.pathname.split("upload")[0] + "sources/" + (branch ? branch.replace("/", "%2F") : revision) + "/" + path;
 
     return (
       <>
@@ -182,44 +184,26 @@ class FileUpload extends React.Component<Props, State> {
         {branch && (
           <BranchMarginBottom>
             <span>
-              <strong>
-                {t("scm-editor-plugin.edit.selectedBranch") + ": "}
-              </strong>
+              <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
               {branch}
             </span>
           </BranchMarginBottom>
         )}
         <Border>
           <FilePath path={path} changePath={this.changePath} />
-          <FileUploadDropzone
-            fileHandler={this.handleFile}
-            disabled={loading}
-          />
+          <FileUploadDropzone fileHandler={this.handleFile} disabled={loading} />
         </Border>
         {files && files.length > 0 && (
-          <FileUploadTable
-            files={files}
-            removeFileEntry={this.removeFileEntry}
-            disabled={loading}
-          />
+          <FileUploadTable files={files} removeFileEntry={this.removeFileEntry} disabled={loading} />
         )}
         {error && <ErrorNotification error={error} />}
-        <CommitMessage
-          me={me}
-          commitMessage={commitMessage}
-          onChange={this.changeCommitMessage}
-          disabled={loading}
-        />
+        <CommitMessage me={me} commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
         <br />
         <div className="level">
           <div className="level-left" />
           <div className="level-right">
             <ButtonGroup>
-              <Button
-                label={t("scm-editor-plugin.button.cancel")}
-                link={sourcesLink}
-                disabled={loading}
-              />
+              <Button label={t("scm-editor-plugin.button.cancel")} link={sourcesLink} disabled={loading} />
               <Button
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}

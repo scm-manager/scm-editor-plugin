@@ -1,7 +1,6 @@
-// @flow
 import React from "react";
-import {translate} from "react-i18next";
-import type {File} from "@scm-manager/ui-types";
+import { translate } from "react-i18next";
+import { File } from "@scm-manager/ui-types";
 import styled from "styled-components";
 
 const Button = styled.a`
@@ -12,15 +11,15 @@ const Button = styled.a`
 `;
 
 type Props = {
-  file: File,
+  file: File;
 
   // context props
-  t: string => string
+  t: (p: string) => string;
 };
 
 class FileDownloadButton extends React.Component<Props> {
   render() {
-    const {file, t} = this.props;
+    const { file, t } = this.props;
     return (
       <Button
         title={t("scm-editor-plugin.download.tooltip")}
