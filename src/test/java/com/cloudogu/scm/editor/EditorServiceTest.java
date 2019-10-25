@@ -77,7 +77,7 @@ class EditorServiceTest {
     Changeset newCommit = editorService
       .prepare("space", "name", "master", SOME_PATH, "new commit", "expected")
       .create(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
-      .done();
+      .done("master");
 
     verify(createContentLoader).setOverwrite(true);
     verify(modifyCommandBuilder).createFile(SOME_PATH + "/" + NEW_FILE);
@@ -94,7 +94,7 @@ class EditorServiceTest {
     Changeset newCommit = editorService
       .prepare("space", "name", "master", SOME_PATH, "new commit", "expected")
       .modify(CHANGED_FILE, new ByteArrayInputStream("content".getBytes()))
-      .done();
+      .done("master");
 
     verify(modifyCommandBuilder).modifyFile(SOME_PATH + "/" + CHANGED_FILE);
     verify(modifyContentLoader).withData(any(InputStream.class));
@@ -123,7 +123,7 @@ class EditorServiceTest {
     Changeset newCommit = editorService
       .prepare("space", "name", "master", "", "new commit", "")
       .create(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
-      .done();
+      .done("master");
 
     verify(modifyCommandBuilder).createFile(NEW_FILE);
   }

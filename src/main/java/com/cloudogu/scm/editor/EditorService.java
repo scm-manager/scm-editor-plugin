@@ -34,7 +34,7 @@ public class EditorService {
       String changesetId = initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService)
         .deleteFile(path)
         .execute();
-      return repositoryService.getLogCommand().getChangeset(changesetId);
+      return repositoryService.getLogCommand().setBranch(branch).getChangeset(changesetId);
     }
   }
 
@@ -98,9 +98,9 @@ public class EditorService {
       }
     }
 
-    public Changeset done() throws IOException {
+    public Changeset done(String branch) throws IOException {
       String changesetId = modifyCommand.execute();
-      return repositoryService.getLogCommand().getChangeset(changesetId);
+      return repositoryService.getLogCommand().setBranch(branch).getChangeset(changesetId);
     }
 
     @Override
