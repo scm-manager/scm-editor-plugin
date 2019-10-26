@@ -179,7 +179,6 @@ public class EditorResource {
   ) throws IOException {
     Changeset newCommit = processFiles(namespace, name, path, input, EditorService.FileUploader::modify);
     ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
-
     return Response.status(SC_CREATED).entity(newCommitDto).build();
   }
 
@@ -218,9 +217,7 @@ public class EditorResource {
         path,
         commit.getCommitMessage(),
         commit.getExpectedRevision());
-
     ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
-
     return Response.status(SC_CREATED).entity(newCommitDto).build();
   }
 
