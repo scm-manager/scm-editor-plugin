@@ -15,7 +15,7 @@ type Props = {
 
 class SourcesActionbar extends React.Component<Props> {
   render() {
-    const {repository, baseUrl, path, branch, revision, isBranchUrl} = this.props;
+    const { repository, baseUrl, path, branch, revision, isBranchUrl } = this.props;
     return (
       <>
         <ButtonGroup>

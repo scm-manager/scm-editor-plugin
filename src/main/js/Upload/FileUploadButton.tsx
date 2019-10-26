@@ -17,6 +17,7 @@ type Props = WithTranslation & {
   baseUrl: string;
   path?: string;
   branch?: Branch;
+  revision?: string;
   isBranchUrl: boolean;
 };
 
