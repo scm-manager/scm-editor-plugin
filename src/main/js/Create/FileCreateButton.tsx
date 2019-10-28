@@ -1,7 +1,7 @@
 import React from "react";
-import { Branch, Repository } from "@scm-manager/ui-types";
-import { WithTranslation, withTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import {Branch, File} from "@scm-manager/ui-types";
+import {WithTranslation, withTranslation} from "react-i18next";
+import {Link} from "react-router-dom";
 import styled from "styled-components";
 
 const Button = styled.span`
@@ -13,12 +13,11 @@ const Button = styled.span`
 `;
 
 type Props = WithTranslation & {
-  repository: Repository;
   baseUrl: string;
   path?: string;
   branch?: Branch;
   revision?: string;
-  isBranchUrl: boolean;
+  sources: File;
 };
 
 class FileCreateButton extends React.Component<Props> {
@@ -35,10 +34,10 @@ class FileCreateButton extends React.Component<Props> {
   };
 
   render() {
-    const { t, isBranchUrl, repository } = this.props;
+    const { t, sources } = this.props;
     return (
       <>
-        {isBranchUrl && repository._links.fileUpload && (
+        {sources && sources._links.fileUpload && (
           <Link to={this.createCreateUrl()}>
             <Button title={t("scm-editor-plugin.create.tooltip")} className="button">
               <i className="fas fa-file-medical" />
