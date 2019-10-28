@@ -48,8 +48,8 @@ public class FileLinkEnricher implements HalEnricher {
       }
       try {
         if (service.isSupported(Command.LOG) &&
-          service.getLogCommand().getChangeset(requestedRevision) != null
-          && service.getLogCommand().getChangeset(requestedRevision).getBranches().isEmpty()) {
+          !service.isSupported(Command.BRANCHES) &&
+          service.getLogCommand().getChangeset(requestedRevision).getId().equals(findHeadRevision(service))) {
           appendLinks(appender, fileObject, namespaceAndName);
           return;
         }
@@ -64,6 +64,10 @@ public class FileLinkEnricher implements HalEnricher {
         throw new InternalRepositoryException(entity(service.getRepository()), "could not check branches", e);
       }
     }
+  }
+
+  private String findHeadRevision(RepositoryService service) throws IOException {
+    return service.getLogCommand().setPagingLimit(1).getChangesets().iterator().next().getId();
   }
 
   private void appendLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
