@@ -50,7 +50,7 @@ public class FileLinkEnricher implements HalEnricher {
         if (service.isSupported(Command.LOG) &&
           !service.isSupported(Command.BRANCHES) &&
           service.getLogCommand().getChangeset(requestedRevision).getId().equals(findHeadRevision(service))) {
-          appendFileLinks(appender, fileObject, namespaceAndName);
+          appendLinks(appender, fileObject, namespaceAndName);
           return;
         }
       } catch (IOException e) {
@@ -58,7 +58,7 @@ public class FileLinkEnricher implements HalEnricher {
       }
       try {
         if (service.isSupported(Command.BRANCHES) && isRequestWithBranch(requestedRevision, service)) {
-          appendFileLinks(appender, fileObject, namespaceAndName);
+          appendLinks(appender, fileObject, namespaceAndName);
         }
       } catch (IOException e) {
         throw new InternalRepositoryException(entity(service.getRepository()), "could not check branches", e);
@@ -70,12 +70,23 @@ public class FileLinkEnricher implements HalEnricher {
     return service.getLogCommand().setPagingLimit(1).getChangesets().iterator().next().getId();
   }
 
-  private void appendFileLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
-    if (!fileObject.isDirectory()) {
-      LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
-      appender.appendLink("delete", createDeleteLink(fileObject, namespaceAndName, linkBuilder));
-      appender.appendLink("modify", createModifyLink(fileObject, namespaceAndName, linkBuilder));
+  private void appendLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
+    if (fileObject.isDirectory()) {
+      appendDirectoryLinks(appender, fileObject, namespaceAndName);
+    } else {
+      appendFileLinks(appender, fileObject, namespaceAndName);
     }
+  }
+
+  private void appendDirectoryLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
+    LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
+    appender.appendLink("createNew", createUploadLink(fileObject, namespaceAndName, linkBuilder));
+  }
+
+  private void appendFileLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
+    LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
+    appender.appendLink("delete", createDeleteLink(fileObject, namespaceAndName, linkBuilder));
+    appender.appendLink("modify", createModifyLink(fileObject, namespaceAndName, linkBuilder));
   }
 
   private boolean isRequestWithBranch(String requestedRevision, RepositoryService service) throws IOException {
@@ -85,6 +96,11 @@ public class FileLinkEnricher implements HalEnricher {
       .getBranches()
       .stream()
       .anyMatch(b -> b.getName().equals(requestedRevision));
+  }
+
+  @VisibleForTesting
+  String createUploadLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+    return linkBuilder.method("create").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href();
   }
 
   @VisibleForTesting

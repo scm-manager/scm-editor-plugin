@@ -1,26 +1,18 @@
 import React from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
-import { File, Me, Repository } from "@scm-manager/ui-types";
-import { withRouter, RouteComponentProps } from "react-router-dom";
+import {WithTranslation, withTranslation} from "react-i18next";
+import {File, Me, Repository} from "@scm-manager/ui-types";
+import {RouteComponentProps, withRouter} from "react-router-dom";
 import FilePath from "../FileMetaData";
-import {
-  apiClient,
-  Button,
-  ButtonGroup,
-  ErrorNotification,
-  Loading,
-  Subtitle,
-  Textarea
-} from "@scm-manager/ui-components";
+import {apiClient, Button, ButtonGroup, ErrorNotification, Loading, Subtitle} from "@scm-manager/ui-components";
 import queryString from "query-string";
-import { compose } from "redux";
-import { connect } from "react-redux";
+import {compose} from "redux";
+import {connect} from "react-redux";
 import CommitMessage from "../CommitMessage";
-import { isEditable } from "./isEditable";
+import {isEditable} from "./isEditable";
 import styled from "styled-components";
 import Editor from "../Editor";
-import languages from "../languages";
 import findLanguage from "../findLanguage";
+import {getSources} from "./fileEdit";
 
 const Branch = styled.div`
   margin-bottom: 1rem;
@@ -61,6 +53,7 @@ type Props = WithTranslation &
     me: Me;
     editMode: boolean;
     file: File;
+    sources: File;
   };
 
 type State = {
@@ -249,11 +242,11 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   commitFile = () => {
-    const { repository, editMode } = this.props;
+    const { editMode, sources } = this.props;
     const { file, commitMessage, path, revision, content } = this.state;
 
     if (file) {
-      const link = editMode ? repository._links.modify.href : repository._links.fileUpload.href;
+      const link = editMode ? sources._links.modify.href : sources._links.fileUpload.href;
       const blob = new Blob([content ? content : ""], {
         type: editMode ? file.type : "text/plain"
       });
@@ -360,7 +353,7 @@ class FileEdit extends React.Component<Props, State> {
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
                 disabled={!commitMessage || !isValid || !file.name}
-                action={() => this.commitFile()}
+                action={this.commitFile}
                 loading={loading}
               />
             </ButtonGroup>
@@ -371,12 +364,15 @@ class FileEdit extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
+  const { repository } = ownProps;
   const { auth } = state;
   const me = auth.me;
+  const sources = getSources(state, repository, "", "");
 
   return {
-    me
+    me,
+    sources
   };
 };
 

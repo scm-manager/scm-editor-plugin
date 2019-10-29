@@ -12,6 +12,7 @@ import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 import styled from "styled-components";
 import { Commit } from "../commit";
+import {getSources} from "../Edit/fileEdit";
 
 const BranchMarginBottom = styled.div`
   margin-bottom: 1rem;
@@ -51,6 +52,7 @@ type Props = WithTranslation & RouteComponentProps & {
   me?: Me;
   url: string;
   repository: Repository;
+  sources: File;
 };
 
 type State = {
@@ -116,9 +118,9 @@ class FileUpload extends React.Component<Props, State> {
   };
 
   commitFile = () => {
-    const { repository, history } = this.props;
+    const { sources, history } = this.props;
     const { files, commitMessage, path, branch } = this.state;
-    const link = repository._links.fileUpload.href;
+    const link = sources._links.fileUpload.href;
 
     this.setState({
       loading: true
@@ -247,12 +249,15 @@ class FileUpload extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
+  const { repository } = ownProps;
   const { auth } = state;
   const me = auth.me;
+  const sources = getSources(state, repository, "", "");
 
   return {
-    me
+    me,
+    sources
   };
 };
 

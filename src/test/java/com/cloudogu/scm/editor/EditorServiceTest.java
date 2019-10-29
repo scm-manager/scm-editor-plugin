@@ -120,7 +120,7 @@ class EditorServiceTest {
 
   @Test
   void shouldNotStartPathOfFileWithSlash() throws IOException {
-    Changeset newCommit = editorService
+    editorService
       .prepare("space", "name", "master", "", "new commit", "")
       .create(NEW_FILE, new ByteArrayInputStream("content".getBytes()))
       .done();
