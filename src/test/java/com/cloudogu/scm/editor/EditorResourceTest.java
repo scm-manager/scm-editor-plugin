@@ -91,7 +91,7 @@ class EditorResourceTest {
   void shouldProcessCreateWithCompleteRequest() throws IOException, URISyntaxException {
     when(service.prepare(NAMESPACE, NAME, "master", "some/path", "new commit", "expected"))
       .thenReturn(fileUploader);
-    when(fileUploader.done("master")).thenReturn(new Changeset("1", 1L, new Person("trillian")));
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
 
     MockHttpRequest request =
       MockHttpRequest
@@ -109,7 +109,7 @@ class EditorResourceTest {
   void shouldProcessCreateWithEmptyPath() throws IOException, URISyntaxException {
     when(service.prepare(NAMESPACE, NAME, "master", "", "new commit", null))
       .thenReturn(fileUploader);
-    when(fileUploader.done("master")).thenReturn(new Changeset("1", 1L, new Person("trillian")));
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
 
     MockHttpRequest request =
       MockHttpRequest
@@ -140,7 +140,7 @@ class EditorResourceTest {
   void shouldProcessModifyWithCompleteRequest() throws IOException, URISyntaxException {
     when(service.prepare(NAMESPACE, NAME, "master", "some/path", "new commit", "expected"))
       .thenReturn(fileUploader);
-    when(fileUploader.done("master")).thenReturn(new Changeset("1", 1L, new Person("trillian")));
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
 
     MockHttpRequest request =
       MockHttpRequest
@@ -158,7 +158,7 @@ class EditorResourceTest {
   void shouldProcessModifyWithEmptyPath() throws IOException, URISyntaxException {
     when(service.prepare(NAMESPACE, NAME, "master", "", "new commit", null))
       .thenReturn(fileUploader);
-    when(fileUploader.done("master")).thenReturn(new Changeset("1", 1L, new Person("trillian")));
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
 
     MockHttpRequest request =
       MockHttpRequest
