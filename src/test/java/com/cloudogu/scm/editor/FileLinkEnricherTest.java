@@ -28,7 +28,6 @@ import sonia.scm.repository.api.Command;
 import sonia.scm.repository.api.LogCommandBuilder;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
-import sonia.scm.repository.spi.LogCommand;
 
 import javax.inject.Provider;
 import java.io.IOException;
@@ -158,16 +157,6 @@ class FileLinkEnricherTest {
       }
 
       @Test
-      void shouldAppendLinksForDirectory() throws IOException {
-        when(branchesCommand.getBranches()).thenReturn(new Branches(Branch.normalBranch("master", "123")));
-        fileObject.setDirectory(true);
-
-        enricher.enrich(context, appender);
-
-        verify(appender).appendLink("fileUpload", "http://upload");
-      }
-
-      @Test
       void shouldAppendLinksForFile() throws IOException {
         when(branchesCommand.getBranches()).thenReturn(new Branches(Branch.normalBranch("master", "123")));
         fileObject.setDirectory(false);
@@ -179,14 +168,15 @@ class FileLinkEnricherTest {
       }
 
       @Test
-      void shouldAppendLinksForFileWithoutBranches() throws IOException {
+      void shouldNotAppendLinksForFileWithoutBranches() throws IOException {
         lenient().when(service.getLogCommand().getChangeset(any())).thenReturn(new Changeset());
+        lenient().when(service.getBranchesCommand().getBranches()).thenReturn(new Branches());
         fileObject.setDirectory(false);
 
         enricher.enrich(context, appender);
 
-        verify(appender).appendLink("delete", "http://delete");
-        verify(appender).appendLink("modify", "http://modify");
+        verify(appender, never()).appendLink("delete", "http://delete");
+        verify(appender, never()).appendLink("modify", "http://modify");
       }
     }
   }

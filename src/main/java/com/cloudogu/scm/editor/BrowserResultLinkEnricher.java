@@ -8,6 +8,7 @@ import sonia.scm.api.v2.resources.LinkBuilder;
 import sonia.scm.api.v2.resources.ScmPathInfoStore;
 import sonia.scm.plugin.Extension;
 import sonia.scm.repository.BrowserResult;
+import sonia.scm.repository.Changeset;
 import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
@@ -21,6 +22,7 @@ import sonia.scm.repository.api.RepositoryServiceFactory;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.io.IOException;
+import java.util.Iterator;
 
 @Extension
 @Enrich(BrowserResult.class)
@@ -47,7 +49,8 @@ public class BrowserResultLinkEnricher implements HalEnricher {
         if (RepositoryPermissions.push(repository).isPermitted() &&
           repositoryService.isSupported(Command.MODIFY) &&
           repositoryService.isSupported(Command.LOG) &&
-          browserResult.getRevision().equals(isHeadRevision(repositoryService, browserResult))) {
+          isHeadRevision(repositoryService, browserResult) &&
+          browserResult.getFile().isDirectory()) {
 
           LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
           appender.appendLink("fileUpload", linkBuilder.method("create").parameters(repository.getNamespace(), repository.getName(), "PATH_PART").href().replace("PATH_PART", "{path}"));
@@ -59,11 +62,15 @@ public class BrowserResultLinkEnricher implements HalEnricher {
     }
   }
 
-  private String isHeadRevision(RepositoryService repositoryService, BrowserResult browserResult) throws IOException {
+  private boolean isHeadRevision(RepositoryService repositoryService, BrowserResult browserResult) throws IOException {
     LogCommandBuilder logCommandBuilder = repositoryService.getLogCommand();
     if (!browserResult.getRevision().equals(browserResult.getRequestedRevision())) {
       logCommandBuilder.setBranch(browserResult.getRequestedRevision());
     }
-    return logCommandBuilder.setPagingLimit(1).getChangesets().iterator().next().getId();
+    Iterator<Changeset> iterator = logCommandBuilder.setPagingLimit(1).getChangesets().iterator();
+    if (iterator.hasNext()) {
+      return browserResult.getRevision().equals(logCommandBuilder.setPagingLimit(1).getChangesets().iterator().next().getId());
+    }
+    return false;
   }
 }
