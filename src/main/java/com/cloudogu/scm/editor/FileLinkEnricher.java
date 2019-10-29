@@ -88,11 +88,6 @@ public class FileLinkEnricher implements HalEnricher {
   }
 
   @VisibleForTesting
-  String createUploadLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
-    return linkBuilder.method("create").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href();
-  }
-
-  @VisibleForTesting
   String createDeleteLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
     return linkBuilder.method("delete").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href();
   }

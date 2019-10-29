@@ -57,19 +57,19 @@ public class BrowserResultLinkEnricher implements HalEnricher {
           appender.appendLink("modify", linkBuilder.method("modify").parameters(repository.getNamespace(), repository.getName(), "PATH_PART").href().replace("PATH_PART", "{path}"));
         }
       } catch (IOException e) {
-        throw new InternalRepositoryException(repository, "could not enrich BrowserResult");
+        throw new InternalRepositoryException(repository, "could not enrich BrowserResult", e);
       }
     }
   }
 
   private boolean isHeadRevision(RepositoryService repositoryService, BrowserResult browserResult) throws IOException {
     LogCommandBuilder logCommandBuilder = repositoryService.getLogCommand();
-    if (!browserResult.getRevision().equals(browserResult.getRequestedRevision())) {
+    if (repositoryService.isSupported(Command.BRANCHES)) {
       logCommandBuilder.setBranch(browserResult.getRequestedRevision());
     }
     Iterator<Changeset> iterator = logCommandBuilder.setPagingLimit(1).getChangesets().iterator();
     if (iterator.hasNext()) {
-      return browserResult.getRevision().equals(logCommandBuilder.setPagingLimit(1).getChangesets().iterator().next().getId());
+      return browserResult.getRevision().equals(iterator.next().getId());
     }
     return false;
   }

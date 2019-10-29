@@ -79,10 +79,6 @@ class FileLinkEnricherTest {
   @BeforeEach
   void initBasicMocks() {
     enricher = new FileLinkEnricher(scmPathInfoStoreProvider, serviceFactory) {
-      @Override
-      String createUploadLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
-        return "http://upload";
-      }
 
       @Override
       String createDeleteLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
