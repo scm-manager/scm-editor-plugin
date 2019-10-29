@@ -232,7 +232,7 @@ public class EditorResource {
         .filter(e -> e.getKey().startsWith("file"))
         .map(Map.Entry::getValue)
         .forEach(inputParts -> processFile(fileUploader, inputParts, processor, commit));
-      return fileUploader.done(commit.getBranch());
+      return fileUploader.done();
     }
   }
 
