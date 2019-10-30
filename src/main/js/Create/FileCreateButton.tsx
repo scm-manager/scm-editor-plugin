@@ -1,8 +1,9 @@
 import React from "react";
-import {Branch, File} from "@scm-manager/ui-types";
-import {WithTranslation, withTranslation} from "react-i18next";
-import {Link} from "react-router-dom";
+import { Branch, File, Repository } from "@scm-manager/ui-types";
+import { WithTranslation, withTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { createSourceExtensionUrl } from "../links";
 
 const Button = styled.span`
   width: 50px;
@@ -13,24 +14,17 @@ const Button = styled.span`
 `;
 
 type Props = WithTranslation & {
-  baseUrl: string;
-  path?: string;
-  branch?: Branch;
+  repository: Repository;
   revision?: string;
+  path?: string;
   sources: File;
 };
 
 class FileCreateButton extends React.Component<Props> {
   createCreateUrl = () => {
-    const { baseUrl, path, branch, revision } = this.props;
-    let uploadUrl = baseUrl.replace("sources", "create/") + (path ? path : "");
+    const { repository, revision, path } = this.props;
 
-    if (!revision && branch) {
-      uploadUrl += "?branch=" + encodeURIComponent(branch.name);
-      uploadUrl += branch.name ? "&revision=" + branch.revision : "?revision=" + branch.revision;
-    }
-
-    return uploadUrl;
+    return createSourceExtensionUrl(repository, "create", revision, path);
   };
 
   render() {

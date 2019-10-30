@@ -12,6 +12,7 @@ import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.FileObject;
 import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.NamespaceAndName;
+import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryPermissions;
 import sonia.scm.repository.api.Command;
 import sonia.scm.repository.api.RepositoryService;
@@ -39,35 +40,18 @@ public class FileLinkEnricher implements HalEnricher {
   @Override
   public void enrich(HalEnricherContext context, HalAppender appender) {
     FileObject fileObject = context.oneRequireByType(FileObject.class);
-    String requestedRevision = context.oneRequireByType(BrowserResult.class).getRequestedRevision();
     NamespaceAndName namespaceAndName = context.oneRequireByType(NamespaceAndName.class);
+    BrowserResult browserResult = context.oneRequireByType(BrowserResult.class);
     try (RepositoryService service = serviceFactory.create(namespaceAndName)) {
-      if (!RepositoryPermissions.push(service.getRepository()).isPermitted()
-        || !service.isSupported(Command.MODIFY)) {
-        return;
-      }
-      try {
-        if (service.isSupported(Command.LOG) &&
-          !service.isSupported(Command.BRANCHES) &&
-          service.getLogCommand().getChangeset(requestedRevision).getId().equals(findHeadRevision(service))) {
-          appendLinks(appender, fileObject, namespaceAndName);
-          return;
-        }
-      } catch (IOException e) {
-        throw new InternalRepositoryException(entity(service.getRepository()), "could not check revision", e);
-      }
-      try {
-        if (service.isSupported(Command.BRANCHES) && isRequestWithBranch(requestedRevision, service)) {
-          appendLinks(appender, fileObject, namespaceAndName);
-        }
-      } catch (IOException e) {
-        throw new InternalRepositoryException(entity(service.getRepository()), "could not check branches", e);
-      }
-    }
-  }
+      if (RepositoryPermissions.push(service.getRepository()).isPermitted()
+        && service.isSupported(Command.MODIFY)
+        && Revisions.isHeadRevision(service, browserResult)) {
 
-  private String findHeadRevision(RepositoryService service) throws IOException {
-    return service.getLogCommand().setPagingLimit(1).getChangesets().iterator().next().getId();
+        appendLinks(appender, fileObject, namespaceAndName);
+      }
+    } catch (IOException e) {
+      throw new InternalRepositoryException(entity(namespaceAndName), "could not check branches", e);
+    }
   }
 
   private void appendLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
@@ -89,27 +73,22 @@ public class FileLinkEnricher implements HalEnricher {
     appender.appendLink("modify", createModifyLink(fileObject, namespaceAndName, linkBuilder));
   }
 
-  private boolean isRequestWithBranch(String requestedRevision, RepositoryService service) throws IOException {
-    return service
-      .getBranchesCommand()
-      .getBranches()
-      .getBranches()
-      .stream()
-      .anyMatch(b -> b.getName().equals(requestedRevision));
-  }
-
   @VisibleForTesting
   String createUploadLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
-    return linkBuilder.method("create").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href();
+    return createModifyLink("create", fileObject.getPath(), namespaceAndName, linkBuilder);
   }
 
   @VisibleForTesting
   String createDeleteLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
-    return linkBuilder.method("delete").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href();
+    return createModifyLink("delete", fileObject.getPath(), namespaceAndName, linkBuilder);
   }
 
   @VisibleForTesting
   String createModifyLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
-    return linkBuilder.method("modify").parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), fileObject.getPath()).href();
+    return createModifyLink("modify", fileObject.getParentPath(), namespaceAndName, linkBuilder);
+  }
+
+  private String createModifyLink(String method, String path, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+    return linkBuilder.method(method).parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), path).href();
   }
 }

@@ -3,8 +3,7 @@ import { compose } from "redux";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { WithTranslation, withTranslation } from "react-i18next";
-import queryString from "query-string";
-import { File, Me, Repository } from "@scm-manager/ui-types";
+import { File, Me, Repository, Link, Changeset } from "@scm-manager/ui-types";
 import { apiClient, Button, ButtonGroup, ErrorNotification, Subtitle } from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FilePath from "../FileMetaData";
@@ -12,7 +11,7 @@ import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 import styled from "styled-components";
 import { Commit } from "../commit";
-import {getSources} from "../Edit/fileEdit";
+import {createSourceUrl, createSourceUrlFromChangeset} from "../links";
 
 const BranchMarginBottom = styled.div`
   margin-bottom: 1rem;
@@ -48,19 +47,20 @@ const Border = styled.div`
   }
 `;
 
-type Props = WithTranslation & RouteComponentProps & {
-  me?: Me;
-  url: string;
-  repository: Repository;
-  sources: File;
-};
+type Props = WithTranslation &
+  RouteComponentProps & {
+    me?: Me;
+    url: string;
+    repository: Repository;
+    sources: File;
+    revision?: string;
+    path?: string;
+  };
 
 type State = {
   path: string;
   files: File[];
   commitMessage: any;
-  branch: string;
-  revision: string;
   error: Error;
   loading: boolean;
 };
@@ -69,17 +69,10 @@ class FileUpload extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      ...this.state,
+      ...this.props,
       loading: false,
       files: [],
-      path: this.props.match.params.path ? this.props.match.params.path : "",
-      commitMessage: "",
-      branch: queryString.parse(this.props.location.search, {
-        ignoreQueryPrefix: true
-      }).branch,
-      revision: queryString.parse(this.props.location.search, {
-        ignoreQueryPrefix: true
-      }).revision
+      commitMessage: ""
     };
   }
 
@@ -98,13 +91,13 @@ class FileUpload extends React.Component<Props, State> {
     });
   };
 
-  changePath = path => {
+  changePath = (path: string) => {
     this.setState({
       path
     });
   };
 
-  changeCommitMessage = commitMessage => {
+  changeCommitMessage = (commitMessage: string) => {
     this.setState({
       commitMessage
     });
@@ -120,7 +113,7 @@ class FileUpload extends React.Component<Props, State> {
   commitFile = () => {
     const { sources, history } = this.props;
     const { files, commitMessage, path, branch } = this.state;
-    const link = sources._links.fileUpload.href;
+    const link = (sources._links.fileUpload as Link).href;
 
     this.setState({
       loading: true
@@ -136,12 +129,12 @@ class FileUpload extends React.Component<Props, State> {
     };
 
     apiClient
-      .postBinary(link.replace("{path}", path), formdata => {
+      .postBinary(link.replace("{path}", path ? path : ""), formdata => {
         Object.keys(fileAliases).forEach(name => formdata.append(name, fileAliases[name], name));
         formdata.append("commit", JSON.stringify(commit));
       })
-      .then(r => r.json())
-      .then(newCommit => history.push(this.createSourcesLink(newCommit)))
+      .then((r: Response) => r.json())
+      .then((newCommit: Changeset) => history.push(this.createSourcesLink(newCommit)))
       .catch(this.handleError);
   };
 
@@ -169,49 +162,29 @@ class FileUpload extends React.Component<Props, State> {
     return nameMap;
   };
 
-  createSourcesLink = newCommit => {
-    const { location } = this.props;
-    const {
-      path,
-      branch,
-      revision
-    } = this.state;
-    let sourcesLink = location.pathname.split("upload")[0] + "sources/";
+  createSourcesLink = (changeset?: Changeset) => {
+    const { repository, revision } = this.props;
+    const { path } = this.state;
 
-    if (newCommit) {
-      sourcesLink += newCommit._embedded?.branches?.[0].name ? newCommit._embedded.branches[0].name : newCommit.id;
-      sourcesLink += "/" + path;
-      return sourcesLink;
+    if (changeset) {
+      return createSourceUrlFromChangeset(repository, changeset, path);
     }
 
-    if (branch) {
-      sourcesLink += encodeURIComponent(branch) + "/" + path;
-    }
-    if (!branch && !!revision) {
-      sourcesLink += revision + "/" + path;
-    }
-    return sourcesLink;
+    return createSourceUrl(repository, revision, path);
   };
 
   render() {
-    const { t, me } = this.props;
-    const {
-      files,
-      path,
-      commitMessage,
-      branch,
-      error,
-      loading
-    } = this.state;
+    const { revision, me, t } = this.props;
+    const { files, path, commitMessage, error, loading } = this.state;
 
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")} />
-        {branch && (
+        {revision && (
           <BranchMarginBottom>
             <span>
               <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
-              {branch}
+              {revision}
             </span>
           </BranchMarginBottom>
         )}
@@ -229,11 +202,7 @@ class FileUpload extends React.Component<Props, State> {
           <div className="level-left" />
           <div className="level-right">
             <ButtonGroup>
-              <Button
-                label={t("scm-editor-plugin.button.cancel")}
-                link={this.createSourcesLink()}
-                disabled={loading}
-              />
+              <Button label={t("scm-editor-plugin.button.cancel")} link={this.createSourcesLink()} disabled={loading} />
               <Button
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
@@ -249,15 +218,12 @@ class FileUpload extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state, ownProps) => {
-  const { repository } = ownProps;
+const mapStateToProps = (state: any) => {
   const { auth } = state;
   const me = auth.me;
-  const sources = getSources(state, repository, "", "");
 
   return {
-    me,
-    sources
+    me
   };
 };
 

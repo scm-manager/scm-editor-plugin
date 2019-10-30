@@ -90,7 +90,6 @@ class FileLinkEnricherTest {
         return "http://modify";
       }
     };
-    when(browserResult.getRequestedRevision()).thenReturn("master");
     doReturn(fileObject).when(context).oneRequireByType(FileObject.class);
     doReturn(browserResult).when(context).oneRequireByType(BrowserResult.class);
     doReturn(NAMESPACE_AND_NAME).when(context).oneRequireByType(NamespaceAndName.class);
@@ -134,7 +133,6 @@ class FileLinkEnricherTest {
       void initService() throws IOException {
         doReturn(true).when(service).isSupported(Command.MODIFY);
         lenient().doReturn(true).when(service).isSupported(Command.BRANCHES);
-        doReturn(true).when(service).isSupported(Command.LOG);
 
         lenient().when(service.getBranchesCommand()).thenReturn(branchesCommand);
         when(service.getLogCommand()).thenReturn(logCommandBuilder);
@@ -155,6 +153,7 @@ class FileLinkEnricherTest {
       @Test
       void shouldAppendLinksForFile() throws IOException {
         when(branchesCommand.getBranches()).thenReturn(new Branches(Branch.normalBranch("master", "123")));
+        when(browserResult.getRevision()).thenReturn("123");
         fileObject.setDirectory(false);
 
         enricher.enrich(context, appender);
