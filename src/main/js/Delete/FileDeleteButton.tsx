@@ -1,6 +1,6 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
-import { File } from "@scm-manager/ui-types";
+import { File, Link } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
 import { apiClient } from "@scm-manager/ui-components";
 import { withRouter, RouteComponentProps } from "react-router-dom";
@@ -53,9 +53,9 @@ class FileDeleteButton extends React.Component<Props, State> {
       loading: true
     });
     apiClient
-      .post(this.props.file._links.delete.href, {
+      .post((this.props.file._links.delete as Link).href, {
         commitMessage: commitMessage,
-        branch: revision
+        branch: decodeURIComponent(revision)
       })
       .then(r => r.json())
       .then(newCommit => {
@@ -70,7 +70,8 @@ class FileDeleteButton extends React.Component<Props, State> {
           const filePath = location.pathname
             .substr(0, location.pathname.length - file.name.length - 1)
             .split("/sources/" + revision)[1];
-          const redirectUrl = location.pathname.split("/sources")[0] + `/sources/${newRevision}${filePath}`;
+          const redirectUrl =
+            location.pathname.split("/sources")[0] + `/sources/${encodeURIComponent(newRevision)}${filePath}`;
           history.push(redirectUrl);
         }
       })

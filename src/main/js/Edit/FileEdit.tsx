@@ -170,7 +170,7 @@ class FileEdit extends React.Component<Props, State> {
           reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
         }
 
-        const encodedRevision = encodeURIComponent(revision || "");
+        const encodedRevision = revision ? encodeURIComponent(revision) : "";
 
         const pathDefined = path || "";
         resolve(`${base}${encodedRevision}/${pathDefined}`);
@@ -248,7 +248,7 @@ class FileEdit extends React.Component<Props, State> {
         newCommit._embedded.branches[0].name
           ? newCommit._embedded.branches[0].name
           : newCommit.id;
-      redirectUrl += `/${newRevision}/${pathWithEndingSlash + encodedFilename}`;
+      redirectUrl += `/${encodeURIComponent(newRevision)}/${pathWithEndingSlash + encodedFilename}`;
     }
 
     this.props.history.push(redirectUrl);
@@ -279,7 +279,7 @@ class FileEdit extends React.Component<Props, State> {
 
       const commit = {
         commitMessage,
-        branch: revision,
+        branch: decodeURIComponent(revision),
         names: {
           file: file.name
         }
