@@ -184,7 +184,7 @@ class FileUpload extends React.Component<Props, State> {
           <BranchMarginBottom>
             <span>
               <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
-              {revision}
+              {decodeURIComponent(revision)}
             </span>
           </BranchMarginBottom>
         )}
