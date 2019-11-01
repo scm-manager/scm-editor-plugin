@@ -1,5 +1,5 @@
 import React from "react";
-import { Branch, File, Repository } from "@scm-manager/ui-types";
+import { File, Repository } from "@scm-manager/ui-types";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import styled from "styled-components";

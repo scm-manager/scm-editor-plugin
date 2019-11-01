@@ -27,7 +27,7 @@ function getBranchOrId(changeset: Changeset) {
 
 function append(url: string, revision?: string, path?: string) {
   if (revision) {
-    url += revision;
+    url += encodeURIComponent(revision);
     if (path) {
       url += "/" + path;
     }

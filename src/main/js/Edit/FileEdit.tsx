@@ -1,9 +1,17 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
-import { File, Me, Repository, Link, Changeset } from "@scm-manager/ui-types";
+import { Changeset, File, Link, Me, Repository } from "@scm-manager/ui-types";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import FileMetaData from "../FileMetaData";
-import { apiClient, Button, ButtonGroup, Notification, ErrorNotification, Loading, Subtitle } from "@scm-manager/ui-components";
+import {
+  apiClient,
+  Button,
+  ButtonGroup,
+  ErrorNotification,
+  Loading,
+  Notification,
+  Subtitle
+} from "@scm-manager/ui-components";
 import { compose } from "redux";
 import { connect } from "react-redux";
 import CommitMessage from "../CommitMessage";
@@ -171,7 +179,6 @@ class FileEdit extends React.Component<Props, State> {
 
   isEditMode = () => {
     const { extension, path } = this.props;
-    console.log(extension, path);
     return extension === "edit" && path;
   };
 
@@ -321,11 +328,7 @@ class FileEdit extends React.Component<Props, State> {
 
     const language = findLanguage(this.state.language);
     if (this.isEditMode() && !isEditable(contentType, language, contentLength)) {
-      return (
-        <Notification type="danger">
-          {t("scm-editor-plugin.edit.notEditable")}
-        </Notification>
-      );
+      return <Notification type="danger">{t("scm-editor-plugin.edit.notEditable")}</Notification>;
     }
 
     return (
@@ -335,7 +338,7 @@ class FileEdit extends React.Component<Props, State> {
           <Branch>
             <span>
               <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
-              {revision}
+              {decodeURIComponent(revision)}
             </span>
           </Branch>
         )}
