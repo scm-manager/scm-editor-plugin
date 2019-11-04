@@ -9,11 +9,9 @@ import sonia.scm.repository.api.RepositoryService;
 import java.io.IOException;
 import java.util.Iterator;
 
-public final class Revisions {
+final class Revisions {
 
-  private Revisions() {
-
-  }
+  private Revisions() {}
 
   static boolean isHeadRevision(RepositoryService repositoryService, BrowserResult browserResult) throws IOException {
     if (repositoryService.isSupported(Command.BRANCHES)) {
@@ -27,7 +25,8 @@ public final class Revisions {
     if (iterator.hasNext()) {
       return browserResult.getRevision().equals(iterator.next().getId());
     }
-    return false;
+    // repository is empty
+    return true;
   }
 
   private static boolean isLastChangesetOfBranch(RepositoryService repositoryService, BrowserResult browserResult) throws IOException {
