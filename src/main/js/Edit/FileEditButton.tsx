@@ -22,9 +22,8 @@ type Props = WithTranslation &
   };
 
 type State = {
-  contentType: string;
-  language: string;
-  contentLength: number;
+  contentType?: string | null;
+  language?: string | null;
   loading: boolean;
 };
 
@@ -41,7 +40,6 @@ class FileEditButton extends React.Component<Props, State> {
     apiClient.head(selfLink.href).then((response: Response) =>
       this.setState({
         loading: false,
-        contentLength: parseInt(response.headers.get("Content-Length")),
         contentType: response.headers.get("Content-Type"),
         language: response.headers.get("X-Programming-Language")
       })
@@ -52,11 +50,11 @@ class FileEditButton extends React.Component<Props, State> {
     if (!this.props.file._links.modify) {
       return false;
     }
-    const { loading, language, contentType, contentLength } = this.state;
+    const { loading, language, contentType } = this.state;
     if (loading) {
       return false;
     }
-    return isEditable(contentType, language, contentLength);
+    return isEditable(contentType, language);
   };
 
   pushToEditPage() {
