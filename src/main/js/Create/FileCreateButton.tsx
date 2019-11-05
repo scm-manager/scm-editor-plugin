@@ -31,7 +31,7 @@ class FileCreateButton extends React.Component<Props> {
     const { t, sources } = this.props;
     return (
       <>
-        {sources && sources._links.fileUpload && (
+        {sources && sources._links.upload && (
           <Link to={this.createCreateUrl()}>
             <Button title={t("scm-editor-plugin.create.tooltip")} className="button">
               <i className="fas fa-file-medical" />

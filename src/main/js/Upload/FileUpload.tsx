@@ -113,7 +113,7 @@ class FileUpload extends React.Component<Props, State> {
   commitFile = () => {
     const { sources, history } = this.props;
     const { files, commitMessage, path, branch } = this.state;
-    const link = (sources._links.fileUpload as Link).href;
+    const link = (sources._links.upload as Link).href;
 
     this.setState({
       loading: true

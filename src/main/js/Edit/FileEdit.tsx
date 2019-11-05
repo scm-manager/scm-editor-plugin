@@ -265,7 +265,7 @@ class FileEdit extends React.Component<Props, State> {
         link = (sources._links.modify as Link).href;
         type = file.type;
       } else {
-        link = (sources._links.fileUpload as Link).href;
+        link = (sources._links.upload as Link).href;
         link = link.replace("{path}", path ? path : "");
         type = "text/plain";
       }

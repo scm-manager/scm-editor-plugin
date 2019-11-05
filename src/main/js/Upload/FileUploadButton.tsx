@@ -1,5 +1,5 @@
 import React from "react";
-import { Branch, File, Repository } from "@scm-manager/ui-types";
+import { File, Repository } from "@scm-manager/ui-types";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -31,7 +31,7 @@ class FileUploadButton extends React.Component<Props> {
 
     return (
       <>
-        {sources && sources._links.fileUpload && (
+        {sources && sources._links.upload && (
           <Link to={this.createUploadUrl()}>
             <Button title={t("scm-editor-plugin.upload.tooltip")} className="button">
               <i className="fas fa-upload" />
