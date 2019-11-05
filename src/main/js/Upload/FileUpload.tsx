@@ -111,8 +111,8 @@ class FileUpload extends React.Component<Props, State> {
   };
 
   commitFile = () => {
-    const { sources, history } = this.props;
-    const { files, commitMessage, path, branch } = this.state;
+    const { sources, history, revision } = this.props;
+    const { files, commitMessage, path } = this.state;
     const link = (sources._links.upload as Link).href;
 
     this.setState({
@@ -124,7 +124,7 @@ class FileUpload extends React.Component<Props, State> {
     } = this.buildFileAliases(files);
     const commit: Commit = {
       commitMessage,
-      branch,
+      branch: decodeURIComponent(revision),
       names: this.buildFileNameMap(fileAliases)
     };
 
