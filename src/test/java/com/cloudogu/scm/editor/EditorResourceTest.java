@@ -13,6 +13,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.api.v2.resources.ChangesetDto;
+import sonia.scm.api.v2.resources.ChangesetToChangesetDtoMapper;
+import sonia.scm.repository.Changeset;
+import sonia.scm.repository.NamespaceAndName;
+import sonia.scm.repository.Person;
+import sonia.scm.repository.RepositoryManager;
+import sonia.scm.repository.RepositoryTestData;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,24 +38,47 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith({MockitoExtension.class})
 class EditorResourceTest {
 
+  private final String NAMESPACE = "space";
+  private final String NAME = "name";
+
   @Mock
   EditorService service;
   @Mock
   EditorService.FileUploader fileUploader;
+
+  @Mock
+  ChangesetToChangesetDtoMapper mapper;
+
+  @Mock
+  RepositoryManager repositoryManager;
 
   @InjectMocks
   EditorResource resource;
 
   Dispatcher dispatcher;
   MockHttpResponse response = new MockHttpResponse();
+
+  @BeforeEach
+  void initMapper() {
+    ChangesetDto changesetDto = new ChangesetDto();
+    changesetDto.setId("42");
+    lenient().when(mapper.map(any(), any())).thenReturn(changesetDto);
+  }
+
+  @BeforeEach
+  void initRepositoryManager() {
+    lenient().when(repositoryManager.get(new NamespaceAndName(NAMESPACE, NAME))).thenReturn(RepositoryTestData.createHeartOfGold());
+  }
 
   @BeforeEach
   void initDispatcher() {
@@ -59,9 +89,9 @@ class EditorResourceTest {
 
   @Test
   void shouldProcessCreateWithCompleteRequest() throws IOException, URISyntaxException {
-    when(service.prepare("space", "name", "master", "some/path", "new commit", "expected"))
+    when(service.prepare(NAMESPACE, NAME, "master", "some/path", "new commit", "expected"))
       .thenReturn(fileUploader);
-    when(fileUploader.done()).thenReturn("new commit ref");
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
 
     MockHttpRequest request =
       MockHttpRequest
@@ -71,15 +101,15 @@ class EditorResourceTest {
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
-    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
+    assertThat(response.getContentAsString()).contains("\"id\":\"42\"");
     verify(fileUploader).create(eq("newFile"), eqStreamContent("content"));
   }
 
   @Test
   void shouldProcessCreateWithEmptyPath() throws IOException, URISyntaxException {
-    when(service.prepare("space", "name", "master", "", "new commit", null))
+    when(service.prepare(NAMESPACE, NAME, "master", "", "new commit", null))
       .thenReturn(fileUploader);
-    when(fileUploader.done()).thenReturn("new commit ref");
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
 
     MockHttpRequest request =
       MockHttpRequest
@@ -89,7 +119,7 @@ class EditorResourceTest {
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
-    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
+    assertThat(response.getContentAsString()).contains("\"id\":\"42\"");
     verify(fileUploader).create(eq("newFile"), eqStreamContent("content"));
   }
 
@@ -108,9 +138,9 @@ class EditorResourceTest {
 
   @Test
   void shouldProcessModifyWithCompleteRequest() throws IOException, URISyntaxException {
-    when(service.prepare("space", "name", "master", "some/path", "new commit", "expected"))
+    when(service.prepare(NAMESPACE, NAME, "master", "some/path", "new commit", "expected"))
       .thenReturn(fileUploader);
-    when(fileUploader.done()).thenReturn("new commit ref");
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
 
     MockHttpRequest request =
       MockHttpRequest
@@ -120,15 +150,15 @@ class EditorResourceTest {
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
-    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
+    assertThat(response.getContentAsString()).contains("\"id\":\"42\"");
     verify(fileUploader).modify(eq("changedFile"), eqStreamContent("content"));
   }
 
   @Test
   void shouldProcessModifyWithEmptyPath() throws IOException, URISyntaxException {
-    when(service.prepare("space", "name", "master", "", "new commit", null))
+    when(service.prepare(NAMESPACE, NAME, "master", "", "new commit", null))
       .thenReturn(fileUploader);
-    when(fileUploader.done()).thenReturn("new commit ref");
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
 
     MockHttpRequest request =
       MockHttpRequest
@@ -138,14 +168,14 @@ class EditorResourceTest {
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
-    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
+    assertThat(response.getContentAsString()).contains("\"id\":\"42\"");
     verify(fileUploader).modify(eq("changedFile"), eqStreamContent("content"));
   }
 
   @Test
   void shouldProcessDeleteRequest() throws IOException, URISyntaxException {
-    when(service.delete("space", "name", "master", "some/path/file", "new commit", "expected"))
-      .thenReturn("new commit ref");
+    when(service.delete(NAMESPACE, NAME, "master", "some/path/file", "new commit", "expected"))
+      .thenReturn(new Changeset("1", 1L, new Person("trillian")));
 
     MockHttpRequest request =
       MockHttpRequest
@@ -155,7 +185,7 @@ class EditorResourceTest {
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(201);
-    assertThat(response.getContentAsString()).isEqualTo("new commit ref");
+    assertThat(response.getContentAsString()).contains("\"id\":\"42\"");
   }
 
   private InputStream eqStreamContent(String expectedContent) {

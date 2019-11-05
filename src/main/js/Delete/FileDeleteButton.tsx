@@ -1,6 +1,6 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
-import { File } from "@scm-manager/ui-types";
+import { File, Link } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
 import { apiClient } from "@scm-manager/ui-components";
 import { withRouter, RouteComponentProps } from "react-router-dom";
@@ -17,11 +17,12 @@ const Pointer = styled.div`
   cursor: initial;
 `;
 
-type Props = WithTranslation & RouteComponentProps & {
-  file: File;
-  revision: string;
-  handleExtensionError: (error: Error) => void;
-};
+type Props = WithTranslation &
+  RouteComponentProps & {
+    file: File;
+    revision: string;
+    handleExtensionError: (error: Error) => void;
+  };
 
 type State = {
   showModal: boolean;
@@ -33,6 +34,7 @@ class FileDeleteButton extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
 
+    // @ts-ignore
     this.state = {
       showModal: false,
       loading: false
@@ -51,12 +53,27 @@ class FileDeleteButton extends React.Component<Props, State> {
       loading: true
     });
     apiClient
-      .post(this.props.file._links.delete.href, {
+      .post((this.props.file._links.delete as Link).href, {
         commitMessage: commitMessage,
-        branch: revision
+        branch: decodeURIComponent(revision)
       })
-      .then(() => {
-        history.push(location.pathname.substr(0, location.pathname.length - file.name.length - 1));
+      .then(r => r.json())
+      .then(newCommit => {
+        if (newCommit) {
+          const newRevision =
+            newCommit._embedded &&
+            newCommit._embedded.branches &&
+            newCommit._embedded.branches[0] &&
+            newCommit._embedded.branches[0].name
+              ? newCommit._embedded.branches[0].name
+              : newCommit.id;
+          const filePath = location.pathname
+            .substr(0, location.pathname.length - file.name.length - 1)
+            .split("/sources/" + revision)[1];
+          const redirectUrl =
+            location.pathname.split("/sources")[0] + `/sources/${encodeURIComponent(newRevision)}${filePath}`;
+          history.push(redirectUrl);
+        }
       })
       .catch(error => {
         this.toggleModal();

@@ -1,8 +1,9 @@
 import React from "react";
-import { Branch, Repository } from "@scm-manager/ui-types";
+import { File, Repository } from "@scm-manager/ui-types";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { createSourceExtensionUrl } from "../links";
 
 const Button = styled.span`
   width: 50px;
@@ -14,30 +15,23 @@ const Button = styled.span`
 
 type Props = WithTranslation & {
   repository: Repository;
-  baseUrl: string;
+  revision?: string;
   path?: string;
-  branch?: Branch;
-  isBranchUrl: boolean;
+  sources: File;
 };
 
 class FileCreateButton extends React.Component<Props> {
   createCreateUrl = () => {
-    const { baseUrl, path, branch } = this.props;
-    let uploadUrl = baseUrl.replace("sources", "create/") + (path ? path : "");
+    const { repository, revision, path } = this.props;
 
-    if (branch) {
-      uploadUrl += "?branch=" + encodeURIComponent(branch.name);
-      uploadUrl += branch.name ? "&revision=" + branch.revision : "?revision=" + branch.revision;
-    }
-
-    return uploadUrl;
+    return createSourceExtensionUrl(repository, "create", revision, path);
   };
 
   render() {
-    const { t, isBranchUrl, repository } = this.props;
+    const { t, sources } = this.props;
     return (
       <>
-        {isBranchUrl && repository._links.fileUpload && (
+        {sources && sources._links.upload && (
           <Link to={this.createCreateUrl()}>
             <Button title={t("scm-editor-plugin.create.tooltip")} className="button">
               <i className="fas fa-file-medical" />

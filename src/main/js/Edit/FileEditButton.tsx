@@ -1,10 +1,11 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
-import { File } from "@scm-manager/ui-types";
+import { File, Repository, Link } from "@scm-manager/ui-types";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { apiClient } from "@scm-manager/ui-components";
 import { isEditable } from "./isEditable";
 import styled from "styled-components";
+import { createSourceExtensionUrl } from "../links";
 
 const Button = styled.a`
   width: 50px;
@@ -13,14 +14,16 @@ const Button = styled.a`
   }
 `;
 
-type Props = WithTranslation & RouteComponentProps & {
-  file: File;
-};
+type Props = WithTranslation &
+  RouteComponentProps & {
+    repository: Repository;
+    revision: string;
+    file: File;
+  };
 
 type State = {
-  contentType: string;
-  language: string;
-  contentLength: number;
+  contentType?: string | null;
+  language?: string | null;
   loading: boolean;
 };
 
@@ -33,10 +36,10 @@ class FileEditButton extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    apiClient.head(this.props.file._links.self.href).then(response =>
+    const selfLink = this.props.file._links.self as Link;
+    apiClient.head(selfLink.href).then((response: Response) =>
       this.setState({
         loading: false,
-        contentLength: parseInt(response.headers.get("Content-Length")),
         contentType: response.headers.get("Content-Type"),
         language: response.headers.get("X-Programming-Language")
       })
@@ -47,18 +50,17 @@ class FileEditButton extends React.Component<Props, State> {
     if (!this.props.file._links.modify) {
       return false;
     }
-    const { loading, language, contentType, contentLength } = this.state;
+    const { loading, language, contentType } = this.state;
     if (loading) {
       return false;
     }
-    return isEditable(contentType, language, contentLength);
+    return isEditable(contentType, language);
   };
 
   pushToEditPage() {
-    const { match, location, history } = this.props;
-    history.push(
-      location.pathname.split("sources/")[0] + "edit/" + match.params.path + "?branch=" + match.params.revision
-    );
+    const { repository, revision, file, history } = this.props;
+    const url = createSourceExtensionUrl(repository, "edit", revision, file.path);
+    history.push(url);
   }
 
   render() {
