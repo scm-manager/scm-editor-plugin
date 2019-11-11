@@ -232,14 +232,13 @@ class FileEdit extends React.Component<Props, State> {
     });
   };
 
-  redirectToContentView = (newCommit: Changeset) => {
-    const { repository } = this.props;
+  redirectAfterCommit = (newCommit: Changeset) => {
     const { path, file } = this.state;
+    let redirectUrl = this.createRedirectUrl();
 
     const pathWithEndingSlash = !path ? "" : path.endsWith("/") ? path : path + "/";
     const encodedFilename = file && file.name ? encodeURIComponent(this.state.file.name) + "/" : "";
 
-    let redirectUrl = `/repo/${repository.namespace}/${repository.name}/sources`;
     if (newCommit) {
       const newRevision =
         newCommit._embedded &&
@@ -250,8 +249,20 @@ class FileEdit extends React.Component<Props, State> {
           : newCommit.id;
       redirectUrl += `/${encodeURIComponent(newRevision)}/${pathWithEndingSlash + encodedFilename}`;
     }
-
     this.props.history.push(redirectUrl);
+  };
+
+  redirectOnCancel = (revision: string) => {
+    let redirectUrl = this.createRedirectUrl();
+    if (revision) {
+      redirectUrl += `/${revision}`;
+    }
+    this.props.history.push(redirectUrl);
+  };
+
+  createRedirectUrl = () => {
+    const { repository } = this.props;
+    return `/repo/${repository.namespace}/${repository.name}/sources`;
   };
 
   commitFile = () => {
@@ -291,7 +302,7 @@ class FileEdit extends React.Component<Props, State> {
           formdata.append("commit", JSON.stringify(commit));
         })
         .then((r: Response) => r.json())
-        .then((newCommit: Changeset) => this.redirectToContentView(newCommit))
+        .then((newCommit: Changeset) => this.redirectAfterCommit(newCommit))
         .catch(this.handleError);
     }
   };
@@ -364,7 +375,7 @@ class FileEdit extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.button.cancel")}
                 disabled={loading}
-                action={() => this.redirectToContentView(revision)}
+                action={() => this.redirectOnCancel(revision)}
               />
               <Button
                 label={t("scm-editor-plugin.button.commit")}
