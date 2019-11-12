@@ -237,7 +237,7 @@ class FileEdit extends React.Component<Props, State> {
     let redirectUrl = this.createRedirectUrl();
 
     const pathWithEndingSlash = !path ? "" : path.endsWith("/") ? path : path + "/";
-    const encodedFilename = file && file.name ? encodeURIComponent(this.state.file.name) + "/" : "";
+    const encodedFilename = file && file.name ? encodeURIComponent(file.name) + "/" : "";
 
     if (newCommit) {
       const newRevision =
@@ -253,9 +253,17 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   redirectOnCancel = (revision: string) => {
+    const { path, file } = this.state;
     let redirectUrl = this.createRedirectUrl();
+
+    const pathWithEndingSlash = !path ? "" : path.endsWith("/") ? path : path + "/";
+    const encodedFilename = file && file.name ? encodeURIComponent(file.name) + "/" : "";
+
     if (revision) {
-      redirectUrl += `/${revision}`;
+      redirectUrl += `/${encodeURIComponent(revision)}`;
+    }
+    if (file && file.name) {
+      redirectUrl += `/${pathWithEndingSlash + encodedFilename}`;
     }
     this.props.history.push(redirectUrl);
   };
