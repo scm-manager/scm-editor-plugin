@@ -262,7 +262,7 @@ class FileEdit extends React.Component<Props, State> {
     if (revision) {
       redirectUrl += `/${encodeURIComponent(revision)}`;
     }
-    if (file && file.name) {
+    if (this.isEditMode() && file && file.name) {
       redirectUrl += `/${pathWithEndingSlash + encodedFilename}`;
     }
     this.props.history.push(redirectUrl);
