@@ -146,14 +146,17 @@ class FileEdit extends React.Component<Props, State> {
     const { file, initialLoading, path } = this.state;
     const parentDirPath = this.isEditMode() ? pathWithFilename.replace(file.name, "") : pathWithFilename;
 
-    !path &&
+    if (!path) {
       this.setState({
         path: parentDirPath
       });
-    initialLoading &&
+    }
+
+    if (initialLoading) {
       this.setState({
         initialLoading: false
       });
+    }
   };
 
   createFileUrl = () =>
@@ -253,17 +256,25 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   redirectOnCancel = (revision: string) => {
-    const { path, file } = this.state;
+    const { file } = this.state;
     let redirectUrl = this.createRedirectUrl();
 
-    const pathWithEndingSlash = !path ? "" : path.endsWith("/") ? path : path + "/";
-    const encodedFilename = file && file.name ? encodeURIComponent(file.name) + "/" : "";
+    let path;
+    if (this.isEditMode()) {
+      path = this.state.path;
+    } else {
+      path = this.props.path;
+    }
 
+    const pathWithEndingSlash = !path ? "" : path.endsWith("/") ? path : path + "/";
     if (revision) {
       redirectUrl += `/${encodeURIComponent(revision)}`;
     }
+
+    redirectUrl += "/" + pathWithEndingSlash;
+
     if (this.isEditMode() && file && file.name) {
-      redirectUrl += `/${pathWithEndingSlash + encodedFilename}`;
+      redirectUrl += encodeURIComponent(file.name);
     }
     this.props.history.push(redirectUrl);
   };
