@@ -1,7 +1,7 @@
 {
   "name": "@scm-manager/scm-editor-plugin",
   "private": true,
-  "version": "2.0.0-SNAPSHOT",
+  "version": "2.0.0-rc1",
   "license": "BSD-3-Clause",
   "main": "./src/main/js/index.ts",
   "scripts": {
@@ -10,7 +10,7 @@
     "watch": "ui-scripts plugin-watch"
   },
   "dependencies": {
-    "@scm-manager/ui-plugins": "latest",
+    "@scm-manager/ui-plugins": "2.0.0-rc1",
     "react-ace": "^8.0.0",
     "react-dropzone": "^10.1.8"
   },
