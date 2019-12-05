@@ -3,8 +3,6 @@ package com.cloudogu.scm.editor;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
-import org.jboss.resteasy.core.Dispatcher;
-import org.jboss.resteasy.mock.MockDispatcherFactory;
 import org.jboss.resteasy.mock.MockHttpRequest;
 import org.jboss.resteasy.mock.MockHttpResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +18,7 @@ import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Person;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.repository.RepositoryTestData;
+import sonia.scm.web.RestDispatcher;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -65,7 +64,7 @@ class EditorResourceTest {
   @InjectMocks
   EditorResource resource;
 
-  Dispatcher dispatcher;
+  RestDispatcher dispatcher;
   MockHttpResponse response = new MockHttpResponse();
 
   @BeforeEach
@@ -82,9 +81,8 @@ class EditorResourceTest {
 
   @BeforeEach
   void initDispatcher() {
-    dispatcher = MockDispatcherFactory.createDispatcher();
-    dispatcher.getProviderFactory().register(new ExceptionMessageMapper());
-    dispatcher.getRegistry().addSingletonResource(resource);
+    dispatcher = new RestDispatcher();
+    dispatcher.addSingletonResource(resource);
   }
 
   @Test
@@ -133,7 +131,7 @@ class EditorResourceTest {
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(400);
-    assertThat(response.getContentAsString()).contains("MessageMissingException");
+    assertThat(response.getContentAsString()).isEqualTo("form part for commit object with key 'message' missing or without message");
   }
 
   @Test
