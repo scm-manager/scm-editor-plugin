@@ -31,6 +31,7 @@ const AlignItemNormal = styled.div`
   align-items: normal;
   display: flex;
   padding-right: 0.5em;
+  flex-direction: column;
 `;
 
 type InputBorderProps = {
@@ -55,7 +56,7 @@ const LabelSizing = styled.label`
 `;
 
 const FieldLabel: FC<{ value: string }> = ({ value }) => (
-  <div className="field-label is-normal">
+  <div className="field">
     <LabelSizing className="label">{value}</LabelSizing>
   </div>
 );
