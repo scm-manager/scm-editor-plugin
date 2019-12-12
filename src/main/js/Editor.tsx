@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import styled from "styled-components";
 import { Loading, ErrorNotification } from "@scm-manager/ui-components";
 import { WithTranslation, withTranslation } from "react-i18next";
 
@@ -20,6 +21,13 @@ type State = {
   error?: Error;
   language?: string;
 };
+
+const StyledAceEditor = styled(AceEditor)`
+  .ace_placeholder {
+    font-family: inherit;
+    transform: scale(1);
+  }
+`;
 
 class Editor extends Component<Props, State> {
   constructor(props: Props) {
@@ -80,7 +88,7 @@ class Editor extends Component<Props, State> {
     }
 
     return (
-      <AceEditor
+      <StyledAceEditor
         mode={language}
         theme="arduino-light"
         onChange={onChange}
