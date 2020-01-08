@@ -1,12 +1,12 @@
 import { Repository, Changeset } from "@scm-manager/ui-types";
 
 export function createSourceExtensionUrl(repository: Repository, extension: string, revision?: string, path?: string) {
-  const url = `/repo/${repository.namespace}/${repository.name}/sourceext/${extension}/`;
+  const url = `/repo/${repository.namespace}/${repository.name}/code/sourceext/${extension}/`;
   return append(url, revision, path);
 }
 
 export function createSourceUrl(repository: Repository, revision?: string, path?: string) {
-  const url = `/repo/${repository.namespace}/${repository.name}/sources/`;
+  const url = `/repo/${repository.namespace}/${repository.name}/code/sources/`;
 
   return append(url, revision, path);
 }
@@ -17,12 +17,7 @@ export function createSourceUrlFromChangeset(repository: Repository, changeset: 
 }
 
 function getBranchOrId(changeset: Changeset) {
-  return changeset._embedded &&
-    changeset._embedded.branches &&
-    changeset._embedded.branches[0] &&
-    changeset._embedded.branches[0].name
-    ? changeset._embedded.branches[0].name
-    : changeset.id;
+  return changeset?._embedded?.branches[0]?.name ? changeset._embedded.branches[0].name : changeset.id;
 }
 
 function append(url: string, revision?: string, path?: string) {

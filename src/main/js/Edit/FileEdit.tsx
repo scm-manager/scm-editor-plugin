@@ -281,7 +281,7 @@ class FileEdit extends React.Component<Props, State> {
 
   createRedirectUrl = () => {
     const { repository } = this.props;
-    return `/repo/${repository.namespace}/${repository.name}/sources`;
+    return `/repo/${repository.namespace}/${repository.name}/code/sources`;
   };
 
   commitFile = () => {
