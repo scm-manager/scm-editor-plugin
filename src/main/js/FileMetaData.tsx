@@ -8,8 +8,9 @@ const NoBottomMargin = styled.div`
   margin-bottom: 0 !important;
 `;
 
-const NoBorder = styled.div`
-  border: none;
+const PathBlock = styled.div`
+  padding: 0.75em 1em;
+  border-bottom: solid 1px #dbdbdb;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -39,7 +40,9 @@ type InputBorderProps = {
 };
 
 const InputBorder = styled.div<InputBorderProps>`
-  ${props => props.disabled && `
+  ${props =>
+    props.disabled &&
+    `
     & .input, 
     .textarea {
       border-color: #b5b5b5;
@@ -121,7 +124,7 @@ class FileMetaData extends React.Component<Props, State> {
     const { t, file, language, disabled } = this.props;
     return (
       <NoTopBorder>
-        <NoBorder className="panel-heading">
+        <PathBlock>
           <AlignItemNormal>
             <FieldLabel value={t("scm-editor-plugin.path.path")} />
             <NoBottomMargin className="field">
@@ -160,7 +163,7 @@ class FileMetaData extends React.Component<Props, State> {
               </AlignItemNormal>
             </>
           )}
-        </NoBorder>
+        </PathBlock>
       </NoTopBorder>
     );
   }
