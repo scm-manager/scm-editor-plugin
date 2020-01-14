@@ -94,7 +94,7 @@ class EditorResourceTest {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create/some/path");
-    CommitDto commit = new CommitDto("new commit", "master", "expected", singletonMap("file0", "newFile"));
+    CommitDto commit = new FileMappingCommitDto("new commit", "master", "expected", singletonMap("file0", "newFile"));
     multipartRequest(request, Collections.singletonMap("file0", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
@@ -112,7 +112,7 @@ class EditorResourceTest {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create");
-    CommitDto commit = new CommitDto("new commit", "master", null, singletonMap("file0", "newFile"));
+    CommitDto commit = new FileMappingCommitDto("new commit", "master", null, singletonMap("file0", "newFile"));
     multipartRequest(request, Collections.singletonMap("file0", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
@@ -126,7 +126,7 @@ class EditorResourceTest {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create/some/path");
-    CommitDto commit = new CommitDto(null, "master", null, emptyMap());
+    CommitDto commit = new FileMappingCommitDto(null, "master", null, emptyMap());
     multipartRequest(request, Collections.singletonMap("newFile", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
@@ -143,7 +143,7 @@ class EditorResourceTest {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/modify/some/path");
-    CommitDto commit = new CommitDto("new commit", "master", "expected", singletonMap("file0", "changedFile"));
+    CommitDto commit = new FileMappingCommitDto("new commit", "master", "expected", singletonMap("file0", "changedFile"));
     multipartRequest(request, Collections.singletonMap("file0", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
@@ -161,7 +161,7 @@ class EditorResourceTest {
     MockHttpRequest request =
       MockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/modify");
-    CommitDto commit = new CommitDto("new commit", "master", null, singletonMap("file0", "changedFile"));
+    CommitDto commit = new FileMappingCommitDto("new commit", "master", null, singletonMap("file0", "changedFile"));
     multipartRequest(request, Collections.singletonMap("file0", new ByteArrayInputStream("content".getBytes())), commit);
     dispatcher.invoke(request, response);
 
@@ -184,6 +184,78 @@ class EditorResourceTest {
 
     assertThat(response.getStatus()).isEqualTo(201);
     assertThat(response.getContentAsString()).contains("\"id\":\"42\"");
+  }
+
+  @Test
+  void shouldProcessCreateWithSimpleRequest() throws IOException, URISyntaxException {
+    when(service.prepare(NAMESPACE, NAME, "master", "some/path", "new commit", "expected"))
+      .thenReturn(fileUploader);
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
+
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create/some/path")
+        .contentType("application/json")
+        .content("{'commitMessage':'new commit', 'branch':'master', 'expectedRevision':'expected', 'fileName': 'newFile', 'fileContent': 'content'}".replaceAll("'", "\"").getBytes());
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    assertThat(response.getContentAsString()).contains("\"id\":\"42\"");
+    verify(fileUploader).create(eq("newFile"), eqStreamContent("content"));
+  }
+
+  @Test
+  void shouldProcessCreateWithSimpleRequestInRoot() throws IOException, URISyntaxException {
+    when(service.prepare(NAMESPACE, NAME, "master", "", "new commit", "expected"))
+      .thenReturn(fileUploader);
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
+
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/create/")
+        .contentType("application/json")
+        .content("{'commitMessage':'new commit', 'branch':'master', 'expectedRevision':'expected', 'fileName': 'newFile', 'fileContent': 'content'}".replaceAll("'", "\"").getBytes());
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    assertThat(response.getContentAsString()).contains("\"id\":\"42\"");
+    verify(fileUploader).create(eq("newFile"), eqStreamContent("content"));
+  }
+
+  @Test
+  void shouldProcessModifyWithSimpleRequest() throws IOException, URISyntaxException {
+    when(service.prepare(NAMESPACE, NAME, "master", "some/path", "new commit", "expected"))
+      .thenReturn(fileUploader);
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
+
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/modify/some/path/existingFile")
+        .contentType("application/json")
+        .content("{'commitMessage':'new commit', 'branch':'master', 'expectedRevision':'expected', 'fileContent': 'content'}".replaceAll("'", "\"").getBytes());
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    assertThat(response.getContentAsString()).contains("\"id\":\"42\"");
+    verify(fileUploader).modify(eq("existingFile"), eqStreamContent("content"));
+  }
+
+  @Test
+  void shouldProcessModifyWithSimpleRequestInRoot() throws IOException, URISyntaxException {
+    when(service.prepare(NAMESPACE, NAME, "master", "", "new commit", "expected"))
+      .thenReturn(fileUploader);
+    when(fileUploader.done()).thenReturn(new Changeset("1", 1L, new Person("trillian")));
+
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/modify/existingFile")
+        .contentType("application/json")
+        .content("{'commitMessage':'new commit', 'branch':'master', 'expectedRevision':'expected', 'fileContent': 'content'}".replaceAll("'", "\"").getBytes());
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    assertThat(response.getContentAsString()).contains("\"id\":\"42\"");
+    verify(fileUploader).modify(eq("existingFile"), eqStreamContent("content"));
   }
 
   private InputStream eqStreamContent(String expectedContent) {

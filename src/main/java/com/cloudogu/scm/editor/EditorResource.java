@@ -25,6 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -51,6 +52,28 @@ public class EditorResource {
   }
 
   /**
+   * This equals {@link EditorResource#createWithJson(String, String, String, SingleFileCreateCommitDto)} with the
+   * difference, that files will be added to the root directory of the repository.
+   * @see #createWithJson(String, String, String, SingleFileCreateCommitDto)
+   */
+  @POST
+  @Path("{namespace}/{name}/create")
+  @Consumes("application/json")
+  @Produces("application/json")
+  public Response createWithJsonInRoot(
+    @PathParam("namespace") String namespace,
+    @PathParam("name") String name,
+    @Valid SingleFileCreateCommitDto fileCommit
+  ) throws IOException {
+    try (EditorService.FileUploader fileUploader = prepareEditorService(namespace, name, "", fileCommit)) {
+      fileUploader.create(fileCommit.getFileName(), new ByteArrayInputStream(fileCommit.getFileContent().getBytes(UTF_8)));
+      Changeset newCommit = fileUploader.done();
+      ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
+      return Response.status(SC_CREATED).entity(newCommitDto).build();
+    }
+  }
+
+  /**
    * This equals {@link EditorResource#create(String, String, String, MultipartFormDataInput)} with the
    * difference, that files will be added to the root directory of the repository.
    * @see #create(String, String, String, MultipartFormDataInput)
@@ -68,6 +91,54 @@ public class EditorResource {
   }
 
   /**
+   * Creates a new file from a simple json request. The file name of the new file has to be given as 'fileName', the
+   * content as 'fileContent'. Additionally the commmit message is required as 'commitMessage'.
+   * <br>
+   * To create a file 'data' to a repository 'scmadmin/repo' on branch 'master' in folder
+   * 'src/resources' with curl, you will have to call something like
+   * <pre>
+   * curl -u scmadmin:scmadmin \
+   *   http://localhost:8081/scm/api/v2/edit/scmadmin/repo/create/src/resources \
+   *   -H 'Content-Type: application/json' \
+   *   --data '{"fileName": "data", "fileContent": "content", "commitMessage": "Commit message", "branch": "master"}'
+   * </pre>
+   *
+   * @param namespace  The namespace of the repository.
+   * @param name       The name of the repository.
+   * @param path       The destination directory for the new file.
+   * @param fileCommit The commit object with the following attributes:
+   *                   <ul>
+   *                     <li>The commit message for the new commit (this is required).</li>
+   *                     <li>The branch the change should be made upon (optional). If this is omitted, the default
+   *                       branch will be used.</li>
+   *                     <li>The expected revision the change should be made upon (optional). If this is set, the changes
+   *                       will only be applied if the revision of the branch (either the specified or the default branch)
+   *                       equals the given revision. If this is not the case, a conflict (status code 409) will be
+   *                       returned.</li>
+   *                     <li>The file name (required)</li>
+   *                     <li>The file content (required)</li>
+   *                   </ul>
+   * @throws IOException Whenever there were exceptions handling the uploaded file.
+   */
+  @POST
+  @Path("{namespace}/{name}/create/{path: .*}")
+  @Consumes("application/json")
+  @Produces("application/json")
+  public Response createWithJson(
+    @PathParam("namespace") String namespace,
+    @PathParam("name") String name,
+    @Nullable @PathParam("path") String path,
+    @Valid SingleFileCreateCommitDto fileCommit
+  ) throws IOException {
+    try (EditorService.FileUploader fileUploader = prepareEditorService(namespace, name, path, fileCommit)) {
+      fileUploader.create(fileCommit.getFileName(), new ByteArrayInputStream(fileCommit.getFileContent().getBytes(UTF_8)));
+      Changeset newCommit = fileUploader.done();
+      ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
+      return Response.status(SC_CREATED).entity(newCommitDto).build();
+    }
+  }
+
+  /**
    * Uploads files from a request with a multipart form. Each form data with names starting with 'file' will be
    * expected to have a content disposition header with a value for 'filename' (eg.
    * <code>Content-Disposition: form-data; name="file1"; filename="pom.xml"</code>). Additionally a form data with
@@ -77,7 +148,7 @@ public class EditorResource {
    * To upload two files 'resource.xml' and 'data.json' to a repository 'scmadmin/repo' on branch 'master' in folder
    * 'src/resources' with curl, you will have to call something like
    * <pre>
-   * curl -v scmadmin:scmadmin \
+   * curl -u scmadmin:scmadmin \
    *   http://localhost:8081/scm/api/v2/edit/scmadmin/repo/create/src/resources \
    *   -F 'file1=@resource.xml' \
    *   -F 'file2=@data.json' \
@@ -134,6 +205,54 @@ public class EditorResource {
   }
 
   /**
+   * Modifies a file from a simple json request. The file name of the new file is taken from the path, the
+   * content as 'fileContent'. Additionally the commmit message is required as 'commitMessage'.
+   * <br>
+   * To modify a file 'data' to a repository 'scmadmin/repo' on branch 'master' in folder
+   * 'src/resources' with curl, you will have to call something like
+   * <pre>
+   * curl -u scmadmin:scmadmin \
+   *   http://localhost:8081/scm/api/v2/edit/scmadmin/repo/modify/src/resources/data \
+   *   -H 'Content-Type: application/json' \
+   *   --data '{"fileContent": "content", "commitMessage": "Commit message", "branch": "master"}'
+   * </pre>
+   *
+   * @param namespace  The namespace of the repository.
+   * @param name       The name of the repository.
+   * @param path       The destination directory and file name for the new file.
+   * @param fileCommit The commit object with the following attributes:
+   *                   <ul>
+   *                     <li>The commit message for the new commit (this is required).</li>
+   *                     <li>The branch the change should be made upon (optional). If this is omitted, the default
+   *                       branch will be used.</li>
+   *                     <li>The expected revision the change should be made upon (optional). If this is set, the changes
+   *                       will only be applied if the revision of the branch (either the specified or the default branch)
+   *                       equals the given revision. If this is not the case, a conflict (status code 409) will be
+   *                       returned.</li>
+   *                     <li>The file content (required)</li>
+   *                   </ul>
+   * @throws IOException Whenever there were exceptions handling the uploaded file.
+   */
+  @POST
+  @Path("{namespace}/{name}/modify/{path: .*}")
+  @Consumes("application/json")
+  @Produces("application/json")
+  public Response modifyWithJson(
+    @PathParam("namespace") String namespace,
+    @PathParam("name") String name,
+    @PathParam("path") String path,
+    @Valid SingleFileModifyCommitDto fileCommit
+  ) throws IOException {
+    String[] pathAndFileName = extractFileName(path);
+    try (EditorService.FileUploader fileUploader = prepareEditorService(namespace, name, pathAndFileName[0], fileCommit)) {
+      fileUploader.modify(pathAndFileName[1], new ByteArrayInputStream(fileCommit.getFileContent().getBytes(UTF_8)));
+      Changeset newCommit = fileUploader.done();
+      ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
+      return Response.status(SC_CREATED).entity(newCommitDto).build();
+    }
+  }
+
+  /**
    * Replaces existing files with content from a request with a multipart form. Each form data with names starting with
    * 'file' will be expected to have a content disposition header with a value for 'filename' (eg.
    * <code>Content-Disposition: form-data; name="file1"; filename="pom.xml"</code>). Additionally a form data with
@@ -143,7 +262,7 @@ public class EditorResource {
    * To replace two files 'resource.xml' and 'data.json' in a repository 'scmadmin/repo' on branch 'master' in folder
    * 'src/resources' with curl, you will have to call something like
    * <pre>
-   * curl -v scmadmin:scmadmin \
+   * curl -u scmadmin:scmadmin \
    *   http://localhost:8081/scm/api/v2/edit/scmadmin/repo/modify/src/resources\?branch\=master \
    *   -F 'file1=@resource.xml' \
    *   -F 'file2=@data.json' \
@@ -221,11 +340,22 @@ public class EditorResource {
     return Response.status(SC_CREATED).entity(newCommitDto).build();
   }
 
+  private String[] extractFileName(String path) {
+    if (path.endsWith("/")) {
+      path = path.substring(0, path.length() - 1);
+    }
+    if (!path.contains("/")) {
+      return new String[]{"", path};
+    } else {
+      int lastSlash = path.lastIndexOf('/');
+      return new String[]{path.substring(0, lastSlash), path.substring(lastSlash + 1)};
+    }
+  }
+
   private Changeset processFiles(String namespace, String name, String path, MultipartFormDataInput input, UploadProcessor processor) throws IOException {
     Map<String, List<InputPart>> formParts = input.getFormDataMap();
-    CommitDto commit = extractCommit(formParts.get("commit"));
-    try (EditorService.FileUploader fileUploader =
-      editorService.prepare(namespace, name, commit.getBranch(), path, commit.getCommitMessage(), commit.getExpectedRevision())) {
+    FileMappingCommitDto commit = extractCommit(formParts.get("commit"));
+    try (EditorService.FileUploader fileUploader = prepareEditorService(namespace, name, path, commit)) {
       formParts
         .entrySet()
         .stream()
@@ -236,7 +366,11 @@ public class EditorResource {
     }
   }
 
-  private void processFile(EditorService.FileUploader fileUploader, List<InputPart> inputParts, UploadProcessor uploadProcessor, CommitDto commit) {
+  private EditorService.FileUploader prepareEditorService(String namespace, String name, String path, CommitDto commit) {
+    return editorService.prepare(namespace, name, commit.getBranch(), path, commit.getCommitMessage(), commit.getExpectedRevision());
+  }
+
+  private void processFile(EditorService.FileUploader fileUploader, List<InputPart> inputParts, UploadProcessor uploadProcessor, FileMappingCommitDto commit) {
     for (InputPart inputPart : inputParts) {
       String fileName = commit.getNames().get(parseFileName(inputPart.getHeaders()));
 
@@ -249,12 +383,12 @@ public class EditorResource {
     }
   }
 
-  private CommitDto extractCommit(List<InputPart> input) throws IOException {
+  private FileMappingCommitDto extractCommit(List<InputPart> input) throws IOException {
     if (input != null && !input.isEmpty()) {
       String content = readBodyForCommitObject(input);
       try (JsonParser parser = new JsonFactory().createParser(content)) {
         parser.setCodec(new ObjectMapper());
-        CommitDto commitDto = parser.readValueAs(CommitDto.class);
+        FileMappingCommitDto commitDto = parser.readValueAs(FileMappingCommitDto.class);
         if (StringUtils.isEmpty(commitDto.getCommitMessage())) {
           throw new MessageMissingException();
         }
