@@ -18,6 +18,8 @@ import sonia.scm.repository.RepositoryTestData;
 
 import java.net.URI;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -29,6 +31,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class FileLinkEnricherTest {
 
+  final ChangeObstacle DUMMY_OBSTACLE = null;
+
   @Mock
   private HalEnricherContext context;
 
@@ -39,7 +43,7 @@ class FileLinkEnricherTest {
   private EditorPreconditions preconditions;
 
   @Mock
-  private EditGuardCheck editGuardCheck;
+  private ChangeGuardCheck changeGuardCheck;
 
   private FileLinkEnricher enricher;
 
@@ -49,7 +53,7 @@ class FileLinkEnricherTest {
   void setUpObjectUnderTest() {
     ScmPathInfoStore pathInfoStore = new ScmPathInfoStore();
     pathInfoStore.set(() -> URI.create("/"));
-    enricher = new FileLinkEnricher(Providers.of(pathInfoStore), preconditions, editGuardCheck);
+    enricher = new FileLinkEnricher(Providers.of(pathInfoStore), preconditions, changeGuardCheck);
   }
 
   @Test
@@ -75,8 +79,8 @@ class FileLinkEnricherTest {
     void shouldEnrichWithFileLinks() {
       setUpHalContext(repository, "42", false, "readme.md");
 
-      when(editGuardCheck.isDeletable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(true);
-      when(editGuardCheck.isModifiable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(true);
+      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(emptyList());
+      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(emptyList());
 
       enricher.enrich(context, appender);
 
@@ -89,8 +93,8 @@ class FileLinkEnricherTest {
     void shouldNotEnrichWithFileDeleteLinkWithObstacle() {
       setUpHalContext(repository, "42", false, "readme.md");
 
-      when(editGuardCheck.isDeletable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(false);
-      when(editGuardCheck.isModifiable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(true);
+      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(singleton(DUMMY_OBSTACLE));
+      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(emptyList());
 
       enricher.enrich(context, appender);
 
@@ -103,8 +107,8 @@ class FileLinkEnricherTest {
     void shouldNotEnrichWithFileModifyLinkWithObstacle() {
       setUpHalContext(repository, "42", false, "readme.md");
 
-      when(editGuardCheck.isDeletable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(true);
-      when(editGuardCheck.isModifiable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(false);
+      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(emptyList());
+      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(singleton(DUMMY_OBSTACLE));
 
       enricher.enrich(context, appender);
 
@@ -117,7 +121,7 @@ class FileLinkEnricherTest {
     void shouldEnrichWithDirectoryLinks() {
       setUpHalContext(repository, "42", true, "src/path");
 
-      when(editGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "42", "src/path")).thenReturn(true);
+      when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "42", "src/path")).thenReturn(emptyList());
 
       enricher.enrich(context, appender);
 
@@ -129,7 +133,7 @@ class FileLinkEnricherTest {
     void shouldNotEnrichWithDirectoryCreateLinkWithObstacle() {
       setUpHalContext(repository, "42", true, "src/path");
 
-      when(editGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "42", "src/path")).thenReturn(false);
+      when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "42", "src/path")).thenReturn(singleton(DUMMY_OBSTACLE));
 
       enricher.enrich(context, appender);
 

@@ -1,6 +1,6 @@
 package com.cloudogu.scm.editor;
 
-public interface EditObstacle {
+public interface ChangeObstacle {
 
   String getMessage();
 

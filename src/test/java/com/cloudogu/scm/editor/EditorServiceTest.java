@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Person;
+import sonia.scm.repository.Repository;
 import sonia.scm.repository.api.LogCommandBuilder;
 import sonia.scm.repository.api.ModifyCommandBuilder;
 import sonia.scm.repository.api.RepositoryService;
@@ -18,16 +19,32 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EditorServiceTest {
+
+  final ChangeObstacle DUMMY_OBSTACLE = new ChangeObstacle() {
+    @Override
+    public String getMessage() {
+      return "thou shall not pass";
+    }
+
+    @Override
+    public String getKey() {
+      return "no";
+    }
+  };
 
   static final String SOME_PATH = "some/path";
   static final String NEW_FILE = "newFile";
@@ -47,24 +64,31 @@ class EditorServiceTest {
   ModifyCommandBuilder.WithOverwriteFlagContentLoader createContentLoader;
   @Mock
   ModifyCommandBuilder.SimpleContentLoader modifyContentLoader;
+  @Mock
+  ChangeGuardCheck changeGuardCheck;
 
   EditorService editorService;
 
   @BeforeEach
   void initServiceFactory() throws IOException {
-    when(serviceFactory.create(new NamespaceAndName("space", "name")))
+    lenient().when(serviceFactory.create(new NamespaceAndName("space", "name")))
       .thenReturn(repositoryService);
-    when(repositoryService.getModifyCommand()).thenReturn(modifyCommandBuilder);
-    when(repositoryService.getLogCommand()).thenReturn(logCommandBuilder);
+    lenient().when(repositoryService.getRepository())
+      .thenReturn(new Repository("1", "git", "space", "name"));
+    lenient().when(repositoryService.getModifyCommand()).thenReturn(modifyCommandBuilder);
+    lenient().when(repositoryService.getLogCommand()).thenReturn(logCommandBuilder);
     lenient().when(logCommandBuilder.getChangeset(any())).thenReturn(NEW_COMMIT);
     lenient().when(modifyCommandBuilder.createFile(anyString())).thenReturn(createContentLoader);
     lenient().when(modifyCommandBuilder.modifyFile(anyString())).thenReturn(modifyContentLoader);
     lenient().when(createContentLoader.setOverwrite(anyBoolean())).thenReturn(createContentLoader);
+    lenient().when(changeGuardCheck.isDeletable(any(), anyString(), any())).thenReturn(emptyList());
+    lenient().when(changeGuardCheck.isModifiable(any(), anyString(), any())).thenReturn(emptyList());
+    lenient().when(changeGuardCheck.canCreateFilesIn(any(), anyString(), any())).thenReturn(emptyList());
   }
 
   @BeforeEach
   void initService() {
-    editorService = new EditorService(serviceFactory) {
+    editorService = new EditorService(serviceFactory, changeGuardCheck) {
       @Override
       void checkWritePermission(RepositoryService repositoryService) {
         // suppress permission check for unit test
@@ -116,6 +140,22 @@ class EditorServiceTest {
     verify(modifyCommandBuilder).setExpectedRevision("expected");
     verify(modifyCommandBuilder).execute();
     assertThat(newCommit).isEqualTo(NEW_COMMIT);
+  }
+
+  @Test
+  void shouldNotDeleteWithObstacle() throws IOException {
+    when(changeGuardCheck.isDeletable(new NamespaceAndName("space", "name"), "master", SOME_PATH))
+      .thenReturn(singleton(DUMMY_OBSTACLE));
+
+    assertThrows(ChangeNotAllowedException.class, () ->
+      editorService
+      .delete("space", "name", "master", SOME_PATH, "new commit", "expected"));
+
+    verify(modifyCommandBuilder, never()).deleteFile(SOME_PATH);
+    verify(modifyCommandBuilder, never()).setCommitMessage("new commit");
+    verify(modifyCommandBuilder, never()).setBranch("master");
+    verify(modifyCommandBuilder, never()).setExpectedRevision("expected");
+    verify(modifyCommandBuilder, never()).execute();
   }
 
   @Test

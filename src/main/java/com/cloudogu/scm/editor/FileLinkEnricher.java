@@ -20,13 +20,13 @@ public class FileLinkEnricher implements HalEnricher {
 
   private final Provider<ScmPathInfoStore> scmPathInfoStore;
   private final EditorPreconditions editorPreconditions;
-  private final EditGuardCheck editGuardCheck;
+  private final ChangeGuardCheck changeGuardCheck;
 
   @Inject
-  public FileLinkEnricher(Provider<ScmPathInfoStore> scmPathInfoStore, EditorPreconditions editorPreconditions, EditGuardCheck editGuardCheck) {
+  public FileLinkEnricher(Provider<ScmPathInfoStore> scmPathInfoStore, EditorPreconditions editorPreconditions, ChangeGuardCheck changeGuardCheck) {
     this.scmPathInfoStore = scmPathInfoStore;
     this.editorPreconditions = editorPreconditions;
-    this.editGuardCheck = editGuardCheck;
+    this.changeGuardCheck = changeGuardCheck;
   }
 
   @Override
@@ -49,17 +49,17 @@ public class FileLinkEnricher implements HalEnricher {
 
   private void appendDirectoryLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName, String revision) {
     LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
-    if (editGuardCheck.canCreateFilesIn(namespaceAndName, revision, fileObject.getPath())) {
+    if (changeGuardCheck.canCreateFilesIn(namespaceAndName, revision, fileObject.getPath()).isEmpty()) {
       appender.appendLink("create", createCreateLink(fileObject, namespaceAndName, linkBuilder));
     }
   }
 
   private void appendFileLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName, String revision) {
     LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
-    if (editGuardCheck.isModifiable(namespaceAndName, revision, fileObject.getPath())) {
+    if (changeGuardCheck.isModifiable(namespaceAndName, revision, fileObject.getPath()).isEmpty()) {
       appender.appendLink("modify", createModifyLink(fileObject, namespaceAndName, linkBuilder));
     }
-    if (editGuardCheck.isDeletable(namespaceAndName, revision, fileObject.getPath())) {
+    if (changeGuardCheck.isDeletable(namespaceAndName, revision, fileObject.getPath()).isEmpty()) {
       appender.appendLink("delete", createDeleteLink(fileObject, namespaceAndName, linkBuilder));
     }
   }

@@ -14,14 +14,18 @@ import sonia.scm.repository.api.RepositoryServiceFactory;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class EditorService {
 
   private final RepositoryServiceFactory repositoryServiceFactory;
+  private final ChangeGuardCheck changeGuardCheck;
 
   @Inject
-  public EditorService(RepositoryServiceFactory repositoryServiceFactory) {
+  public EditorService(RepositoryServiceFactory repositoryServiceFactory, ChangeGuardCheck changeGuardCheck) {
     this.repositoryServiceFactory = repositoryServiceFactory;
+    this.changeGuardCheck = changeGuardCheck;
   }
 
   FileUploader prepare(String namespace, String name, String branch, String path, String commitMessage, String revision) {
@@ -33,6 +37,11 @@ public class EditorService {
 
   Changeset delete(String namespace, String name, String branch, String path, String commitMessage, String revision) throws IOException {
     NamespaceAndName namespaceAndName = new NamespaceAndName(namespace, name);
+
+    Collection<ChangeObstacle> obstacles = changeGuardCheck.isDeletable(namespaceAndName, branch, path);
+    if (!obstacles.isEmpty()) {
+      throw new ChangeNotAllowedException(namespaceAndName, branch, path, obstacles);
+    }
 
     try (RepositoryService repositoryService = repositoryServiceFactory.create(namespaceAndName)) {
       String changesetId = initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService)
@@ -60,12 +69,15 @@ public class EditorService {
     RepositoryPermissions.push(repositoryService.getRepository()).check();
   }
 
-  public static class FileUploader implements AutoCloseable {
+  public class FileUploader implements AutoCloseable {
 
     private final RepositoryService repositoryService;
     private final ModifyCommandBuilder modifyCommand;
     private final String path;
     private final String branch;
+
+    private final Collection<String> createdFiles = new ArrayList<>();
+    private final Collection<String> modifiedFiles = new ArrayList<>();
 
     private FileUploader(RepositoryService repositoryService, ModifyCommandBuilder modifyCommand, String path, String branch) {
       this.repositoryService = repositoryService;
@@ -82,6 +94,7 @@ public class EditorService {
       } catch (IOException e) {
         throw new UploadFailedException(fileName);
       }
+      createdFiles.add(completeFileName);
       return this;
     }
 
@@ -93,6 +106,7 @@ public class EditorService {
       } catch (IOException e) {
         throw new UploadFailedException(fileName);
       }
+      modifiedFiles.add(completeFileName);
       return this;
     }
 
@@ -105,6 +119,12 @@ public class EditorService {
     }
 
     public Changeset done() throws IOException {
+      NamespaceAndName namespaceAndName = repositoryService.getRepository().getNamespaceAndName();
+      Collection<ChangeObstacle> obstacles = changeGuardCheck.isModifiableAndCreatable(namespaceAndName, branch, modifiedFiles, createdFiles);
+      if (!obstacles.isEmpty()) {
+        throw new ChangeNotAllowedException(namespaceAndName, branch, path, obstacles);
+      }
+
       String changesetId = modifyCommand.execute();
       LogCommandBuilder logCommand = repositoryService.getLogCommand();
       if (!Strings.isNullOrEmpty(branch)) {

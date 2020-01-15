@@ -2,7 +2,6 @@ package com.cloudogu.scm.editor;
 
 import sonia.scm.plugin.ExtensionPoint;
 import sonia.scm.repository.NamespaceAndName;
-import sonia.scm.repository.Repository;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -12,8 +11,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableCollection;
 
 @ExtensionPoint
-public interface EditGuard {
-  Collection<EditObstacle> getObstacles(NamespaceAndName namespaceAndName, String branch, Changes changes);
+public interface ChangeGuard {
+  Collection<ChangeObstacle> getObstacles(NamespaceAndName namespaceAndName, String branch, Changes changes);
 
   class Changes {
     private Collection<String> filesToEdit = emptyList();
@@ -45,12 +44,20 @@ public interface EditGuard {
     }
 
     Changes withFilesToModify(String... filesToEdit) {
-      this.filesToEdit = asList(filesToEdit);
+      return withFilesToModify(asList(filesToEdit));
+    }
+
+    Changes withFilesToModify(Collection<String> filesToEdit) {
+      this.filesToEdit = filesToEdit;
       return this;
     }
 
     Changes withFilesToCreate(String... filesToCreate) {
-      this.filesToCreate = asList(filesToCreate);
+      return withFilesToCreate(asList(filesToCreate));
+    }
+
+    Changes withFilesToCreate(Collection<String> filesToCreate) {
+      this.filesToCreate = filesToCreate;
       return this;
     }
 
