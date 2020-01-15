@@ -1,12 +1,12 @@
 import { Repository, Changeset } from "@scm-manager/ui-types";
 
 export function createSourceExtensionUrl(repository: Repository, extension: string, revision?: string, path?: string) {
-  const url = `/repo/${repository.namespace}/${repository.name}/sourceext/${extension}/`;
+  const url = `/repo/${repository.namespace}/${repository.name}/code/sourceext/${extension}/`;
   return append(url, revision, path);
 }
 
 export function createSourceUrl(repository: Repository, revision?: string, path?: string) {
-  const url = `/repo/${repository.namespace}/${repository.name}/sources/`;
+  const url = `/repo/${repository.namespace}/${repository.name}/code/sources/`;
 
   return append(url, revision, path);
 }

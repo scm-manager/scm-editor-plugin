@@ -10,7 +10,8 @@ import {
   ErrorNotification,
   Loading,
   Notification,
-  Subtitle
+  Subtitle,
+  Breadcrumb
 } from "@scm-manager/ui-components";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -20,8 +21,11 @@ import styled from "styled-components";
 import Editor from "../Editor";
 import findLanguage from "../findLanguage";
 
-const Branch = styled.div`
-  margin-bottom: 1rem;
+const Header = styled.div`
+  background-color: #f5f5f5;
+  line-height: 1.25;
+  padding: 1em;
+  border-bottom: solid 1px #dbdbdb;
 `;
 
 const Border = styled.div`
@@ -66,6 +70,7 @@ type Props = WithTranslation &
     path?: string;
     file: FileWithType;
     sources: File;
+    baseUrl: string;
   };
 
 type State = {
@@ -281,7 +286,7 @@ class FileEdit extends React.Component<Props, State> {
 
   createRedirectUrl = () => {
     const { repository } = this.props;
-    return `/repo/${repository.namespace}/${repository.name}/sources`;
+    return `/repo/${repository.namespace}/${repository.name}/code/sources`;
   };
 
   commitFile = () => {
@@ -333,7 +338,7 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   render() {
-    const { revision, t, me } = this.props;
+    const { revision, t, me, repository, baseUrl } = this.props;
     const {
       path,
       file,
@@ -364,15 +369,16 @@ class FileEdit extends React.Component<Props, State> {
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
-        {revision && (
-          <Branch>
-            <span>
-              <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
-              {decodeURIComponent(revision)}
-            </span>
-          </Branch>
-        )}
         <Border>
+          {revision && (
+            <Header>
+              <span>
+                <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
+                {decodeURIComponent(revision)}
+              </span>
+            </Header>
+          )}
+          <Breadcrumb repository={repository} baseUrl={baseUrl} path={this.props.path} revision={revision} />
           <FileMetaData
             changePath={this.changePath}
             path={path}
@@ -420,8 +426,4 @@ const mapStateToProps = (state: any) => {
   };
 };
 
-export default compose(
-  withRouter,
-  connect(mapStateToProps),
-  withTranslation("plugins")
-)(FileEdit);
+export default compose(withRouter, connect(mapStateToProps), withTranslation("plugins"))(FileEdit);

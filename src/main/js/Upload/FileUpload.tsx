@@ -4,17 +4,20 @@ import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { File, Me, Repository, Link, Changeset } from "@scm-manager/ui-types";
-import { apiClient, Button, ButtonGroup, ErrorNotification, Subtitle } from "@scm-manager/ui-components";
+import { apiClient, Button, ButtonGroup, ErrorNotification, Subtitle, Breadcrumb } from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FilePath from "../FileMetaData";
 import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 import styled from "styled-components";
 import { Commit } from "../commit";
-import {createSourceUrl, createSourceUrlFromChangeset} from "../links";
+import { createSourceUrl, createSourceUrlFromChangeset } from "../links";
 
-const BranchMarginBottom = styled.div`
-  margin-bottom: 1rem;
+const Header = styled.div`
+  background-color: #f5f5f5;
+  line-height: 1.25;
+  padding: 1em;
+  border-bottom: solid 1px #dbdbdb;
 `;
 
 const Border = styled.div`
@@ -55,6 +58,7 @@ type Props = WithTranslation &
     sources: File;
     revision?: string;
     path?: string;
+    baseUrl: string;
   };
 
 type State = {
@@ -174,21 +178,22 @@ class FileUpload extends React.Component<Props, State> {
   };
 
   render() {
-    const { revision, me, t } = this.props;
+    const { repository, revision, me, baseUrl, t } = this.props;
     const { files, path, commitMessage, error, loading } = this.state;
 
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")} />
-        {revision && (
-          <BranchMarginBottom>
-            <span>
-              <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
-              {decodeURIComponent(revision)}
-            </span>
-          </BranchMarginBottom>
-        )}
         <Border>
+          {revision && (
+            <Header >
+              <span>
+                <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
+                {decodeURIComponent(revision)}
+              </span>
+            </Header>
+          )}
+          <Breadcrumb repository={repository} baseUrl={baseUrl} path={path} revision={revision} />
           <FilePath path={path} changePath={this.changePath} />
           <FileUploadDropzone fileHandler={this.handleFile} disabled={loading} />
         </Border>
@@ -227,8 +232,4 @@ const mapStateToProps = (state: any) => {
   };
 };
 
-export default compose(
-  withTranslation("plugins"),
-  withRouter,
-  connect(mapStateToProps)
-)(FileUpload);
+export default compose(withTranslation("plugins"), withRouter, connect(mapStateToProps))(FileUpload);
