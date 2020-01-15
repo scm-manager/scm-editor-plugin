@@ -17,7 +17,12 @@ export function createSourceUrlFromChangeset(repository: Repository, changeset: 
 }
 
 function getBranchOrId(changeset: Changeset) {
-  return changeset?._embedded?.branches[0]?.name ? changeset._embedded.branches[0].name : changeset.id;
+  return changeset._embedded &&
+    changeset._embedded.branches &&
+    changeset._embedded.branches[0] &&
+    changeset._embedded.branches[0].name
+    ? changeset._embedded.branches[0].name
+    : changeset.id;
 }
 
 function append(url: string, revision?: string, path?: string) {
