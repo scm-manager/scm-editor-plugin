@@ -32,7 +32,9 @@ public class EditorService {
   }
 
   Changeset delete(String namespace, String name, String branch, String path, String commitMessage, String revision) throws IOException {
-    try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
+    NamespaceAndName namespaceAndName = new NamespaceAndName(namespace, name);
+
+    try (RepositoryService repositoryService = repositoryServiceFactory.create(namespaceAndName)) {
       String changesetId = initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService)
         .deleteFile(path)
         .execute();
