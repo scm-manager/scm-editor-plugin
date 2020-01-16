@@ -35,7 +35,7 @@ public class FileLinkEnricher implements HalEnricher {
     BrowserResult browserResult = context.oneRequireByType(BrowserResult.class);
     FileObject fileObject = context.oneRequireByType(FileObject.class);
     if (editorPreconditions.isEditable(namespaceAndName, browserResult.getRevision())) {
-      appendLinks(appender, fileObject, namespaceAndName, browserResult.getRevision());
+      appendLinks(appender, fileObject, namespaceAndName, browserResult.getRequestedRevision());
     }
   }
 
