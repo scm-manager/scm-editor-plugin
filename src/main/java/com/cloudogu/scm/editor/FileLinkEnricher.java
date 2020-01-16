@@ -20,11 +20,13 @@ public class FileLinkEnricher implements HalEnricher {
 
   private final Provider<ScmPathInfoStore> scmPathInfoStore;
   private final EditorPreconditions editorPreconditions;
+  private final ChangeGuardCheck changeGuardCheck;
 
   @Inject
-  public FileLinkEnricher(Provider<ScmPathInfoStore> scmPathInfoStore, EditorPreconditions editorPreconditions) {
+  public FileLinkEnricher(Provider<ScmPathInfoStore> scmPathInfoStore, EditorPreconditions editorPreconditions, ChangeGuardCheck changeGuardCheck) {
     this.scmPathInfoStore = scmPathInfoStore;
     this.editorPreconditions = editorPreconditions;
+    this.changeGuardCheck = changeGuardCheck;
   }
 
   @Override
@@ -33,27 +35,33 @@ public class FileLinkEnricher implements HalEnricher {
     BrowserResult browserResult = context.oneRequireByType(BrowserResult.class);
     FileObject fileObject = context.oneRequireByType(FileObject.class);
     if (editorPreconditions.isEditable(namespaceAndName, browserResult.getRevision())) {
-      appendLinks(appender, fileObject, namespaceAndName);
+      appendLinks(appender, fileObject, namespaceAndName, browserResult.getRequestedRevision());
     }
   }
 
-  private void appendLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
+  private void appendLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName, String revision) {
     if (fileObject.isDirectory()) {
-      appendDirectoryLinks(appender, fileObject, namespaceAndName);
+      appendDirectoryLinks(appender, fileObject, namespaceAndName, revision);
     } else {
-      appendFileLinks(appender, fileObject, namespaceAndName);
+      appendFileLinks(appender, fileObject, namespaceAndName, revision);
     }
   }
 
-  private void appendDirectoryLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
+  private void appendDirectoryLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName, String revision) {
     LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
-    appender.appendLink("create", createCreateLink(fileObject, namespaceAndName, linkBuilder));
+    if (changeGuardCheck.canCreateFilesIn(namespaceAndName, revision, fileObject.getPath()).isEmpty()) {
+      appender.appendLink("create", createCreateLink(fileObject, namespaceAndName, linkBuilder));
+    }
   }
 
-  private void appendFileLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName) {
+  private void appendFileLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName, String revision) {
     LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
-    appender.appendLink("modify", createModifyLink(fileObject, namespaceAndName, linkBuilder));
-    appender.appendLink("delete", createDeleteLink(fileObject, namespaceAndName, linkBuilder));
+    if (changeGuardCheck.isModifiable(namespaceAndName, revision, fileObject.getPath()).isEmpty()) {
+      appender.appendLink("modify", createModifyLink(fileObject, namespaceAndName, linkBuilder));
+    }
+    if (changeGuardCheck.isDeletable(namespaceAndName, revision, fileObject.getPath()).isEmpty()) {
+      appender.appendLink("delete", createDeleteLink(fileObject, namespaceAndName, linkBuilder));
+    }
   }
 
   private String createCreateLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {

@@ -17,7 +17,14 @@ import sonia.scm.repository.RepositoryTestData;
 
 import java.net.URI;
 
-import static org.mockito.Mockito.*;
+import static java.util.Collections.singleton;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BrowserResultLinkEnricherTest {
@@ -31,13 +38,16 @@ class BrowserResultLinkEnricherTest {
   @Mock
   private HalAppender appender;
 
+  @Mock
+  private ChangeGuardCheck changeGuardCheck;
+
   private BrowserResultLinkEnricher enricher;
 
   @BeforeEach
   void setUpObjectUnderTest() {
     ScmPathInfoStore pathInfoStore = new ScmPathInfoStore();
     pathInfoStore.set(() -> URI.create("/"));
-    enricher = new BrowserResultLinkEnricher(Providers.of(pathInfoStore), preconditions);
+    enricher = new BrowserResultLinkEnricher(Providers.of(pathInfoStore), preconditions, changeGuardCheck);
   }
 
   @Test
@@ -47,6 +57,20 @@ class BrowserResultLinkEnricherTest {
     setUpEnricherContext(repository, result);
 
     when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(false);
+
+    enricher.enrich(context, appender);
+
+    verify(appender, never()).appendLink(anyString(), anyString());
+  }
+
+  @Test
+  void shouldNotEnrichIfGuardFails() {
+    Repository repository = RepositoryTestData.createHeartOfGold();
+    BrowserResult result = createBrowserResult("42", true);
+    setUpEnricherContext(repository, result);
+
+    when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(true);
+    when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "42", null)).thenReturn(singleton(null));
 
     enricher.enrich(context, appender);
 
