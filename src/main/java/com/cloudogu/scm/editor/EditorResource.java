@@ -152,7 +152,7 @@ public class EditorResource {
    *   http://localhost:8081/scm/api/v2/edit/scmadmin/repo/create/src/resources \
    *   -F 'file1=@resource.xml' \
    *   -F 'file2=@data.json' \
-   *   -F 'commit={"commitMessage": "Commit message", "branch": "master"}'
+   *   -F 'commit={"commitMessage": "Commit message", "branch": "master", "names": {"file1": "resource.xml", "file2": "data.json"} }'
    * </pre>
    *
    * @param namespace The namespace of the repository.
@@ -214,7 +214,7 @@ public class EditorResource {
    * curl -u scmadmin:scmadmin \
    *   http://localhost:8081/scm/api/v2/edit/scmadmin/repo/modify/src/resources/data \
    *   -H 'Content-Type: application/json' \
-   *   --data '{"fileContent": "content", "commitMessage": "Commit message", "branch": "master", "names": {"file1": "resource.xml", "file2": "data.json"} }'
+   *   --data '{"fileContent": "content", "commitMessage": "Commit message", "branch": "master"}'
    * </pre>
    *
    * @param namespace  The namespace of the repository.
