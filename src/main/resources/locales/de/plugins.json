@@ -70,6 +70,10 @@
     "CIRacPIOH1": {
       "displayName": "Fehlender Dateiname",
       "description": "Ein Form Part hat keinen Content-Disposition Header oder in diesem fehlt ein Wert für 'filename'."
+    },
+    "AuRneG3vO1": {
+      "displayName": "Änderung verhindert",
+      "description": "Die Änderung wurde von anderen Plugins verhindert."
     }
   }
 }

@@ -2,6 +2,7 @@ package com.cloudogu.scm.editor;
 
 import com.google.inject.util.Providers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -17,14 +18,20 @@ import sonia.scm.repository.RepositoryTestData;
 
 import java.net.URI;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FileLinkEnricherTest {
+
+  final ChangeObstacle DUMMY_OBSTACLE = null;
 
   @Mock
   private HalEnricherContext context;
@@ -35,18 +42,22 @@ class FileLinkEnricherTest {
   @Mock
   private EditorPreconditions preconditions;
 
+  @Mock
+  private ChangeGuardCheck changeGuardCheck;
+
   private FileLinkEnricher enricher;
+
+  private Repository repository = RepositoryTestData.createHeartOfGold();
 
   @BeforeEach
   void setUpObjectUnderTest() {
     ScmPathInfoStore pathInfoStore = new ScmPathInfoStore();
     pathInfoStore.set(() -> URI.create("/"));
-    enricher = new FileLinkEnricher(Providers.of(pathInfoStore), preconditions);
+    enricher = new FileLinkEnricher(Providers.of(pathInfoStore), preconditions, changeGuardCheck);
   }
 
   @Test
   void shouldNotEnrichIfPreconditionNotMet() {
-    Repository repository = RepositoryTestData.createHeartOfGold();
     setUpHalContext(repository, "42", "master", true, "root");
 
     when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(false);
@@ -56,31 +67,79 @@ class FileLinkEnricherTest {
     verifyNoMoreInteractions(appender);
   }
 
-  @Test
-  void shouldEnrichWithFileLinks() {
-    Repository repository = RepositoryTestData.createHeartOfGold();
-    setUpHalContext(repository, "42", "master", false, "readme.md");
+  @Nested
+  class ForEditableRepositories {
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
+    @BeforeEach
+    void whenRepositoryIsEditable() {
+      when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
+    }
 
-    enricher.enrich(context, appender);
+    @Test
+    void shouldEnrichWithFileLinks() {
+      setUpHalContext(repository, "42", "master", false, "readme.md");
 
-    verify(appender).appendLink(eq("modify"), eq("/v2/edit/hitchhiker/HeartOfGold/modify/"));
-    verify(appender).appendLink(eq("delete"), eq("/v2/edit/hitchhiker/HeartOfGold/delete/readme.md"));
-    verifyNoMoreInteractions(appender);
-  }
+      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
+      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
 
-  @Test
-  void shouldEnrichWithDirectoryLinks() {
-    Repository repository = RepositoryTestData.createHeartOfGold();
-    setUpHalContext(repository, "42", "master", true, "src/path");
+      enricher.enrich(context, appender);
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
+      verify(appender).appendLink(eq("modify"), eq("/v2/edit/hitchhiker/HeartOfGold/modify/"));
+      verify(appender).appendLink(eq("delete"), eq("/v2/edit/hitchhiker/HeartOfGold/delete/readme.md"));
+      verifyNoMoreInteractions(appender);
+    }
 
-    enricher.enrich(context, appender);
+    @Test
+    void shouldNotEnrichWithFileDeleteLinkWithObstacle() {
+      setUpHalContext(repository, "42", "master", false, "readme.md");
 
-    verify(appender).appendLink(eq("create"), eq("/v2/edit/hitchhiker/HeartOfGold/create/src%2Fpath"));
-    verifyNoMoreInteractions(appender);
+      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(singleton(DUMMY_OBSTACLE));
+      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
+
+      enricher.enrich(context, appender);
+
+      verify(appender).appendLink(eq("modify"), eq("/v2/edit/hitchhiker/HeartOfGold/modify/"));
+      verify(appender, never()).appendLink(eq("delete"), any());
+      verifyNoMoreInteractions(appender);
+    }
+
+    @Test
+    void shouldNotEnrichWithFileModifyLinkWithObstacle() {
+      setUpHalContext(repository, "42", "master", false, "readme.md");
+
+      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
+      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(singleton(DUMMY_OBSTACLE));
+
+      enricher.enrich(context, appender);
+
+      verify(appender, never()).appendLink(eq("modify"), any());
+      verify(appender).appendLink(eq("delete"), eq("/v2/edit/hitchhiker/HeartOfGold/delete/readme.md"));
+      verifyNoMoreInteractions(appender);
+    }
+
+    @Test
+    void shouldEnrichWithDirectoryLinks() {
+      setUpHalContext(repository, "42", "master", true, "src/path");
+
+      when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "master", "src/path")).thenReturn(emptyList());
+
+      enricher.enrich(context, appender);
+
+      verify(appender).appendLink(eq("create"), eq("/v2/edit/hitchhiker/HeartOfGold/create/src%2Fpath"));
+      verifyNoMoreInteractions(appender);
+    }
+
+    @Test
+    void shouldNotEnrichWithDirectoryCreateLinkWithObstacle() {
+      setUpHalContext(repository, "42", "master", true, "src/path");
+
+      when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "master", "src/path")).thenReturn(singleton(DUMMY_OBSTACLE));
+
+      enricher.enrich(context, appender);
+
+      verify(appender, never()).appendLink(eq("create"), any());
+      verifyNoMoreInteractions(appender);
+    }
   }
 
   private void setUpHalContext(Repository repository, String revision, String branchName, boolean directory, String path) {

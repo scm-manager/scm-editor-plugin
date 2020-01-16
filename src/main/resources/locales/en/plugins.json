@@ -70,6 +70,10 @@
     "CIRacPIOH1": {
       "displayName": "Filename missing",
       "description": "A form part is missing the Content-Disposition header or it has no value for 'filename'."
+    },
+    "AuRneG3vO1": {
+      "displayName": "Change prevented",
+      "description": "The change was prevented by other plugins."
     }
   }
 }
