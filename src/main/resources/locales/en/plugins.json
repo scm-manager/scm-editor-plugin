@@ -56,9 +56,6 @@
     "validation": {
       "filenameInvalid": "filename invalid",
       "pathInvalid": "path invalid"
-    },
-    "violations": {
-      "ABC": "JIPPIE!"
     }
   },
   "errors": {
