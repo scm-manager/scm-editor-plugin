@@ -19,11 +19,13 @@ public class BrowserResultLinkEnricher implements HalEnricher {
 
   private final Provider<ScmPathInfoStore> scmPathInfoStore;
   private final EditorPreconditions preconditions;
+  private final ChangeGuardCheck changeGuardCheck;
 
   @Inject
-  public BrowserResultLinkEnricher(Provider<ScmPathInfoStore> scmPathInfoStore, EditorPreconditions preconditions) {
+  public BrowserResultLinkEnricher(Provider<ScmPathInfoStore> scmPathInfoStore, EditorPreconditions preconditions, ChangeGuardCheck changeGuardCheck) {
     this.scmPathInfoStore = scmPathInfoStore;
     this.preconditions = preconditions;
+    this.changeGuardCheck = changeGuardCheck;
   }
 
   @Override
@@ -37,7 +39,8 @@ public class BrowserResultLinkEnricher implements HalEnricher {
   }
 
   private boolean isEnrichable(NamespaceAndName namespaceAndName, BrowserResult browserResult) {
-    return preconditions.isEditable(namespaceAndName, browserResult.getRevision()) && isDirectory(browserResult);
+    return preconditions.isEditable(namespaceAndName, browserResult.getRevision()) && isDirectory(browserResult) &&
+      changeGuardCheck.canCreateFilesIn(namespaceAndName, browserResult.getRequestedRevision(), browserResult.getFile().getPath()).isEmpty();
   }
 
   private boolean isDirectory(BrowserResult browserResult) {
