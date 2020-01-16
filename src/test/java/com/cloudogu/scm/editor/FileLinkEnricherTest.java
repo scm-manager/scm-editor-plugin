@@ -17,7 +17,11 @@ import sonia.scm.repository.RepositoryTestData;
 
 import java.net.URI;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class FileLinkEnricherTest {
@@ -43,9 +47,9 @@ class FileLinkEnricherTest {
   @Test
   void shouldNotEnrichIfPreconditionNotMet() {
     Repository repository = RepositoryTestData.createHeartOfGold();
-    setUpHalContext(repository, "42", true, "root");
+    setUpHalContext(repository, "42", "master", true, "root");
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(false);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(false);
 
     enricher.enrich(context, appender);
 
@@ -55,9 +59,9 @@ class FileLinkEnricherTest {
   @Test
   void shouldEnrichWithFileLinks() {
     Repository repository = RepositoryTestData.createHeartOfGold();
-    setUpHalContext(repository, "42", false, "readme.md");
+    setUpHalContext(repository, "42", "master", false, "readme.md");
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(true);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
 
     enricher.enrich(context, appender);
 
@@ -69,9 +73,9 @@ class FileLinkEnricherTest {
   @Test
   void shouldEnrichWithDirectoryLinks() {
     Repository repository = RepositoryTestData.createHeartOfGold();
-    setUpHalContext(repository, "42", true, "src/path");
+    setUpHalContext(repository, "42", "master", true, "src/path");
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(true);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
 
     enricher.enrich(context, appender);
 
@@ -79,9 +83,9 @@ class FileLinkEnricherTest {
     verifyNoMoreInteractions(appender);
   }
 
-  private void setUpHalContext(Repository repository, String revision, boolean directory, String path) {
+  private void setUpHalContext(Repository repository, String revision, String branchName, boolean directory, String path) {
     doReturn(repository.getNamespaceAndName()).when(context).oneRequireByType(NamespaceAndName.class);
-    doReturn(new BrowserResult(revision, null)).when(context).oneRequireByType(BrowserResult.class);
+    doReturn(new BrowserResult(revision, branchName, null)).when(context).oneRequireByType(BrowserResult.class);
     FileObject fileObject = new FileObject();
     fileObject.setPath(path);
     fileObject.setDirectory(directory);
