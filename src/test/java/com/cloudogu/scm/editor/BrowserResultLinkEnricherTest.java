@@ -53,10 +53,10 @@ class BrowserResultLinkEnricherTest {
   @Test
   void shouldNotEnrichIfPreconditionNotMet() {
     Repository repository = RepositoryTestData.createHeartOfGold();
-    BrowserResult result = createBrowserResult("42", true);
+    BrowserResult result = createBrowserResult("42", "master", true);
     setUpEnricherContext(repository, result);
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(false);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(false);
 
     enricher.enrich(context, appender);
 
@@ -66,11 +66,11 @@ class BrowserResultLinkEnricherTest {
   @Test
   void shouldNotEnrichIfGuardFails() {
     Repository repository = RepositoryTestData.createHeartOfGold();
-    BrowserResult result = createBrowserResult("42", true);
+    BrowserResult result = createBrowserResult("42", "master", true);
     setUpEnricherContext(repository, result);
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(true);
-    when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "42", null)).thenReturn(singleton(null));
+    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
+    when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "master", null)).thenReturn(singleton(null));
 
     enricher.enrich(context, appender);
 
@@ -80,10 +80,10 @@ class BrowserResultLinkEnricherTest {
   @Test
   void shouldNotEnrichBrowserResultIsNotADirectory() {
     Repository repository = RepositoryTestData.createHeartOfGold();
-    BrowserResult result = createBrowserResult("42", false);
+    BrowserResult result = createBrowserResult("42", "master", false);
     setUpEnricherContext(repository, result);
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(false);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(false);
 
     enricher.enrich(context, appender);
 
@@ -93,10 +93,10 @@ class BrowserResultLinkEnricherTest {
   @Test
   void shouldAppendLinks() {
     Repository repository = RepositoryTestData.createHeartOfGold();
-    BrowserResult result = createBrowserResult("42", true);
+    BrowserResult result = createBrowserResult("42", "master", true);
     setUpEnricherContext(repository, result);
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(true);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
 
     enricher.enrich(context, appender);
 
@@ -104,15 +104,14 @@ class BrowserResultLinkEnricherTest {
     verifyNoMoreInteractions(appender);
   }
 
-  private BrowserResult createBrowserResult(String revision, boolean directory) {
+  private BrowserResult createBrowserResult(String revision, String branchName, boolean directory) {
     FileObject fileObject = new FileObject();
     fileObject.setDirectory(directory);
-    return new BrowserResult(revision, fileObject);
+    return new BrowserResult(revision, branchName, fileObject);
   }
 
   void setUpEnricherContext(Repository repository, BrowserResult result) {
     doReturn(repository.getNamespaceAndName()).when(context).oneRequireByType(NamespaceAndName.class);
     doReturn(result).when(context).oneRequireByType(BrowserResult.class);
   }
-
 }

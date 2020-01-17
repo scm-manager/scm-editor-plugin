@@ -58,9 +58,9 @@ class FileLinkEnricherTest {
 
   @Test
   void shouldNotEnrichIfPreconditionNotMet() {
-    setUpHalContext(repository, "42", true, "root");
+    setUpHalContext(repository, "42", "master", true, "root");
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(false);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(false);
 
     enricher.enrich(context, appender);
 
@@ -72,15 +72,15 @@ class FileLinkEnricherTest {
 
     @BeforeEach
     void whenRepositoryIsEditable() {
-      when(preconditions.isEditable(repository.getNamespaceAndName(), "42")).thenReturn(true);
+      when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
     }
 
     @Test
     void shouldEnrichWithFileLinks() {
-      setUpHalContext(repository, "42", false, "readme.md");
+      setUpHalContext(repository, "42", "master", false, "readme.md");
 
-      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(emptyList());
-      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(emptyList());
+      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
+      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
 
       enricher.enrich(context, appender);
 
@@ -91,10 +91,10 @@ class FileLinkEnricherTest {
 
     @Test
     void shouldNotEnrichWithFileDeleteLinkWithObstacle() {
-      setUpHalContext(repository, "42", false, "readme.md");
+      setUpHalContext(repository, "42", "master", false, "readme.md");
 
-      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(singleton(DUMMY_OBSTACLE));
-      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(emptyList());
+      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(singleton(DUMMY_OBSTACLE));
+      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
 
       enricher.enrich(context, appender);
 
@@ -105,10 +105,10 @@ class FileLinkEnricherTest {
 
     @Test
     void shouldNotEnrichWithFileModifyLinkWithObstacle() {
-      setUpHalContext(repository, "42", false, "readme.md");
+      setUpHalContext(repository, "42", "master", false, "readme.md");
 
-      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(emptyList());
-      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "42", "readme.md")).thenReturn(singleton(DUMMY_OBSTACLE));
+      when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
+      when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(singleton(DUMMY_OBSTACLE));
 
       enricher.enrich(context, appender);
 
@@ -119,9 +119,9 @@ class FileLinkEnricherTest {
 
     @Test
     void shouldEnrichWithDirectoryLinks() {
-      setUpHalContext(repository, "42", true, "src/path");
+      setUpHalContext(repository, "42", "master", true, "src/path");
 
-      when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "42", "src/path")).thenReturn(emptyList());
+      when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "master", "src/path")).thenReturn(emptyList());
 
       enricher.enrich(context, appender);
 
@@ -131,9 +131,9 @@ class FileLinkEnricherTest {
 
     @Test
     void shouldNotEnrichWithDirectoryCreateLinkWithObstacle() {
-      setUpHalContext(repository, "42", true, "src/path");
+      setUpHalContext(repository, "42", "master", true, "src/path");
 
-      when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "42", "src/path")).thenReturn(singleton(DUMMY_OBSTACLE));
+      when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "master", "src/path")).thenReturn(singleton(DUMMY_OBSTACLE));
 
       enricher.enrich(context, appender);
 
@@ -142,9 +142,9 @@ class FileLinkEnricherTest {
     }
   }
 
-  private void setUpHalContext(Repository repository, String revision, boolean directory, String path) {
+  private void setUpHalContext(Repository repository, String revision, String branchName, boolean directory, String path) {
     doReturn(repository.getNamespaceAndName()).when(context).oneRequireByType(NamespaceAndName.class);
-    doReturn(new BrowserResult(revision, null)).when(context).oneRequireByType(BrowserResult.class);
+    doReturn(new BrowserResult(revision, branchName, null)).when(context).oneRequireByType(BrowserResult.class);
     FileObject fileObject = new FileObject();
     fileObject.setPath(path);
     fileObject.setDirectory(directory);

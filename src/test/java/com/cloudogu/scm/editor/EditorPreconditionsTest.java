@@ -30,7 +30,9 @@ import java.util.Date;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EditorPreconditionsTest {
@@ -62,7 +64,7 @@ class EditorPreconditionsTest {
     NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.LOG);
     setUpPermission("42", true);
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc")).isTrue();
+    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isTrue();
   }
 
   @Test
@@ -72,7 +74,7 @@ class EditorPreconditionsTest {
 
     setUpLogCommandResult("abc");
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc")).isTrue();
+    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isTrue();
   }
 
   @Test
@@ -85,7 +87,7 @@ class EditorPreconditionsTest {
       Branch.defaultBranch("develop", "abc")
     );
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc")).isTrue();
+    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isTrue();
   }
 
   @Test
@@ -93,7 +95,7 @@ class EditorPreconditionsTest {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.LOG, Command.BRANCHES);
     setUpPermission("21", false);
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc")).isFalse();
+    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isFalse();
   }
 
   @Test
@@ -101,7 +103,7 @@ class EditorPreconditionsTest {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.LOG);
     setUpPermission("21", true);
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc")).isFalse();
+    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isFalse();
   }
 
   @Test
@@ -109,30 +111,30 @@ class EditorPreconditionsTest {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY);
     setUpPermission("21", true);
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc")).isFalse();
+    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isFalse();
   }
 
   @Test
-  void shouldReturnFalseIfNotTheLatestRevision() throws IOException {
+  void shouldReturnFalseIfNotAnExistingBranch() throws IOException {
     NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.LOG);
     setUpPermission("42", true);
 
     setUpLogCommandResult("def");
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc")).isFalse();
+    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isFalse();
   }
 
   @Test
-  void shouldReturnFalseIfNotTheLatestRevisionOnAnyBranch() throws IOException {
-    NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.BRANCHES);
-    setUpPermission("42", true);
+  void shouldReturnFalseIfNotABranch() throws IOException {
+    NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
+    setUpPermission("21", true);
 
     setUpBranches(
-      Branch.normalBranch("master", "abc"),
-      Branch.normalBranch("develop", "def")
+      Branch.normalBranch("master", "cde"),
+      Branch.defaultBranch("develop", "abc")
     );
 
-    assertThat(preconditions.isEditable(namespaceAndName, "xyz")).isFalse();
+    assertThat(preconditions.isEditable(namespaceAndName, "abc", "notExistingBranch")).isFalse();
   }
 
   @Test
@@ -143,7 +145,7 @@ class EditorPreconditionsTest {
     LogCommandBuilder builder = repositoryService.getLogCommand().setPagingLimit(1);
     doThrow(new IOException("failed :(")).when(builder).getChangesets();
 
-    assertThrows(InternalRepositoryException.class, () -> preconditions.isEditable(namespaceAndName, "abc"));
+    assertThrows(InternalRepositoryException.class, () -> preconditions.isEditable(namespaceAndName, "abc", "master"));
   }
 
   private void setUpBranches(Branch... branches) throws IOException {

@@ -3,7 +3,6 @@ package com.cloudogu.scm.editor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.ContextEntry;
-import sonia.scm.repository.Branch;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.NamespaceAndName;
@@ -28,9 +27,9 @@ class EditorPreconditions {
     this.repositoryServiceFactory = repositoryServiceFactory;
   }
 
-  boolean isEditable(NamespaceAndName namespaceAndName, String revision) {
+  boolean isEditable(NamespaceAndName namespaceAndName, String revision, String branchName) {
     try (RepositoryService repositoryService = repositoryServiceFactory.create(namespaceAndName)) {
-      return isEditable(repositoryService, revision);
+      return isEditable(repositoryService, revision, branchName);
     } catch (IOException ex) {
       throw new InternalRepositoryException(
         ContextEntry.ContextBuilder.entity(namespaceAndName),
@@ -40,15 +39,15 @@ class EditorPreconditions {
     }
   }
 
-  private boolean isEditable(RepositoryService repositoryService, String revision) throws IOException {
+  private boolean isEditable(RepositoryService repositoryService, String revision, String branchName) throws IOException {
     return isPermitted(repositoryService.getRepository())
       && isModifySupported(repositoryService)
-      && isHeadRevision(repositoryService, revision);
+      && isHeadRevision(repositoryService, revision, branchName);
   }
 
   private boolean isModifySupported(RepositoryService repositoryService) {
     if (repositoryService.isSupported(Command.MODIFY)
-      && (repositoryService.isSupported(Command.LOG) || repositoryService.isSupported(Command.BRANCHES)) ) {
+      && (repositoryService.isSupported(Command.LOG) || repositoryService.isSupported(Command.BRANCHES))) {
       return true;
     }
     LOG.trace("repository is not editable, because the type of the repository does not support the required commands");
@@ -63,9 +62,9 @@ class EditorPreconditions {
     return false;
   }
 
-  private boolean isHeadRevision(RepositoryService repositoryService, String revision) throws IOException {
+  private boolean isHeadRevision(RepositoryService repositoryService, String revision, String branchName) throws IOException {
     if (repositoryService.isSupported(Command.BRANCHES)) {
-      return isLastChangesetOfBranch(repositoryService, revision);
+      return isExistingBranch(repositoryService, branchName);
     }
     return isLastRevision(repositoryService, revision);
   }
@@ -87,13 +86,18 @@ class EditorPreconditions {
     return true;
   }
 
-  private boolean isLastChangesetOfBranch(RepositoryService repositoryService, String revision) throws IOException {
-    for (Branch branch : repositoryService.getBranchesCommand().getBranches()) {
-      if (revision.equals(branch.getRevision())) {
-        return true;
-      }
+  private boolean isExistingBranch(RepositoryService repositoryService, String branchName) throws IOException {
+    if (
+      repositoryService
+        .getBranchesCommand()
+        .getBranches()
+        .getBranches()
+        .stream()
+        .anyMatch(b -> b.getName().equals(branchName))
+    ) {
+      return true;
     }
-    LOG.trace("repository is not editable, because revision {} is not the latest on any branch", revision);
+    LOG.trace("repository is not editable, because selected branch {} does not exist", branchName);
     return false;
   }
 }

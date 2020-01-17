@@ -39,7 +39,7 @@ public class BrowserResultLinkEnricher implements HalEnricher {
   }
 
   private boolean isEnrichable(NamespaceAndName namespaceAndName, BrowserResult browserResult) {
-    return preconditions.isEditable(namespaceAndName, browserResult.getRevision()) && isDirectory(browserResult) &&
+    return preconditions.isEditable(namespaceAndName, browserResult.getRevision(), browserResult.getRequestedRevision()) && isDirectory(browserResult) &&
       changeGuardCheck.canCreateFilesIn(namespaceAndName, browserResult.getRequestedRevision(), browserResult.getFile().getPath()).isEmpty();
   }
 
