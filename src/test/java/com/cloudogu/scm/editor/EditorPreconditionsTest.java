@@ -115,26 +115,13 @@ class EditorPreconditionsTest {
   }
 
   @Test
-  void shouldReturnFalseIfNotTheLatestRevision() throws IOException {
+  void shouldReturnFalseIfNotAnExistingBranch() throws IOException {
     NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.LOG);
     setUpPermission("42", true);
 
     setUpLogCommandResult("def");
 
     assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isFalse();
-  }
-
-  @Test
-  void shouldReturnFalseIfNotTheLatestRevisionOnAnyBranch() throws IOException {
-    NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.BRANCHES);
-    setUpPermission("42", true);
-
-    setUpBranches(
-      Branch.normalBranch("master", "abc"),
-      Branch.normalBranch("develop", "def")
-    );
-
-    assertThat(preconditions.isEditable(namespaceAndName, "xyz", "master")).isFalse();
   }
 
   @Test
