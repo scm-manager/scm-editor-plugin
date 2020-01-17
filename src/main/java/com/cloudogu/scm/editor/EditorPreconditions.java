@@ -3,8 +3,6 @@ package com.cloudogu.scm.editor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.ContextEntry;
-import sonia.scm.repository.Branch;
-import sonia.scm.repository.Branches;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.NamespaceAndName;
@@ -66,7 +64,7 @@ class EditorPreconditions {
 
   private boolean isHeadRevision(RepositoryService repositoryService, String revision, String branchName) throws IOException {
     if (repositoryService.isSupported(Command.BRANCHES)) {
-      return isLastChangesetOfBranch(repositoryService, revision, branchName);
+      return isExistingBranch(repositoryService, branchName);
     }
     return isLastRevision(repositoryService, revision);
   }
@@ -88,19 +86,18 @@ class EditorPreconditions {
     return true;
   }
 
-  private boolean isLastChangesetOfBranch(RepositoryService repositoryService, String revision, String branchName) throws IOException {
-    Branches branches = repositoryService.getBranchesCommand().getBranches();
-    for (Branch branch : branches) {
-      if (revision.equals(branch.getRevision())
-        && branches
+  private boolean isExistingBranch(RepositoryService repositoryService, String branchName) throws IOException {
+    if (
+      repositoryService
+        .getBranchesCommand()
+        .getBranches()
         .getBranches()
         .stream()
         .anyMatch(b -> b.getName().equals(branchName))
-      ) {
-        return true;
-      }
+    ) {
+      return true;
     }
-    LOG.trace("repository is not editable, because revision {} is not the latest on any branch", revision);
+    LOG.trace("repository is not editable, because selected branch {} does not exist", branchName);
     return false;
   }
 }
