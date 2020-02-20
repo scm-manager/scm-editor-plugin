@@ -4,6 +4,12 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteSource;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.plugins.providers.multipart.InputPart;
 import org.jboss.resteasy.plugins.providers.multipart.MultipartFormDataInput;
@@ -11,9 +17,11 @@ import org.jboss.resteasy.plugins.providers.multipart.MultipartInputImpl;
 import sonia.scm.BadRequestException;
 import sonia.scm.api.v2.resources.ChangesetDto;
 import sonia.scm.api.v2.resources.ChangesetToChangesetDtoMapper;
+import sonia.scm.api.v2.resources.ErrorDto;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.RepositoryManager;
+import sonia.scm.web.VndMediaType;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -23,6 +31,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -35,6 +44,9 @@ import java.util.Map;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.http.HttpStatus.SC_CREATED;
 
+@OpenAPIDefinition(tags = {
+  @Tag(name = "Editor Plugin", description = "Editor plugin provided endpoints")
+})
 @Path(EditorResource.EDITOR_REQUESTS_PATH_V2)
 public class EditorResource {
 
@@ -58,8 +70,27 @@ public class EditorResource {
    */
   @POST
   @Path("{namespace}/{name}/create")
-  @Consumes("application/json")
-  @Produces("application/json")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Create file in root", description = "Creates a new file in the root directory with a JSON-based request as new commit. Returns the created changeset.", tags = "Editor Plugin")
+  @ApiResponse(
+    responseCode = "201",
+    description = "create success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = ChangesetDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"push:repository\" privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public Response createWithJsonInRoot(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
@@ -80,8 +111,31 @@ public class EditorResource {
    */
   @POST
   @Path("{namespace}/{name}/create")
-  @Consumes("multipart/form-data")
-  @Produces("application/json")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+    summary = "Create file in root",
+    description = "Creates a new file in the root directory with a form-based request as new commit. Returns the created changeset.",
+    hidden = true
+  )
+  @ApiResponse(
+    responseCode = "201",
+    description = "create success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = ChangesetDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"push:repository\" privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public Response createInRoot(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
@@ -122,8 +176,31 @@ public class EditorResource {
    */
   @POST
   @Path("{namespace}/{name}/create/{path: .*}")
-  @Consumes("application/json")
-  @Produces("application/json")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+    summary = "Create file",
+    description = "Creates a new file in any directory with a JSON-based request as new commit. Returns the created changeset.",
+    tags = "Editor Plugin"
+  )
+  @ApiResponse(
+    responseCode = "201",
+    description = "create success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = ChangesetDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"push:repository\" privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public Response createWithJson(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
@@ -174,8 +251,31 @@ public class EditorResource {
    */
   @POST
   @Path("{namespace}/{name}/create/{path: .*}")
-  @Consumes("multipart/form-data")
-  @Produces("application/json")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+    summary = "Create file",
+    description = "Creates a new file in any directory with a form-based request as new commit. Returns the created changeset.",
+    hidden = true
+  )
+  @ApiResponse(
+    responseCode = "201",
+    description = "create success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = ChangesetDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"push:repository\" privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public Response create(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
@@ -194,8 +294,32 @@ public class EditorResource {
    */
   @POST
   @Path("{namespace}/{name}/modify")
-  @Consumes("multipart/form-data")
-  @Produces("application/json")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+    summary = "Modify file",
+    description = "Modifies an existing file in the root directory with a form-based request as new commit. Returns the created changeset.",
+    hidden = true
+  )
+  @ApiResponse(
+    responseCode = "204",
+    description = "update success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = ChangesetDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"push:repository\" privilege")
+  @ApiResponse(responseCode = "404", description = "not found, this file is not available")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public Response modifyInRoot(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
@@ -235,8 +359,32 @@ public class EditorResource {
    */
   @POST
   @Path("{namespace}/{name}/modify/{path: .*}")
-  @Consumes("application/json")
-  @Produces("application/json")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+    summary = "Modify file",
+    description = "Modifies an existing file with a JSON-based request as new commit. Returns the created changeset.",
+    tags = "Editor Plugin"
+  )
+  @ApiResponse(
+    responseCode = "204",
+    description = "update success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = ChangesetDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"push:repository\" privilege")
+  @ApiResponse(responseCode = "404", description = "not found, this file is not available")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public Response modifyWithJson(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
@@ -288,8 +436,32 @@ public class EditorResource {
    */
   @POST
   @Path("{namespace}/{name}/modify/{path: .*}")
-  @Consumes("multipart/form-data")
-  @Produces("application/json")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+    summary = "Modify file",
+    description = "Modifies an existing file with a form-based request as new commit. Returns the created changeset.",
+    hidden = true
+  )
+  @ApiResponse(
+    responseCode = "204",
+    description = "update success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = ChangesetDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"push:repository\" privilege")
+  @ApiResponse(responseCode = "404", description = "not found, this file is not available")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public Response modify(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
@@ -320,8 +492,31 @@ public class EditorResource {
    */
   @POST
   @Path("{namespace}/{name}/delete/{path: .*}")
-  @Consumes("application/json")
-  @Produces("application/json")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+    summary = "Delete file",
+    description = "Deletes an existing file as new commit. Returns the created changeset.",
+    tags = "Editor Plugin"
+  )
+  @ApiResponse(
+    responseCode = "204",
+    description = "delete success or nothing to be deleted",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = ChangesetDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"push:repository\" privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
   public Response delete(
     @PathParam("namespace") String namespace,
     @PathParam("name") String name,
