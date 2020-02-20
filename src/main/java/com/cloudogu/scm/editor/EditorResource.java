@@ -75,7 +75,7 @@ public class EditorResource {
   @Operation(summary = "Create file in root", description = "Creates a new file in the root directory with a JSON-based request as new commit. Returns the created changeset.", tags = "Editor Plugin")
   @ApiResponse(
     responseCode = "201",
-    description = "create success",
+    description = "create commit success",
     content = @Content(
       mediaType = MediaType.APPLICATION_JSON,
       schema = @Schema(implementation = ChangesetDto.class)
@@ -120,7 +120,7 @@ public class EditorResource {
   )
   @ApiResponse(
     responseCode = "201",
-    description = "create success",
+    description = "create commit success",
     content = @Content(
       mediaType = MediaType.APPLICATION_JSON,
       schema = @Schema(implementation = ChangesetDto.class)
@@ -185,7 +185,7 @@ public class EditorResource {
   )
   @ApiResponse(
     responseCode = "201",
-    description = "create success",
+    description = "create commit success",
     content = @Content(
       mediaType = MediaType.APPLICATION_JSON,
       schema = @Schema(implementation = ChangesetDto.class)
@@ -260,7 +260,7 @@ public class EditorResource {
   )
   @ApiResponse(
     responseCode = "201",
-    description = "create success",
+    description = "create commit success",
     content = @Content(
       mediaType = MediaType.APPLICATION_JSON,
       schema = @Schema(implementation = ChangesetDto.class)
@@ -302,8 +302,8 @@ public class EditorResource {
     hidden = true
   )
   @ApiResponse(
-    responseCode = "204",
-    description = "update success",
+    responseCode = "201",
+    description = "create commit success",
     content = @Content(
       mediaType = MediaType.APPLICATION_JSON,
       schema = @Schema(implementation = ChangesetDto.class)
@@ -367,8 +367,8 @@ public class EditorResource {
     tags = "Editor Plugin"
   )
   @ApiResponse(
-    responseCode = "204",
-    description = "update success",
+    responseCode = "201",
+    description = "create commit success",
     content = @Content(
       mediaType = MediaType.APPLICATION_JSON,
       schema = @Schema(implementation = ChangesetDto.class)
@@ -444,8 +444,8 @@ public class EditorResource {
     hidden = true
   )
   @ApiResponse(
-    responseCode = "204",
-    description = "update success",
+    responseCode = "201",
+    description = "create commit success",
     content = @Content(
       mediaType = MediaType.APPLICATION_JSON,
       schema = @Schema(implementation = ChangesetDto.class)
@@ -500,8 +500,8 @@ public class EditorResource {
     tags = "Editor Plugin"
   )
   @ApiResponse(
-    responseCode = "204",
-    description = "delete success or nothing to be deleted",
+    responseCode = "201",
+    description = "create commit success",
     content = @Content(
       mediaType = MediaType.APPLICATION_JSON,
       schema = @Schema(implementation = ChangesetDto.class)
