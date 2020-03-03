@@ -72,7 +72,12 @@ public class EditorResource {
   @Path("{namespace}/{name}/create")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Create file in root", description = "Creates a new file in the root directory with a JSON-based request as new commit. Returns the created changeset.", tags = "Editor Plugin")
+  @Operation(
+    summary = "Create file in root",
+    description = "Creates a new file in the root directory with a JSON-based request as new commit. Returns the created changeset.",
+    tags = "Editor Plugin",
+    operationId = "editor_create_root_file"
+  )
   @ApiResponse(
     responseCode = "201",
     description = "create commit success",
@@ -181,7 +186,8 @@ public class EditorResource {
   @Operation(
     summary = "Create file",
     description = "Creates a new file in any directory with a JSON-based request as new commit. Returns the created changeset.",
-    tags = "Editor Plugin"
+    tags = "Editor Plugin",
+    operationId = "editor_create_file"
   )
   @ApiResponse(
     responseCode = "201",
@@ -364,7 +370,8 @@ public class EditorResource {
   @Operation(
     summary = "Modify file",
     description = "Modifies an existing file with a JSON-based request as new commit. Returns the created changeset.",
-    tags = "Editor Plugin"
+    tags = "Editor Plugin",
+    operationId = "editor_modify_file"
   )
   @ApiResponse(
     responseCode = "201",
@@ -497,7 +504,8 @@ public class EditorResource {
   @Operation(
     summary = "Delete file",
     description = "Deletes an existing file as new commit. Returns the created changeset.",
-    tags = "Editor Plugin"
+    tags = "Editor Plugin",
+    operationId = "editor_delete_file"
   )
   @ApiResponse(
     responseCode = "201",
