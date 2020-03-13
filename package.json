@@ -1,7 +1,7 @@
 {
   "name": "@scm-manager/scm-editor-plugin",
   "private": true,
-  "version": "2.0.0-SNAPSHOT",
+  "version": "2.0.0-rc3",
   "license": "BSD-3-Clause",
   "main": "./src/main/js/index.ts",
   "scripts": {
@@ -11,11 +11,11 @@
     "postinstall": "ui-plugins postinstall"
   },
   "dependencies": {
-    "@scm-manager/ui-plugins": "2.0.0-rc2",
+    "@scm-manager/ui-plugins": "2.0.0-rc5",
     "react-ace": "^8.0.0",
     "react-dropzone": "^10.1.8",
-    "@scm-manager/ui-components": "^2.0.0-rc2",
-    "@scm-manager/ui-extensions": "^2.0.0-rc2",
+    "@scm-manager/ui-components": "^2.0.0-rc5",
+    "@scm-manager/ui-extensions": "^2.0.0-rc5",
     "classnames": "^2.2.6",
     "query-string": "^5.0.1",
     "react": "^16.10.2",
@@ -38,14 +38,14 @@
     "extends": "@scm-manager/eslint-config"
   },
   "devDependencies": {
-    "@scm-manager/babel-preset": "^2.0.0-rc2",
-    "@scm-manager/eslint-config": "^2.0.0-rc2",
-    "@scm-manager/jest-preset": "^2.0.0-rc2",
-    "@scm-manager/prettier-config": "^2.0.0-rc2",
-    "@scm-manager/tsconfig": "^2.0.0-rc2",
-    "@scm-manager/ui-scripts": "^2.0.0-rc2",
-    "@scm-manager/ui-tests": "^2.0.0-rc2",
-    "@scm-manager/ui-types": "^2.0.0-rc2",
+    "@scm-manager/babel-preset": "^2.0.0-rc5",
+    "@scm-manager/eslint-config": "^2.0.0-rc5",
+    "@scm-manager/jest-preset": "^2.0.0-rc5",
+    "@scm-manager/prettier-config": "^2.0.0-rc5",
+    "@scm-manager/tsconfig": "^2.0.0-rc5",
+    "@scm-manager/ui-scripts": "^2.0.0-rc5",
+    "@scm-manager/ui-tests": "^2.0.0-rc5",
+    "@scm-manager/ui-types": "^2.0.0-rc5",
     "@types/classnames": "^2.2.9",
     "@types/enzyme": "^3.10.3",
     "@types/fetch-mock": "^7.3.1",
