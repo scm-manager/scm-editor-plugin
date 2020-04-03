@@ -46,6 +46,9 @@ type State = {
 };
 
 const StyledAceEditor = styled(AceEditor)`
+  /* ensure same monospace font throughout whole scmm */
+  font-family: "Courier New", Monaco, Menlo, "Ubuntu Mono", "source-code-pro", monospace !important;
+
   .ace_placeholder {
     font-family: inherit;
     transform: scale(1);
