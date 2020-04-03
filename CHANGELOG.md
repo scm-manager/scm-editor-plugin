@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Changed
 - Changeover to MIT license ([#15](https://github.com/scm-manager/scm-editor-plugin/pull/15))
+- Ensure same monospace font-family throughout whole SCM-Manager ([#16](https://github.com/scm-manager/scm-editor-plugin/pull/16))
 
 ## 2.0.0-rc3 - 2020-03-13
 ### Added
