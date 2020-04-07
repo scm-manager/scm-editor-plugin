@@ -112,6 +112,7 @@ class Editor extends Component<Props, State> {
 
     return (
       <StyledAceEditor
+        className="is-family-monospace"
         mode={language}
         theme="arduino-light"
         onChange={onChange}
