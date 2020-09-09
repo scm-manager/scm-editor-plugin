@@ -43,6 +43,7 @@ import { isEditable } from "./isEditable";
 import styled from "styled-components";
 import Editor from "../Editor";
 import findLanguage from "../findLanguage";
+import { ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Header = styled.div`
   background-color: #f5f5f5;
@@ -149,7 +150,7 @@ class FileEdit extends React.Component<Props, State> {
 
   fetchContent = () => {
     apiClient
-      .get(this.state.file._links.self.href)
+      .get((this.state.file?._links.self as Link).href)
       .then(response => {
         response
           .text()
@@ -172,7 +173,7 @@ class FileEdit extends React.Component<Props, State> {
   afterLoading = () => {
     const pathWithFilename = this.props.path;
     const { file, initialLoading, path } = this.state;
-    const parentDirPath = this.isEditMode() ? pathWithFilename.replace(file.name, "") : pathWithFilename;
+    const parentDirPath = this.isEditMode() ? pathWithFilename?.replace(file.name, "") : pathWithFilename;
 
     if (!path) {
       this.setState({
@@ -389,6 +390,13 @@ class FileEdit extends React.Component<Props, State> {
       return <Notification type="danger">{t("scm-editor-plugin.edit.notEditable")}</Notification>;
     }
 
+    const extensionsProps = {
+      repository: this.props.repository,
+      file: this.isEditMode() ? this.props.file : this.state.file,
+      revision: this.props.revision,
+      path: this.isEditMode() ? this.props.path : this.state.path + "/" + this.state.file?.name
+    };
+
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
@@ -414,6 +422,7 @@ class FileEdit extends React.Component<Props, State> {
           />
           <Editor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
         </Border>
+        <ExtensionPoint name="editor.file.hints" renderAll={true} props={extensionsProps} />
         <CommitMessage me={me} commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
         {error && <ErrorNotification error={error} />}
         <div className="level">
