@@ -1,7 +1,7 @@
 {
   "name" : "@scm-manager/scm-editor-plugin",
   "private" : true,
-  "version" : "2.1.1",
+  "version" : "2.2.0-SNAPSHOT",
   "license" : "MIT",
   "main" : "./src/main/js/index.ts",
   "scripts" : {
