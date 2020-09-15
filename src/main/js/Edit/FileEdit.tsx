@@ -202,10 +202,7 @@ class FileEdit extends React.Component<Props, State> {
           reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
         }
 
-        const encodedRevision = revision ? encodeURIComponent(revision) : "";
-
-        const pathDefined = path || "";
-        resolve(`${base}${encodedRevision}/${pathDefined}`);
+        resolve(`${base}${revision}/${path}`);
       }
     });
 
