@@ -28,104 +28,53 @@
   font-weight: 400;
 }
 
-.ace-arduino-light .ace_gutter {
-  background: #f6f6f6;
-  color: #4D4D4C;
-}
-.ace-arduino-light .ace_print-margin {
-  width: 1px;
-  background: #f6f6f6;
-}
-.ace-arduino-light {
-  background-color: #FFFFFF;
-  color: #434f54;
-}
-.ace-arduino-light .ace_cursor {
-  color: #AEAFAD
-}
 .ace-arduino-light .ace_marker-layer .ace_selection {
-  background: #D6D6D6
-}
-.ace-arduino-light.ace_multiselect .ace_selection.ace_start {
-  box-shadow: 0 0 3px 0 #FFFFFF;
-}
-.ace-arduino-light .ace_marker-layer .ace_step {
-  background: rgb(255, 255, 0)
-}
-.ace-arduino-light .ace_marker-layer .ace_bracket {
-  margin: -1px 0 0 -1px;
-  border: 1px solid #D1D1D1
-}
-.ace-arduino-light .ace_marker-layer .ace_active-line {
-  background: #EFEFEF
-}
-.ace-arduino-light .ace_gutter-active-line {
-  background-color : #dcdcdc
-}
-.ace-arduino-light .ace_marker-layer .ace_selected-word {
-  border: 1px solid #D6D6D6
-}
-.ace-arduino-light .ace_invisible {
-  color: #D1D1D1;
+  background: #F5871F;
+  color: white;
 }
 
-.ace-arduino-light .ace_keyword,
+.ace-arduino-light .ace_marker-layer .ace_active-line {
+  background: #f5f5f5
+}
+
 .ace-arduino-light .ace_meta,
-.ace-arduino-light .ace_storage,
-.ace-arduino-light .ace_storage.ace_type,
-.ace-arduino-light .ace_support.ace_type {
-  color: #00979D;
-}
-.ace-arduino-light .ace_keyword.ace_operator {
-  color: #005C5F;
-}
-.ace-arduino-light .ace_constant.ace_character,
-.ace-arduino-light .ace_constant.ace_language,
-.ace-arduino-light .ace_constant.ace_numeric,
-.ace-arduino-light .ace_keyword.ace_other.ace_unit,
-.ace-arduino-light .ace_support.ace_constant,
-.ace-arduino-light .ace_variable.ace_parameter {
-  color: #F5871F
-}
-.ace-arduino-light .ace_constant.ace_other {
-  color: #434f54
-}
-.ace-arduino-light .ace_invalid {
-  color: #FFFFFF;
-  background-color: #C82829
-}
-.ace-arduino-light .ace_invalid.ace_deprecated {
-  color: #FFFFFF;
-  background-color: #8959A8
-}
-.ace-arduino-light .ace_fold {
-  background-color: #434f54;
-  border-color: #4D4D4C
-}
-.ace-arduino-light .ace_entity.ace_name.ace_function,
-.ace-arduino-light .ace_support.ace_function,
-.ace-arduino-light .ace_variable {
-  color: #434f54
-}
-.ace-arduino-light .ace_support.ace_class,
-.ace-arduino-light .ace_support.ace_type {
-  color: #005C5F;
-}
-.ace-arduino-light .ace_heading,
-.ace-arduino-light .ace_markup.ace_heading,
-.ace-arduino-light .ace_string {
-  color: #005C5F;
-}
-.ace-arduino-light .ace_entity.ace_name.ace_tag,
-.ace-arduino-light .ace_entity.ace_other.ace_attribute-name,
 .ace-arduino-light .ace_meta.ace_tag,
-.ace-arduino-light .ace_string.ace_regexp,
-.ace-arduino-light .ace_variable {
-  color: #00979D
-}
 .ace-arduino-light .ace_comment {
-  color: rgba(149,165,166,.8);
+  color: #9a9a9a;
 }
-.ace-arduino-light .ace_indent-guide {
-  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAE0lEQVQImWP4////f4bdu3f/BwAlfgctduB85QAAAABJRU5ErkJggg==) right repeat-y
+
+.ace-arduino-light .ace_constant.ace_character,
+.ace-arduino-light .ace_entity.ace_other.ace_attribute-name,
+.ace-arduino-light .ace_string {
+  color: #cca201;
+}
+
+.ace-arduino-light .ace_keyword.ace_operator {
+  color: #686868;
+}
+
+.ace-arduino-light .ace_variable,
+.ace-arduino-light .ace_keyword {
+  color: #00a984;
+}
+
+.ace-arduino-light .ace_entity.ace_name.ace_function,
+.ace-arduino-light .ace_support.ace_function {
+  color: #ff3860;
+}
+
+.ace-arduino-light .ace_variable,
+.ace-arduino-light .ace_string.ace_regexp {
+  color: #a74eb2;
+}
+
+.ace-arduino-light .ace_constant.ace_other,
+.ace-arduino-light .ace_invalid.ace_deprecated, /* ? */
+.ace-arduino-light .ace_entity.ace_name.ace_tag,
+.ace-arduino-light .ace_constant.ace_numeric {
+  color: #2c99c7;
+}
+
+.ace-arduino-light .ace_constant.ace_language {
+  color: #ff3860; /* or #363636 ? */
 }
