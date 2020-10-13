@@ -22,11 +22,9 @@
  * SOFTWARE.
  */
 import React from "react";
-import { compose } from "redux";
-import { connect } from "react-redux";
-import { withRouter, RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps } from "react-router-dom";
 import { WithTranslation, withTranslation } from "react-i18next";
-import { File, Me, Repository, Link, Changeset } from "@scm-manager/ui-types";
+import { File, Repository, Link, Changeset } from "@scm-manager/ui-types";
 import { apiClient, Button, ButtonGroup, ErrorNotification, Subtitle, Breadcrumb } from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FilePath from "../FileMetaData";
@@ -75,7 +73,6 @@ const Border = styled.div`
 
 type Props = WithTranslation &
   RouteComponentProps & {
-    me?: Me;
     url: string;
     repository: Repository;
     sources: File;
@@ -201,7 +198,7 @@ class FileUpload extends React.Component<Props, State> {
   };
 
   render() {
-    const { repository, revision, me, baseUrl, t } = this.props;
+    const { repository, revision, baseUrl, t } = this.props;
     const { files, path, commitMessage, error, loading } = this.state;
 
     return (
@@ -224,7 +221,7 @@ class FileUpload extends React.Component<Props, State> {
           <FileUploadTable files={files} removeFileEntry={this.removeFileEntry} disabled={loading} />
         )}
         {error && <ErrorNotification error={error} />}
-        <CommitMessage me={me} commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
+        <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
         <br />
         <div className="level">
           <div className="level-left" />
@@ -246,13 +243,4 @@ class FileUpload extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any) => {
-  const { auth } = state;
-  const me = auth.me;
-
-  return {
-    me
-  };
-};
-
-export default compose(withTranslation("plugins"), withRouter, connect(mapStateToProps))(FileUpload);
+export default withTranslation("plugins")(FileUpload);
