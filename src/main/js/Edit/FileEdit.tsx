@@ -34,7 +34,10 @@ import {
   Loading,
   Notification,
   Subtitle,
-  Breadcrumb
+  Breadcrumb,
+  OpenInFullscreenButton,
+  FullscreenModal,
+  Level
 } from "@scm-manager/ui-components";
 import { compose } from "redux";
 import { connect } from "react-redux";
@@ -81,6 +84,10 @@ const Border = styled.div`
   }
 `;
 
+const MarginlessModalContent = styled.div`
+  margin: -1.25rem;
+`;
+
 type FileWithType = File & {
   type?: string;
 };
@@ -110,6 +117,7 @@ type State = {
   language: string;
   contentLength: number;
   isValid?: boolean;
+  showFullscreenModal: boolean;
 };
 
 class FileEdit extends React.Component<Props, State> {
@@ -120,7 +128,8 @@ class FileEdit extends React.Component<Props, State> {
       loading: false,
       path: "",
       file: this.isEditMode() ? null : {},
-      isValid: true
+      isValid: true,
+      showFullscreenModal: false
     };
   }
 
@@ -134,6 +143,18 @@ class FileEdit extends React.Component<Props, State> {
       this.afterLoading();
     }
   }
+
+  openModal = () => {
+    this.setState({
+      showFullscreenModal: true
+    });
+  };
+
+  closeModal = () => {
+    this.setState({
+      showFullscreenModal: false
+    });
+  };
 
   fetchFile = () => {
     this.createFileUrl()
@@ -371,7 +392,8 @@ class FileEdit extends React.Component<Props, State> {
       isValid,
       commitMessage,
       contentType,
-      contentLength
+      contentLength,
+      showFullscreenModal
     } = this.state;
 
     if (initialLoading) {
@@ -394,30 +416,47 @@ class FileEdit extends React.Component<Props, State> {
       path: this.isEditMode() ? this.props.path : this.state.path + "/" + this.state.file?.name
     };
 
+    const body = (
+      <>
+        <Breadcrumb repository={repository} baseUrl={baseUrl} path={this.props.path} revision={revision} />
+        <FileMetaData
+          changePath={this.changePath}
+          path={path}
+          file={file}
+          changeFileName={this.changeFileName}
+          disabled={this.isEditMode() || loading}
+          validate={this.validate}
+          language={language}
+          changeLanguage={this.changeLanguage}
+        />
+        <Editor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
+      </>
+    );
+
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
         <Border>
           {revision && (
             <Header>
-              <span>
-                <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
-                {decodeURIComponent(revision)}
-              </span>
+              <Level
+                left={
+                  <span>
+                    <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
+                    {decodeURIComponent(revision)}
+                  </span>
+                }
+                right={<OpenInFullscreenButton onClick={this.openModal} />}
+              />
             </Header>
           )}
-          <Breadcrumb repository={repository} baseUrl={baseUrl} path={this.props.path} revision={revision} />
-          <FileMetaData
-            changePath={this.changePath}
-            path={path}
-            file={file}
-            changeFileName={this.changeFileName}
-            disabled={this.isEditMode() || loading}
-            validate={this.validate}
-            language={language}
-            changeLanguage={this.changeLanguage}
+          {body}
+          <FullscreenModal
+            title={file?.name}
+            closeFunction={() => this.closeModal()}
+            body={<MarginlessModalContent>{body}</MarginlessModalContent>}
+            active={showFullscreenModal}
           />
-          <Editor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
         </Border>
         <ExtensionPoint name="editor.file.hints" renderAll={true} props={extensionsProps} />
         <CommitMessage me={me} commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
