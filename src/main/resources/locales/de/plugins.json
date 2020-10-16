@@ -46,7 +46,6 @@
       "tooltip": "Neue Datei erstellen"
     },
     "commit": {
-      "author": "Autor",
       "placeholder": "Bitte eine Commit Nachricht eintragen"
     },
     "errors": {
