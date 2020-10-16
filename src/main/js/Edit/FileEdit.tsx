@@ -24,7 +24,7 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 import FileMetaData from "../FileMetaData";
 import {
   apiClient,
@@ -443,4 +443,4 @@ class FileEdit extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation("plugins")(FileEdit);
+export default withRouter(withTranslation("plugins")(FileEdit));

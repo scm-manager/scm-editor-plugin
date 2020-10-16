@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import React from "react";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { File, Repository, Link, Changeset } from "@scm-manager/ui-types";
 import { apiClient, Button, ButtonGroup, ErrorNotification, Subtitle, Breadcrumb } from "@scm-manager/ui-components";
@@ -243,4 +243,4 @@ class FileUpload extends React.Component<Props, State> {
   }
 }
 
-export default withTranslation("plugins")(FileUpload);
+export default withRouter(withTranslation("plugins")(FileUpload));
