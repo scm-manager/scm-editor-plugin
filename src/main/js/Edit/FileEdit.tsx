@@ -144,16 +144,10 @@ class FileEdit extends React.Component<Props, State> {
     }
   }
 
-  openModal = () => {
-    this.setState({
-      showFullscreenModal: true
-    });
-  };
-
-  closeModal = () => {
-    this.setState({
-      showFullscreenModal: false
-    });
+  toggleModal = () => {
+    this.setState(prevState => ({
+      showFullscreenModal: !prevState.showFullscreenModal
+    }));
   };
 
   fetchFile = () => {
@@ -446,14 +440,14 @@ class FileEdit extends React.Component<Props, State> {
                     {decodeURIComponent(revision)}
                   </span>
                 }
-                right={<OpenInFullscreenButton onClick={this.openModal} />}
+                right={<OpenInFullscreenButton onClick={this.toggleModal} />}
               />
             </Header>
           )}
           {body}
           <FullscreenModal
             title={file?.name}
-            closeFunction={() => this.closeModal()}
+            closeFunction={() => this.toggleModal()}
             body={<MarginlessModalContent>{body}</MarginlessModalContent>}
             active={showFullscreenModal}
           />
