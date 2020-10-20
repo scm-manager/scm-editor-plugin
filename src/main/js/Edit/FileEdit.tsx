@@ -34,7 +34,9 @@ import {
   Loading,
   Notification,
   Subtitle,
-  Breadcrumb
+  Breadcrumb,
+  OpenInFullscreenButton,
+  Level
 } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
@@ -77,6 +79,10 @@ const Border = styled.div`
     & .input, .textarea: {
     border-color: #dbdbdb;
   }
+`;
+
+const MarginlessModalContent = styled.div`
+  margin: -1.25rem;
 `;
 
 type FileWithType = File & {
@@ -391,30 +397,46 @@ class FileEdit extends React.Component<Props, State> {
       path: this.isEditMode() ? this.props.path : this.state.path + "/" + this.state.file?.name
     };
 
+    const body = (
+      <>
+        <Breadcrumb repository={repository} baseUrl={baseUrl} path={this.props.path} revision={revision} />
+        <FileMetaData
+          changePath={this.changePath}
+          path={path}
+          file={file}
+          changeFileName={this.changeFileName}
+          disabled={this.isEditMode() || loading}
+          validate={this.validate}
+          language={language}
+          changeLanguage={this.changeLanguage}
+        />
+        <Editor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
+      </>
+    );
+
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
         <Border>
           {revision && (
             <Header>
-              <span>
-                <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
-                {decodeURIComponent(revision)}
-              </span>
+              <Level
+                left={
+                  <span>
+                    <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
+                    {decodeURIComponent(revision)}
+                  </span>
+                }
+                right={
+                  <OpenInFullscreenButton
+                    modalTitle={file?.name}
+                    modalBody={<MarginlessModalContent>{body}</MarginlessModalContent>}
+                  />
+                }
+              />
             </Header>
           )}
-          <Breadcrumb repository={repository} baseUrl={baseUrl} path={this.props.path} revision={revision} />
-          <FileMetaData
-            changePath={this.changePath}
-            path={path}
-            file={file}
-            changeFileName={this.changeFileName}
-            disabled={this.isEditMode() || loading}
-            validate={this.validate}
-            language={language}
-            changeLanguage={this.changeLanguage}
-          />
-          <Editor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
+          {body}
         </Border>
         <ExtensionPoint name="editor.file.hints" renderAll={true} props={extensionsProps} />
         <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
