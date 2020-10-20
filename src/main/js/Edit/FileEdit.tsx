@@ -23,7 +23,7 @@
  */
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
-import { Changeset, File, Link, Me, Repository } from "@scm-manager/ui-types";
+import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import FileMetaData from "../FileMetaData";
 import {
@@ -39,8 +39,6 @@ import {
   FullscreenModal,
   Level
 } from "@scm-manager/ui-components";
-import { compose } from "redux";
-import { connect } from "react-redux";
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
 import styled from "styled-components";
@@ -95,7 +93,6 @@ type FileWithType = File & {
 type Props = WithTranslation &
   RouteComponentProps & {
     repository: Repository;
-    me: Me;
     extension: string;
     revision?: string;
     path?: string;
@@ -374,7 +371,7 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   render() {
-    const { revision, t, me, repository, baseUrl } = this.props;
+    const { revision, t, repository, baseUrl } = this.props;
     const {
       path,
       file,
@@ -453,7 +450,7 @@ class FileEdit extends React.Component<Props, State> {
           />
         </Border>
         <ExtensionPoint name="editor.file.hints" renderAll={true} props={extensionsProps} />
-        <CommitMessage me={me} commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
+        <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
         {error && <ErrorNotification error={error} />}
         <div className="level">
           <div className="level-left" />
@@ -479,13 +476,4 @@ class FileEdit extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any) => {
-  const { auth } = state;
-  const me = auth.me;
-
-  return {
-    me
-  };
-};
-
-export default compose(withRouter, connect(mapStateToProps), withTranslation("plugins"))(FileEdit);
+export default withRouter(withTranslation("plugins")(FileEdit));
