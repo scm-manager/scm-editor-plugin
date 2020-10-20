@@ -36,7 +36,6 @@ import {
   Subtitle,
   Breadcrumb,
   OpenInFullscreenButton,
-  FullscreenModal,
   Level
 } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
@@ -114,7 +113,6 @@ type State = {
   language: string;
   contentLength: number;
   isValid?: boolean;
-  showFullscreenModal: boolean;
 };
 
 class FileEdit extends React.Component<Props, State> {
@@ -125,8 +123,7 @@ class FileEdit extends React.Component<Props, State> {
       loading: false,
       path: "",
       file: this.isEditMode() ? null : {},
-      isValid: true,
-      showFullscreenModal: false
+      isValid: true
     };
   }
 
@@ -140,12 +137,6 @@ class FileEdit extends React.Component<Props, State> {
       this.afterLoading();
     }
   }
-
-  toggleModal = () => {
-    this.setState(prevState => ({
-      showFullscreenModal: !prevState.showFullscreenModal
-    }));
-  };
 
   fetchFile = () => {
     this.createFileUrl()
@@ -383,8 +374,7 @@ class FileEdit extends React.Component<Props, State> {
       isValid,
       commitMessage,
       contentType,
-      contentLength,
-      showFullscreenModal
+      contentLength
     } = this.state;
 
     if (initialLoading) {
@@ -437,17 +427,16 @@ class FileEdit extends React.Component<Props, State> {
                     {decodeURIComponent(revision)}
                   </span>
                 }
-                right={<OpenInFullscreenButton onClick={this.toggleModal} />}
+                right={
+                  <OpenInFullscreenButton
+                    modalTitle={file?.name}
+                    modalBody={<MarginlessModalContent>{body}</MarginlessModalContent>}
+                  />
+                }
               />
             </Header>
           )}
           {body}
-          <FullscreenModal
-            title={file?.name}
-            closeFunction={() => this.toggleModal()}
-            body={<MarginlessModalContent>{body}</MarginlessModalContent>}
-            active={showFullscreenModal}
-          />
         </Border>
         <ExtensionPoint name="editor.file.hints" renderAll={true} props={extensionsProps} />
         <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
