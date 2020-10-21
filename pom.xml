@@ -91,6 +91,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>sonia.scm.plugins</groupId>
+      <artifactId>scm-code-editor-plugin</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+
   </dependencies>
 
   <repositories>
