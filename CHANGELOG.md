@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Source code fullscreen view ([#23](https://github.com/scm-manager/scm-editor-plugin/pull/23))
 
+### Changed
+- Use scm-code-editor-plugin for syntax highlighting ([#24](https://github.com/scm-manager/scm-editor-plugin/pull/24))
+
 ### Fixed
 - Committing without an email address ([#22](https://github.com/scm-manager/scm-editor-plugin/pull/22))
 
