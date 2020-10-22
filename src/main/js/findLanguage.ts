@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import languages from "./languages";
+import { languages } from "@scm-manager/scm-code-editor-plugin";
 
 export const defaultLanguage = "text";
 
