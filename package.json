@@ -14,7 +14,7 @@
     "react-dropzone": "^10.1.8",
     "@scm-manager/ui-components": "^2.8.0-20200922-060527",
     "@scm-manager/ui-extensions": "^2.8.0-20200922-060527",
-    "@scm-manager/scm-code-editor-plugin": "1.0.0-20200922-071613",
+    "@scm-manager/scm-code-editor-plugin": "1.0.0-20200922-094155",
     "classnames": "^2.2.6",
     "query-string": "^5.0.1",
     "react": "^16.10.2",

@@ -42,7 +42,7 @@ import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
 import styled from "styled-components";
 import { CodeEditor } from "@scm-manager/scm-code-editor-plugin";
-import findLanguage from "../findLanguage";
+import { findLanguage } from "@scm-manager/scm-code-editor-plugin";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Header = styled.div`
