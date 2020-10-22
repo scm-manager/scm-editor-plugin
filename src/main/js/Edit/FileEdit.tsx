@@ -23,7 +23,7 @@
  */
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
-import { Changeset, File, Link, Me, Repository } from "@scm-manager/ui-types";
+import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import FileMetaData from "../FileMetaData";
 import {
@@ -34,15 +34,14 @@ import {
   Loading,
   Notification,
   Subtitle,
-  Breadcrumb
+  Breadcrumb,
+  OpenInFullscreenButton,
+  Level
 } from "@scm-manager/ui-components";
-import { compose } from "redux";
-import { connect } from "react-redux";
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
 import styled from "styled-components";
-import { CodeEditor } from "@scm-manager/scm-code-editor-plugin";
-import { findLanguage } from "@scm-manager/scm-code-editor-plugin";
+import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Header = styled.div`
@@ -81,6 +80,10 @@ const Border = styled.div`
   }
 `;
 
+const MarginlessModalContent = styled.div`
+  margin: -1.25rem;
+`;
+
 type FileWithType = File & {
   type?: string;
 };
@@ -88,7 +91,6 @@ type FileWithType = File & {
 type Props = WithTranslation &
   RouteComponentProps & {
     repository: Repository;
-    me: Me;
     extension: string;
     revision?: string;
     path?: string;
@@ -359,7 +361,7 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   render() {
-    const { revision, t, me, repository, baseUrl } = this.props;
+    const { revision, t, repository, baseUrl } = this.props;
     const {
       path,
       file,
@@ -394,33 +396,49 @@ class FileEdit extends React.Component<Props, State> {
       path: this.isEditMode() ? this.props.path : this.state.path + "/" + this.state.file?.name
     };
 
+    const body = (
+      <>
+        <Breadcrumb repository={repository} baseUrl={baseUrl} path={this.props.path} revision={revision} />
+        <FileMetaData
+          changePath={this.changePath}
+          path={path}
+          file={file}
+          changeFileName={this.changeFileName}
+          disabled={this.isEditMode() || loading}
+          validate={this.validate}
+          language={language}
+          changeLanguage={this.changeLanguage}
+        />
+        <CodeEditor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
+      </>
+    );
+
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
         <Border>
           {revision && (
             <Header>
-              <span>
-                <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
-                {decodeURIComponent(revision)}
-              </span>
+              <Level
+                left={
+                  <span>
+                    <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
+                    {decodeURIComponent(revision)}
+                  </span>
+                }
+                right={
+                  <OpenInFullscreenButton
+                    modalTitle={file?.name}
+                    modalBody={<MarginlessModalContent>{body}</MarginlessModalContent>}
+                  />
+                }
+              />
             </Header>
           )}
-          <Breadcrumb repository={repository} baseUrl={baseUrl} path={this.props.path} revision={revision} />
-          <FileMetaData
-            changePath={this.changePath}
-            path={path}
-            file={file}
-            changeFileName={this.changeFileName}
-            disabled={this.isEditMode() || loading}
-            validate={this.validate}
-            language={language}
-            changeLanguage={this.changeLanguage}
-          />
-          <CodeEditor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
+          {body}
         </Border>
         <ExtensionPoint name="editor.file.hints" renderAll={true} props={extensionsProps} />
-        <CommitMessage me={me} commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
+        <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
         {error && <ErrorNotification error={error} />}
         <div className="level">
           <div className="level-left" />
@@ -446,13 +464,4 @@ class FileEdit extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: any) => {
-  const { auth } = state;
-  const me = auth.me;
-
-  return {
-    me
-  };
-};
-
-export default compose(withRouter, connect(mapStateToProps), withTranslation("plugins"))(FileEdit);
+export default withRouter(withTranslation("plugins")(FileEdit));

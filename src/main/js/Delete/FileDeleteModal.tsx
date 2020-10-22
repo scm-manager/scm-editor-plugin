@@ -31,7 +31,6 @@ import { File, Me } from "@scm-manager/ui-types";
 
 type Props = WithTranslation & {
   file: File;
-  me?: Me;
   onCommit: (p: string) => void;
   onClose: () => void;
   loading: boolean;
@@ -56,12 +55,11 @@ class FileRemoveModal extends React.Component<Props, State> {
   };
 
   render() {
-    const { onCommit, onClose, loading, me, t } = this.props;
+    const { onCommit, onClose, loading, t } = this.props;
     const { commitMessage } = this.state;
 
     const body = (
       <CommitMessage
-        me={me}
         commitMessage={this.state.commitMessage}
         onChange={this.changeCommitMessage}
         disabled={loading}
@@ -99,16 +97,4 @@ class FileRemoveModal extends React.Component<Props, State> {
   }
 }
 
-const mapStateToProps = state => {
-  const { auth } = state;
-  const me = auth.me;
-
-  return {
-    me
-  };
-};
-
-export default compose(
-  withTranslation("plugins"),
-  connect(mapStateToProps)
-)(FileRemoveModal);
+export default withTranslation("plugins")(FileRemoveModal);
