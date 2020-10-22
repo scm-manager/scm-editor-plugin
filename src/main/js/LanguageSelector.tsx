@@ -23,7 +23,7 @@
  */
 import React, {FC, useState} from "react";
 import {Select} from "@scm-manager/ui-components";
-import languages from "./languages";
+import { languages } from "@scm-manager/scm-code-editor-plugin";
 
 const languageSelectItems = languages.map(lang => {
   return {

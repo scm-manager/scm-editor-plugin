@@ -41,8 +41,7 @@ import {
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
 import styled from "styled-components";
-import Editor from "../Editor";
-import findLanguage from "../findLanguage";
+import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Header = styled.div`
@@ -410,7 +409,7 @@ class FileEdit extends React.Component<Props, State> {
           language={language}
           changeLanguage={this.changeLanguage}
         />
-        <Editor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
+        <CodeEditor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
       </>
     );
 
