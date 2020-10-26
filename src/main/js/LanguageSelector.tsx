@@ -21,15 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, {FC, useState} from "react";
-import {Select} from "@scm-manager/ui-components";
+import React, { FC, useEffect, useState } from "react";
+import { Select } from "@scm-manager/ui-components";
 import { languages } from "@scm-manager/scm-code-editor-plugin";
 
 const languageSelectItems = languages.map(lang => {
   return {
     value: lang,
     label: lang
-  }
+  };
 });
 
 type Props = {
@@ -38,20 +38,18 @@ type Props = {
   onChange: (language: string) => void;
 };
 
-const LanguageSelector: FC<Props> = ({disabled, selected = "text", onChange}) => {
+const LanguageSelector: FC<Props> = ({ disabled, selected = "text", onChange }) => {
   const [language, setLanguage] = useState(selected);
+  useEffect(() => {
+    setLanguage(selected);
+  }, [selected]);
+
   const changeLanguage = (lang: string) => {
     setLanguage(lang);
     onChange(lang);
   };
 
-  return (
-  <Select
-    disabled={disabled}
-    options={languageSelectItems}
-    value={language}
-    onChange={changeLanguage}
-  />
-)};
+  return <Select disabled={disabled} options={languageSelectItems} value={language} onChange={changeLanguage} />;
+};
 
 export default LanguageSelector;
