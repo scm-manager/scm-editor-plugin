@@ -41,7 +41,6 @@ dependencies {
 scmPlugin {
   scmVersion = "2.8.0"
 
-  version = "2.3.0-SNAPSHOT"
   displayName = "Editor"
   description = "Creates, edits and deletes Files"
   author = "Cloudogu GmbH"
