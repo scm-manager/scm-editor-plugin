@@ -65,7 +65,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.http.HttpStatus.SC_CREATED;
+import static javax.ws.rs.core.Response.Status.CREATED;
 
 @OpenAPIDefinition(tags = {
   @Tag(name = "Editor Plugin", description = "Editor plugin provided endpoints")
@@ -128,7 +128,7 @@ public class EditorResource {
       fileUploader.create(fileCommit.getFileName(), new ByteArrayInputStream(fileCommit.getFileContent().getBytes(UTF_8)));
       Changeset newCommit = fileUploader.done();
       ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
-      return Response.status(SC_CREATED).entity(newCommitDto).build();
+      return Response.status(CREATED).entity(newCommitDto).build();
     }
   }
 
@@ -240,7 +240,7 @@ public class EditorResource {
       fileUploader.create(fileCommit.getFileName(), new ByteArrayInputStream(fileCommit.getFileContent().getBytes(UTF_8)));
       Changeset newCommit = fileUploader.done();
       ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
-      return Response.status(SC_CREATED).entity(newCommitDto).build();
+      return Response.status(CREATED).entity(newCommitDto).build();
     }
   }
 
@@ -313,7 +313,7 @@ public class EditorResource {
   ) throws IOException {
     Changeset newCommit = processFiles(namespace, name, path, input, EditorService.FileUploader::create);
     ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
-    return Response.status(SC_CREATED).entity(newCommitDto).build();
+    return Response.status(CREATED).entity(newCommitDto).build();
   }
 
   /**
@@ -426,7 +426,7 @@ public class EditorResource {
       fileUploader.modify(pathAndFileName[1], new ByteArrayInputStream(fileCommit.getFileContent().getBytes(UTF_8)));
       Changeset newCommit = fileUploader.done();
       ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
-      return Response.status(SC_CREATED).entity(newCommitDto).build();
+      return Response.status(CREATED).entity(newCommitDto).build();
     }
   }
 
@@ -500,7 +500,7 @@ public class EditorResource {
   ) throws IOException {
     Changeset newCommit = processFiles(namespace, name, path, input, EditorService.FileUploader::modify);
     ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
-    return Response.status(SC_CREATED).entity(newCommitDto).build();
+    return Response.status(CREATED).entity(newCommitDto).build();
   }
 
   /**
@@ -563,7 +563,7 @@ public class EditorResource {
         commit.getCommitMessage(),
         commit.getExpectedRevision());
     ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
-    return Response.status(SC_CREATED).entity(newCommitDto).build();
+    return Response.status(CREATED).entity(newCommitDto).build();
   }
 
   private String[] extractFileName(String path) {
