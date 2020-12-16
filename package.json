@@ -39,7 +39,7 @@
   "devDependencies": {
     "@scm-manager/babel-preset": "^2.8.0",
     "@scm-manager/eslint-config": "^2.8.0",
-    "@scm-manager/jest-preset": "^2.8.0",
+    "@scm-manager/jest-preset": "^2.12.3",
     "@scm-manager/prettier-config": "^2.8.0",
     "@scm-manager/tsconfig": "^2.8.0",
     "@scm-manager/ui-scripts": "^2.8.0",
