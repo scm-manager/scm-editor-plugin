@@ -7,7 +7,8 @@
   "scripts": {
     "build": "plugin-scripts build",
     "watch": "plugin-scripts watch",
-    "postinstall": "plugin-scripts postinstall"
+    "postinstall": "plugin-scripts postinstall",
+    "e2e": "node ./node_modules/.bin/integration-test-runner run -u scmadmin -p scmadmin -o -d ./src/test/e2e"
   },
   "dependencies": {
     "@scm-manager/ui-plugins": "2.8.0",
@@ -46,6 +47,7 @@
     "@scm-manager/ui-tests": "^2.8.0",
     "@scm-manager/ui-types": "^2.8.0",
     "@scm-manager/plugin-scripts": "1.0.0",
+    "@scm-manager/integration-test-runner": "^1.2.0",
     "@types/classnames": "^2.2.9",
     "@types/enzyme": "^3.10.3",
     "@types/fetch-mock": "^7.3.1",
