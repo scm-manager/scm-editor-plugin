@@ -2047,10 +2047,10 @@
     redux "^4.0.0"
     styled-components "^5.1.0"
 
-"@scm-manager/tsconfig@^2.8.0":
-  version "2.8.0"
-  resolved "https://registry.yarnpkg.com/@scm-manager/tsconfig/-/tsconfig-2.8.0.tgz#0a56d7abf745d09e2211ed56e78aa0e0a6d7581e"
-  integrity sha512-6qKa1/kOjW9njlI/0ek2JQ2PzG/5D+Ai6F20nl1ok3sI0nV/GGmD8+AEbxlqk09pnwRabEsu+eTTozZIQ3/iig==
+"@scm-manager/tsconfig@^2.12.0-20201109-093624":
+  version "2.12.0-20201109-093624"
+  resolved "https://registry.yarnpkg.com/@scm-manager/tsconfig/-/tsconfig-2.12.0-20201109-093624.tgz#909299c66a16fdacdee299da91f7fd4755427eff"
+  integrity sha512-jzGk8rkV7hjWSa4JNbmouiR/878bdIpz8KLRSyD+GuPuzPlpqDdC1iob/RQKeRXENQQUGxfBdTF2cBP9B7elXQ==
   dependencies:
     typescript "^3.7.2"
 
@@ -7189,6 +7189,13 @@ https-browserify@^1.0.0:
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-1.0.0.tgz#ec06c10e0a34c0f2faf199f7fd7fc78fffd03c73"
   integrity sha1-7AbBDgo0wPL68Zn3/X/Hj//QPHM=
 
+human-readable-ids@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/human-readable-ids/-/human-readable-ids-1.0.4.tgz#41b3a2a6966636e104e41e0673b984b36dfde202"
+  integrity sha512-h1zwThTims8A/SpqFGWyTx+jG1+WRMJaEeZgbtPGrIpj2AZjsOgy8Y+iNzJ0yAyN669Q6F02EK66WMWcst+2FA==
+  dependencies:
+    knuth-shuffle "^1.0.0"
+
 human-signals@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-1.1.1.tgz#c5b1cd14f50aeae09ab6c59fe63ba3395fe4dfa3"
@@ -8912,6 +8919,11 @@ knuth-shuffle-seeded@^1.0.6:
   integrity sha1-AfG2VzOqdUDuCNiwF0Fk0iCB5OE=
   dependencies:
     seed-random "~2.2.0"
+
+knuth-shuffle@^1.0.0:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/knuth-shuffle/-/knuth-shuffle-1.0.8.tgz#929a467b0efd8d297bdcf318ca988a9f1037f80d"
+  integrity sha512-IdC4Hpp+mx53zTt6VAGsAtbGM0g4BV9fP8tTcviCosSwocHcRDw9uG5Rnv6wLWckF4r72qeXFoK9NkvV1gUJCQ==
 
 koa-compose@^3.0.0:
   version "3.2.1"

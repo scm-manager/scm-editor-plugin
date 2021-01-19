@@ -22,4 +22,26 @@
  * SOFTWARE.
  */
 
+// @ts-ignore
 export * from "@scm-manager/integration-test-runner/steps";
+// @ts-ignore
+import { hri } from "human-readable-ids";
+
+When("User creates a new file", function () {
+  const newFilePath = "foo/bar";
+  const newFileName = hri.random();
+  const newFileCommitMessage = hri.random();
+  cy.visit(`/repo/${this.repository.namespace}/${this.repository.name}/code/sourceext/create/master`);
+  cy.byTestId("create-file-path-input").type(newFilePath);
+  cy.byTestId("create-file-name-input").type(newFileName);
+  cy.get("div.control textarea.textarea").type(newFileCommitMessage);
+  cy.byTestId("create-file-commit-button").click();
+  this.file = {
+    path: newFilePath,
+    name: newFileName
+  }
+});
+
+Then("The created file is displayed", function () {
+  cy.url().should("include", this.file.name).and("include", this.repository.namespace).and("include", this.repository.name);
+});
