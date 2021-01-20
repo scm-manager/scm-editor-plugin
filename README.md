@@ -47,7 +47,7 @@ A quick look at the files and directories you'll see in a SCM-Manager project.
     ├── .editorconfig
     ├── .gitignore
     ├── CHANGELOG.md
-    ├── LICENSE
+    ├── LICENSE.txt
     ├── package.json
     ├── README.md
     ├── tsconfig.json
@@ -77,7 +77,7 @@ A quick look at the files and directories you'll see in a SCM-Manager project.
 
 8.  **`gradle.properties`**: Plugin-specific Gradle configuration properties, such as version
 
-9.  **`LICENSE`**: This project is licensed under the MIT license.
+9.  **`LICENSE.txt`**: This project is licensed under the MIT license.
 
 10.  **`package.json`**: Here you can find the dependency/build configuration and dependencies for the frontend.
 
