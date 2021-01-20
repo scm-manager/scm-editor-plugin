@@ -27,6 +27,7 @@ import { WithTranslation, withTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { createSourceExtensionUrl } from "../links";
+import {createAttributesForTesting} from "@scm-manager/ui-components";
 
 const Button = styled.span`
   width: 50px;
@@ -56,7 +57,7 @@ class FileUploadButton extends React.Component<Props> {
       <>
         {sources && sources._links.upload && (
           <Link to={this.createUploadUrl()}>
-            <Button title={t("scm-editor-plugin.upload.tooltip")} className="button">
+            <Button title={t("scm-editor-plugin.upload.tooltip")} className="button" {...createAttributesForTesting("upload-file-button")}>
               <i className="fas fa-upload" />
             </Button>
           </Link>
