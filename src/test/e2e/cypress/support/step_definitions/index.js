@@ -27,6 +27,20 @@ export * from "@scm-manager/integration-test-runner/steps";
 // @ts-ignore
 import {hri} from "human-readable-ids";
 
+When("User deletes file", function () {
+  const newFileCommitMessage = hri.random();
+
+  cy.visit(`/repo/${this.repository.namespace}/${this.repository.name}/code/sources/main/README.md`);
+  cy.byTestId("delete-file-button").click();
+  cy.get("div.control textarea.textarea").type(newFileCommitMessage);
+  cy.byTestId("delete-file-commit-button").click();
+  cy.wait(500);
+});
+
+When("User visits code view of a file in repository", function() {
+  cy.visit(`/repo/${this.repository.namespace}/${this.repository.name}/code/sources/main/README.md`);
+});
+
 When("User creates a new file", function () {
   const that = this;
   cy.fixture("foo.txt").then(function (newFileContent) {
@@ -114,6 +128,10 @@ Then("The folder containing the uploaded file is displayed", function () {
   cy.contains(this.file.name);
 });
 
+Then("The file does not exist anymore", function() {
+  cy.contains(this.file.name).should("not.exist");
+});
+
 Then("The folder containing the uploaded files is displayed", function () {
   cy.url().should("include", this.files[0].path).and("include", this.repository.namespace).and("include", this.repository.name);
   this.files.forEach(file => cy.contains(file.name))
@@ -133,4 +151,12 @@ Then("There is a create file button", function () {
 
 Then("There is an upload file button", function () {
   cy.byTestId("upload-file-button");
+});
+
+Then("There is a delete file button", function () {
+  cy.byTestId("delete-file-button");
+});
+
+Then("There is no delete file button", function () {
+  cy.containsNotByTestId("span", "delete-file-button");
 });
