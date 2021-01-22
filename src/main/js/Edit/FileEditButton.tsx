@@ -25,7 +25,7 @@ import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { File, Repository, Link } from "@scm-manager/ui-types";
 import { withRouter, RouteComponentProps } from "react-router-dom";
-import { apiClient } from "@scm-manager/ui-components";
+import {apiClient, createAttributesForTesting} from "@scm-manager/ui-components";
 import { isEditable } from "./isEditable";
 import styled from "styled-components";
 import { createSourceExtensionUrl } from "../links";
@@ -92,7 +92,7 @@ class FileEditButton extends React.Component<Props, State> {
     return (
       <>
         {this.shouldRender() && (
-          <Button title={t("scm-editor-plugin.edit.tooltip")} className="button" onClick={() => this.pushToEditPage()}>
+          <Button title={t("scm-editor-plugin.edit.tooltip")} className="button" onClick={() => this.pushToEditPage()} {...createAttributesForTesting("edit-file-button")}>
             <i className="fas fa-edit" />
           </Button>
         )}

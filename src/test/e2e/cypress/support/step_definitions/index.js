@@ -41,6 +41,23 @@ When("User visits code view of a file in repository", function() {
   cy.visit(`/repo/${this.repository.namespace}/${this.repository.name}/code/sources/main/README.md`);
 });
 
+When("User edits file", function () {
+  const commitMessage = hri.random();
+  const newContent = hri.random();
+
+  cy.visit(`/repo/${this.repository.namespace}/${this.repository.name}/code/sources/main/README.md`);
+  cy.byTestId("edit-file-button").click();
+  cy.get("textarea.ace_text-input").type(newContent, {force: true});
+  cy.get("div.control textarea.textarea").type(commitMessage);
+  cy.byTestId("create-file-commit-button").click();
+  this.file = {
+    path: "",
+    name: "README.md",
+    content: newContent
+  };
+  cy.wait(500);
+});
+
 When("User creates a new file", function () {
   const that = this;
   cy.fixture("foo.txt").then(function (newFileContent) {
@@ -123,6 +140,12 @@ Then("The created file is displayed", function () {
   cy.contains(this.file.content);
 });
 
+Then("The updated file is displayed", function(){
+  cy.url().should("include", this.file.name).and("include", this.repository.namespace).and("include", this.repository.name);
+  cy.contains(this.file.name);
+  cy.contains(this.file.content);
+});
+
 Then("The folder containing the uploaded file is displayed", function () {
   cy.url().should("include", this.file.path).and("include", this.repository.namespace).and("include", this.repository.name);
   cy.contains(this.file.name);
@@ -159,4 +182,8 @@ Then("There is a delete file button", function () {
 
 Then("There is no delete file button", function () {
   cy.containsNotByTestId("span", "delete-file-button");
+});
+
+Then("There is no edit file button", function () {
+  cy.containsNotByTestId("span", "edit-file-button");
 });
