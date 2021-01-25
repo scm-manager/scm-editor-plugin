@@ -52,9 +52,5 @@ scmPlugin {
     ]
   }
 
-  run {
-    warFile = "/home/kschaper/git-projects/cloudogu/scm-manager/scm-webapp/build/libs/scm-webapp-2.13.0-SNAPSHOT.war"
-  }
-
 }
 
