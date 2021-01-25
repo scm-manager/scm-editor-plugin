@@ -1,4 +1,4 @@
-Feature: Delete Files
+Feature: Edit Files
 
   Background:
     Given User is authenticated
