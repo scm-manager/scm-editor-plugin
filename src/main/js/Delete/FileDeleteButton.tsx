@@ -25,7 +25,7 @@ import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { File, Link } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
-import {apiClient, createAttributesForTesting} from "@scm-manager/ui-components";
+import { apiClient, createAttributesForTesting } from "@scm-manager/ui-components";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
 
@@ -120,7 +120,12 @@ class FileDeleteButton extends React.Component<Props, State> {
       <>
         <Pointer>{modal}</Pointer>
         {this.shouldRender() && (
-          <Button title={t("scm-editor-plugin.delete.tooltip")} className="button" onClick={this.toggleModal} {...createAttributesForTesting("delete-file-button")}>
+          <Button
+            title={t("scm-editor-plugin.delete.tooltip")}
+            className="button"
+            onClick={this.toggleModal}
+            {...createAttributesForTesting("delete-file-button")}
+          >
             <i className="fas fa-trash" />
           </Button>
         )}
