@@ -23,6 +23,7 @@
  */
 import React from "react";
 import { File, Repository } from "@scm-manager/ui-types";
+import { createAttributesForTesting } from "@scm-manager/ui-components";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -56,7 +57,11 @@ class FileCreateButton extends React.Component<Props> {
       <>
         {sources && sources._links.upload && (
           <Link to={this.createCreateUrl()}>
-            <Button title={t("scm-editor-plugin.create.tooltip")} className="button">
+            <Button
+              title={t("scm-editor-plugin.create.tooltip")}
+              className="button"
+              {...createAttributesForTesting("create-file-button")}
+            >
               <i className="fas fa-file-medical" />
             </Button>
           </Link>

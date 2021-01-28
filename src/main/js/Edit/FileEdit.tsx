@@ -455,6 +455,7 @@ class FileEdit extends React.Component<Props, State> {
                 disabled={!commitMessage || !isValid || !file.name}
                 action={this.commitFile}
                 loading={loading}
+                testId="create-file-commit-button"
               />
             </ButtonGroup>
           </div>

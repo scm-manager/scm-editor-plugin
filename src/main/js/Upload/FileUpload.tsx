@@ -234,6 +234,7 @@ class FileUpload extends React.Component<Props, State> {
                 disabled={!commitMessage || files.length === 0}
                 action={this.commitFile}
                 loading={loading}
+                testId="upload-file-commit-button"
               />
             </ButtonGroup>
           </div>

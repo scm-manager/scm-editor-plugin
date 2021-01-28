@@ -159,6 +159,7 @@ class FileMetaData extends React.Component<Props, State> {
                   errorMessage={t("scm-editor-plugin.validation.pathInvalid")}
                   placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.path")}
                   onChange={value => this.changePath(value)}
+                  testId="create-file-path-input"
                 />
               </InputBorder>
             </NoBottomMargin>
@@ -175,6 +176,7 @@ class FileMetaData extends React.Component<Props, State> {
                     errorMessage={t("scm-editor-plugin.validation.filenameInvalid")}
                     placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.filename")}
                     onChange={value => this.changeFileName(value)}
+                    testId="create-file-name-input"
                   />
                 </InputBorder>
               </AlignItemNormal>

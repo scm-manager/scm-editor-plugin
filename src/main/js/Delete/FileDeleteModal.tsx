@@ -81,6 +81,7 @@ class FileRemoveModal extends React.Component<Props, State> {
           disabled={!commitMessage}
           loading={loading}
           action={() => onCommit(this.state.commitMessage)}
+          testId={"delete-file-commit-button"}
         />
       </ButtonGroup>
     );
