@@ -8,7 +8,6 @@ When("User deletes file", { timeout: 10000 }, function() {
   cy.byTestId("delete-file-button").click();
   cy.get("div.control textarea.textarea").type(newFileCommitMessage);
   cy.byTestId("delete-file-commit-button").click();
-  cy.wait(500);
 });
 
 When("User visits code view of a file in repository", function() {
@@ -29,7 +28,6 @@ When("User edits file", { timeout: 10000 }, function() {
     name: "README.md",
     content: newContent
   };
-  cy.wait(500);
 });
 
 When("User creates a new file", { timeout: 10000 }, function() {
@@ -162,7 +160,7 @@ Then("There is an upload file button", function() {
   cy.byTestId("upload-file-button");
 });
 
-Then("There is a delete file button", function() {
+Then("There is a delete file button", { timeout: 10000 }, function() {
   cy.byTestId("delete-file-button");
 });
 
