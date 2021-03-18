@@ -1,7 +1,7 @@
 // @ts-ignore
 import { hri } from "human-readable-ids";
 
-When("User deletes file", function() {
+When("User deletes file", { timeout: 10000 }, function() {
   const newFileCommitMessage = hri.random();
 
   cy.visit(`/repo/${this.repository.namespace}/${this.repository.name}/code/sources/main/README.md`);
@@ -15,7 +15,7 @@ When("User visits code view of a file in repository", function() {
   cy.visit(`/repo/${this.repository.namespace}/${this.repository.name}/code/sources/main/README.md`);
 });
 
-When("User edits file", function() {
+When("User edits file", { timeout: 10000 }, function() {
   const commitMessage = hri.random();
   const newContent = hri.random();
 
@@ -32,7 +32,7 @@ When("User edits file", function() {
   cy.wait(500);
 });
 
-When("User creates a new file", function() {
+When("User creates a new file", { timeout: 10000 }, function() {
   const that = this;
   cy.fixture("foo.txt").then(function(newFileContent) {
     const newFilePath = "foo/bar";
@@ -53,7 +53,7 @@ When("User creates a new file", function() {
   });
 });
 
-When("User uploads a new file", function() {
+When("User uploads a new file", { timeout: 10000 }, function() {
   const that = this;
   cy.fixture("foo.txt").then(function(newFileContent) {
     const newFilePath = "foo/bar";
@@ -77,7 +77,7 @@ When("User uploads a new file", function() {
   });
 });
 
-When("User uploads multiple new files", function() {
+When("User uploads multiple new files", { timeout: 10000 }, function() {
   const that = this;
   cy.fixture("foo.txt").then(fileContentA => {
     cy.fixture("bar.txt").then(fileContentB => {
@@ -108,7 +108,7 @@ When("User uploads multiple new files", function() {
   });
 });
 
-Then("The created file is displayed", function() {
+Then("The created file is displayed", { timeout: 10000 }, function() {
   cy.url()
     .should("include", this.file.name)
     .and("include", this.repository.namespace)
@@ -117,7 +117,7 @@ Then("The created file is displayed", function() {
   cy.contains(this.file.content);
 });
 
-Then("The updated file is displayed", function() {
+Then("The updated file is displayed", { timeout: 10000 }, function() {
   cy.url()
     .should("include", this.file.name)
     .and("include", this.repository.namespace)
@@ -126,7 +126,7 @@ Then("The updated file is displayed", function() {
   cy.contains(this.file.content);
 });
 
-Then("The folder containing the uploaded file is displayed", function() {
+Then("The folder containing the uploaded file is displayed", { timeout: 10000 }, function() {
   cy.url()
     .should("include", this.file.path)
     .and("include", this.repository.namespace)
@@ -134,11 +134,11 @@ Then("The folder containing the uploaded file is displayed", function() {
   cy.contains(this.file.name);
 });
 
-Then("The file does not exist anymore", function() {
+Then("The file does not exist anymore", { timeout: 10000 }, function() {
   cy.contains(this.file.name).should("not.exist");
 });
 
-Then("The folder containing the uploaded files is displayed", function() {
+Then("The folder containing the uploaded files is displayed", { timeout: 10000 }, function() {
   cy.url()
     .should("include", this.files[0].path)
     .and("include", this.repository.namespace)
