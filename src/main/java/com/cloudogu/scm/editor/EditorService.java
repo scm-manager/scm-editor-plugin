@@ -33,12 +33,15 @@ import sonia.scm.repository.api.LogCommandBuilder;
 import sonia.scm.repository.api.ModifyCommandBuilder;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
+import sonia.scm.util.ValidationUtil;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static sonia.scm.ScmConstraintViolationException.Builder.doThrow;
 
 public class EditorService {
 
@@ -134,6 +137,14 @@ public class EditorService {
     }
 
     private String computeCompleteFileName(String fileName) {
+      doThrow()
+        .violation("invalid filename: ", fileName)
+        .when(!ValidationUtil.isFilenameValid(fileName));
+
+      doThrow()
+        .violation("invalid path: ", path)
+        .when(!ValidationUtil.isPathValid(path));
+
       if (StringUtils.isEmpty(path)) {
         return fileName;
       } else {
