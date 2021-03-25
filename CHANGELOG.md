@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add e2e tests ([#28](https://github.com/scm-manager/scm-editor-plugin/pull/28))
 
+### Fixed
+- Validate path and filename to prevent path traversal ([#30](https://github.com/scm-manager/scm-editor-plugin/pull/30))
+
 ## 2.2.0 - 2020-10-27
 ### Added
 - Source code fullscreen view ([#23](https://github.com/scm-manager/scm-editor-plugin/pull/23))

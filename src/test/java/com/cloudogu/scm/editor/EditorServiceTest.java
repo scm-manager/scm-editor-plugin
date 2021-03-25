@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import sonia.scm.ScmConstraintViolationException;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Person;
@@ -166,7 +167,7 @@ class EditorServiceTest {
   }
 
   @Test
-  void shouldNotDeleteWithObstacle() throws IOException {
+  void shouldNotDeleteWithObstacle() {
     when(changeGuardCheck.isDeletable(new NamespaceAndName("space", "name"), "master", SOME_PATH))
       .thenReturn(singleton(DUMMY_OBSTACLE));
 
@@ -189,5 +190,24 @@ class EditorServiceTest {
       .done();
 
     verify(modifyCommandBuilder).createFile(NEW_FILE);
+  }
+
+  @Test
+  void shouldThrowIllegalArgumentExceptionForInvalidFilenameAndInvalidPath() {
+    assertThrows(ScmConstraintViolationException.class,  () -> editorService
+      .prepare("space", "name", "master", "../", "new commit", "")
+      .create(NEW_FILE, new ByteArrayInputStream("content".getBytes())));
+
+    assertThrows(ScmConstraintViolationException.class,  () -> editorService
+      .prepare("space", "name", "master", "./", "new commit", "")
+      .modify(NEW_FILE, new ByteArrayInputStream("content".getBytes())));
+
+    assertThrows(ScmConstraintViolationException.class,  () -> editorService
+      .prepare("space", "name", "master", "", "new commit", "")
+      .create("../file", new ByteArrayInputStream("content".getBytes())));
+
+    assertThrows(ScmConstraintViolationException.class,  () -> editorService
+      .prepare("space", "name", "master", "", "new commit", "")
+      .modify("./file", new ByteArrayInputStream("content".getBytes())));
   }
 }

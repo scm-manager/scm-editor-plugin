@@ -32,7 +32,7 @@ const NoBottomMargin = styled.div`
 `;
 
 const PathBlock = styled.div`
-  padding: 0.75em 1em;
+  padding: 1.5em 1em;
   border-bottom: solid 1px #dbdbdb;
   display: flex;
   flex-direction: row;
@@ -125,7 +125,7 @@ class FileMetaData extends React.Component<Props, State> {
       changeFileName(fileName);
       this.setState(
         {
-          filenameValidationError: !fileName
+          filenameValidationError: !validator.isFilenameValid(fileName)
         },
         this.validate
       );
