@@ -199,10 +199,6 @@ class EditorServiceTest {
       .create(NEW_FILE, new ByteArrayInputStream("content".getBytes())));
 
     assertThrows(ScmConstraintViolationException.class,  () -> editorService
-      .prepare("space", "name", "master", "./", "new commit", "")
-      .modify(NEW_FILE, new ByteArrayInputStream("content".getBytes())));
-
-    assertThrows(ScmConstraintViolationException.class,  () -> editorService
       .prepare("space", "name", "master", "", "new commit", "")
       .create("../file", new ByteArrayInputStream("content".getBytes())));
 
