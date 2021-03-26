@@ -39,7 +39,7 @@ dependencies {
 }
 
 scmPlugin {
-  scmVersion = "2.15.2-SNAPSHOT"
+  scmVersion = "2.16.0"
 
   displayName = "Editor"
   description = "Creates, edits and deletes Files"
