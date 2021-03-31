@@ -22,6 +22,4 @@
  * SOFTWARE.
  */
 
-import registerPlugins from '@scm-manager/integration-test-runner/plugins';
-
-export default registerPlugins;
+import "@scm-manager/integration-test-runner/steps";

@@ -1,24 +1,26 @@
 // @ts-ignore
 import { hri } from "human-readable-ids";
+import { Then, When } from "cypress-cucumber-preprocessor/steps";
+import { FilesThisObject, FileThisObject, RepositoryThisObject } from "@scm-manager/integration-test-runner/lib/types";
 
-When("User deletes file", { timeout: 10000 }, function() {
+When("User deletes file", { timeout: 10000 }, function(this: RepositoryThisObject) {
   const newFileCommitMessage = hri.random();
 
-  cy.visit(`/repo/${this.repository.namespace}/${this.repository.name}/code/sources/main/README.md`);
+  cy.visit(`/repo/${this.repository!.namespace}/${this.repository!.name}/code/sources/main/README.md`);
   cy.byTestId("delete-file-button").click();
   cy.get("div.control textarea.textarea").type(newFileCommitMessage);
   cy.byTestId("delete-file-commit-button").click();
 });
 
-When("User visits code view of a file in repository", function() {
-  cy.visit(`/repo/${this.repository.namespace}/${this.repository.name}/code/sources/main/README.md`);
+When("User visits code view of a file in repository", function(this: RepositoryThisObject) {
+  cy.visit(`/repo/${this.repository!.namespace}/${this.repository!.name}/code/sources/main/README.md`);
 });
 
-When("User edits file", { timeout: 10000 }, function() {
+When("User edits file", { timeout: 10000 }, function(this: RepositoryThisObject & FileThisObject) {
   const commitMessage = hri.random();
   const newContent = hri.random();
 
-  cy.visit(`/repo/${this.repository.namespace}/${this.repository.name}/code/sources/main/README.md`);
+  cy.visit(`/repo/${this.repository!.namespace}/${this.repository!.name}/code/sources/main/README.md`);
   cy.byTestId("edit-file-button").click();
   cy.get("textarea.ace_text-input").type(newContent, { force: true });
   cy.get("div.control textarea.textarea").type(commitMessage);
@@ -30,14 +32,14 @@ When("User edits file", { timeout: 10000 }, function() {
   };
 });
 
-When("User creates a new file", { timeout: 10000 }, function() {
+When("User creates a new file", { timeout: 10000 }, function(this: RepositoryThisObject & FileThisObject) {
   const that = this;
   cy.fixture("foo.txt").then(function(newFileContent) {
     const newFilePath = "foo/bar";
     const newFileName = hri.random();
     const newFileCommitMessage = hri.random();
 
-    cy.visit(`/repo/${that.repository.namespace}/${that.repository.name}/code/sourceext/create/main`);
+    cy.visit(`/repo/${that.repository!.namespace}/${that.repository!.name}/code/sourceext/create/main`);
     cy.byTestId("create-file-path-input").type(newFilePath);
     cy.byTestId("create-file-name-input").type(newFileName);
     cy.get("textarea.ace_text-input").type(newFileContent, { force: true });
@@ -51,13 +53,13 @@ When("User creates a new file", { timeout: 10000 }, function() {
   });
 });
 
-When("User uploads a new file", { timeout: 10000 }, function() {
+When("User uploads a new file", { timeout: 10000 }, function(this: RepositoryThisObject & FileThisObject) {
   const that = this;
   cy.fixture("foo.txt").then(function(newFileContent) {
     const newFilePath = "foo/bar";
     const newFileName = hri.random();
     const newFileCommitMessage = hri.random();
-    cy.visit(`/repo/${that.repository.namespace}/${that.repository.name}/code/sourceext/upload/main`);
+    cy.visit(`/repo/${that.repository!.namespace}/${that.repository!.name}/code/sourceext/upload/main`);
     cy.byTestId("create-file-path-input").type(newFilePath);
     cy.get('input[type="file"]').attachFile({
       fileContent: newFileContent,
@@ -75,7 +77,7 @@ When("User uploads a new file", { timeout: 10000 }, function() {
   });
 });
 
-When("User uploads multiple new files", { timeout: 10000 }, function() {
+When("User uploads multiple new files", { timeout: 10000 }, function(this: RepositoryThisObject & FilesThisObject) {
   const that = this;
   cy.fixture("foo.txt").then(fileContentA => {
     cy.fixture("bar.txt").then(fileContentB => {
@@ -83,7 +85,7 @@ When("User uploads multiple new files", { timeout: 10000 }, function() {
       const newFileCommitMessage = hri.random();
       const newFileNameA = hri.random();
       const newFileNameB = hri.random();
-      cy.visit(`/repo/${that.repository.namespace}/${that.repository.name}/code/sourceext/upload/main`);
+      cy.visit(`/repo/${that.repository!.namespace}/${that.repository!.name}/code/sourceext/upload/main`);
       cy.byTestId("create-file-path-input").type(newFilePath);
       cy.get('input[type="file"]')
         .attachFile({ fileContent: fileContentA, fileName: newFileNameA, mimeType: "text/plain", encoding: "utf-8" })
@@ -106,42 +108,46 @@ When("User uploads multiple new files", { timeout: 10000 }, function() {
   });
 });
 
-Then("The created file is displayed", { timeout: 10000 }, function() {
+Then("The created file is displayed", { timeout: 10000 }, function(this: RepositoryThisObject & FileThisObject) {
   cy.url()
-    .should("include", this.file.name)
-    .and("include", this.repository.namespace)
-    .and("include", this.repository.name);
-  cy.contains(this.file.name);
-  cy.contains(this.file.content);
+    .should("include", this.file!.name)
+    .and("include", this.repository!.namespace)
+    .and("include", this.repository!.name);
+  cy.contains(this.file!.name);
+  cy.contains(this.file!.content);
 });
 
-Then("The updated file is displayed", { timeout: 10000 }, function() {
+Then("The updated file is displayed", { timeout: 10000 }, function(this: RepositoryThisObject & FileThisObject) {
   cy.url()
-    .should("include", this.file.name)
-    .and("include", this.repository.namespace)
-    .and("include", this.repository.name);
-  cy.contains(this.file.name);
-  cy.contains(this.file.content);
+    .should("include", this.file!.name)
+    .and("include", this.repository!.namespace)
+    .and("include", this.repository!.name);
+  cy.contains(this.file!.name);
+  cy.contains(this.file!.content);
 });
 
-Then("The folder containing the uploaded file is displayed", { timeout: 10000 }, function() {
+Then("The folder containing the uploaded file is displayed", { timeout: 10000 }, function(
+  this: RepositoryThisObject & FileThisObject
+) {
   cy.url()
-    .should("include", this.file.path)
-    .and("include", this.repository.namespace)
-    .and("include", this.repository.name);
-  cy.contains(this.file.name);
+    .should("include", this.file!.path)
+    .and("include", this.repository!.namespace)
+    .and("include", this.repository!.name);
+  cy.contains(this.file!.name);
 });
 
-Then("The file does not exist anymore", { timeout: 10000 }, function() {
-  cy.contains(this.file.name).should("not.exist");
+Then("The file does not exist anymore", { timeout: 10000 }, function(this: RepositoryThisObject & FileThisObject) {
+  cy.contains(this.file!.name).should("not.exist");
 });
 
-Then("The folder containing the uploaded files is displayed", { timeout: 10000 }, function() {
+Then("The folder containing the uploaded files is displayed", { timeout: 10000 }, function(
+  this: RepositoryThisObject & FilesThisObject
+) {
   cy.url()
-    .should("include", this.files[0].path)
-    .and("include", this.repository.namespace)
-    .and("include", this.repository.name);
-  this.files.forEach(file => cy.contains(file.name));
+    .should("include", this.files![0].path)
+    .and("include", this.repository!.namespace)
+    .and("include", this.repository!.name);
+  this.files!.forEach(file => cy.contains(file.name));
 });
 
 Then("There is no create file button", function() {

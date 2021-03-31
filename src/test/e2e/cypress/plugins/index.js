@@ -22,5 +22,4 @@
  * SOFTWARE.
  */
 
-// @ts-ignore
-export * from "@scm-manager/integration-test-runner/steps";
+module.exports = require("@scm-manager/integration-test-runner/plugins");

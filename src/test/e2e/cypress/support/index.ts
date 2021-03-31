@@ -22,5 +22,5 @@
  * SOFTWARE.
  */
 
-import '@scm-manager/integration-test-runner/commands';
-import './commands';
+import "@scm-manager/integration-test-runner/commands";
+import "./commands";
