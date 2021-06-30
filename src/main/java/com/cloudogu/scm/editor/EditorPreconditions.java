@@ -26,6 +26,7 @@ package com.cloudogu.scm.editor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.ContextEntry;
+import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.NamespaceAndName;
@@ -50,9 +51,9 @@ class EditorPreconditions {
     this.repositoryServiceFactory = repositoryServiceFactory;
   }
 
-  boolean isEditable(NamespaceAndName namespaceAndName, String revision, String branchName) {
+  boolean isEditable(NamespaceAndName namespaceAndName, BrowserResult browserResult) {
     try (RepositoryService repositoryService = repositoryServiceFactory.create(namespaceAndName)) {
-      return isEditable(repositoryService, revision, branchName);
+      return isEditableCheck(repositoryService, browserResult);
     } catch (IOException ex) {
       throw new InternalRepositoryException(
         ContextEntry.ContextBuilder.entity(namespaceAndName),
@@ -62,10 +63,15 @@ class EditorPreconditions {
     }
   }
 
-  private boolean isEditable(RepositoryService repositoryService, String revision, String branchName) throws IOException {
+  private boolean isEditableCheck(RepositoryService repositoryService, BrowserResult browserResult) throws IOException {
     return isPermitted(repositoryService.getRepository())
       && isModifySupported(repositoryService)
-      && isHeadRevision(repositoryService, revision, branchName);
+      && (isHeadRevision(repositoryService, browserResult.getRevision(), browserResult.getRequestedRevision())
+      || isEmptyRepository(browserResult));
+  }
+
+  private boolean isEmptyRepository(BrowserResult browserResult) {
+    return browserResult.getFile() == null || browserResult.getFile().getChildren().size() == 0;
   }
 
   private boolean isModifySupported(RepositoryService repositoryService) {
@@ -87,6 +93,9 @@ class EditorPreconditions {
 
   private boolean isHeadRevision(RepositoryService repositoryService, String revision, String branchName) throws IOException {
     if (repositoryService.isSupported(Command.BRANCHES)) {
+      if (branchName == null) {
+        return true;
+      }
       return isExistingBranch(repositoryService, branchName);
     }
     return isLastRevision(repositoryService, revision);

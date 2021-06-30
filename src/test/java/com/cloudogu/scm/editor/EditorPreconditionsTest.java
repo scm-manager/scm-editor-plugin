@@ -36,8 +36,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import sonia.scm.repository.Branch;
 import sonia.scm.repository.Branches;
+import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.Changeset;
 import sonia.scm.repository.ChangesetPagingResult;
+import sonia.scm.repository.FileObject;
 import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Person;
@@ -85,24 +87,29 @@ class EditorPreconditionsTest {
   @Test
   void shouldReturnTrueForEmptyRepositoryWithoutBranchSupport() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.LOG);
+    BrowserResult result = createBrowserResult("abc", "master", false);
     setUpPermission("42", true);
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isTrue();
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isTrue();
   }
 
   @Test
   void shouldReturnTrueForLatestRevisionWithoutBranchSupport() throws IOException {
     NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.LOG);
+    BrowserResult result = createBrowserResult("abc", "master", false);
+
     setUpPermission("42", true);
 
     setUpLogCommandResult("abc");
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isTrue();
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isTrue();
   }
 
   @Test
   void shouldReturnTrueForLatestRevisionOnBranch() throws IOException {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
+    BrowserResult result = createBrowserResult("abc", "master", false);
+
     setUpPermission("21", true);
 
     setUpBranches(
@@ -110,46 +117,55 @@ class EditorPreconditionsTest {
       Branch.defaultBranch("develop", "abc")
     );
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isTrue();
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isTrue();
   }
 
   @Test
   void shouldReturnFalseIfNotPermitted() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.LOG, Command.BRANCHES);
+    BrowserResult result = createBrowserResult("abc", "master", false);
     setUpPermission("21", false);
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isFalse();
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
   }
 
   @Test
   void shouldReturnFalseIfModifyCommandIsNotSupported() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.LOG);
+    BrowserResult result = createBrowserResult("abc", "master", false);
     setUpPermission("21", true);
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isFalse();
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
   }
 
   @Test
   void shouldReturnFalseIfLogAndBranchesCommandAreNotSupported() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY);
+    BrowserResult result = createBrowserResult("abc", "master", false);
     setUpPermission("21", true);
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isFalse();
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
   }
 
   @Test
   void shouldReturnFalseIfNotAnExistingBranch() throws IOException {
     NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.LOG);
+    FileObject fileObject = new FileObject();
+    fileObject.addChild(new FileObject());
+    BrowserResult result = createBrowserResult("abc", "master", false, fileObject);
     setUpPermission("42", true);
 
     setUpLogCommandResult("def");
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc", "master")).isFalse();
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
   }
 
   @Test
   void shouldReturnFalseIfNotABranch() throws IOException {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
+    FileObject fileObject = new FileObject();
+    fileObject.addChild(new FileObject());
+    BrowserResult result = createBrowserResult("abc", "notExistingBranch", false, fileObject);
     setUpPermission("21", true);
 
     setUpBranches(
@@ -157,18 +173,38 @@ class EditorPreconditionsTest {
       Branch.defaultBranch("develop", "abc")
     );
 
-    assertThat(preconditions.isEditable(namespaceAndName, "abc", "notExistingBranch")).isFalse();
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
+  }
+
+  @Test
+  void shouldReturnTrueIfHasTipButEmptyRepo() {
+    NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
+    BrowserResult result = createBrowserResult("abc", "tip", false);
+    setUpPermission("21", true);
+
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isTrue();
   }
 
   @Test
   void shouldThrowInternalRepositoryExceptionOnError() throws IOException {
     NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.LOG);
+    BrowserResult result = createBrowserResult("abc", "master", false);
     setUpPermission("42", true);
 
     LogCommandBuilder builder = repositoryService.getLogCommand().setPagingLimit(1);
     doThrow(new IOException("failed :(")).when(builder).getChangesets();
 
-    assertThrows(InternalRepositoryException.class, () -> preconditions.isEditable(namespaceAndName, "abc", "master"));
+    assertThrows(InternalRepositoryException.class, () -> preconditions.isEditable(namespaceAndName, result));
+  }
+
+  private BrowserResult createBrowserResult(String revision, String branchName, boolean directory, FileObject fileObject) {
+    fileObject.setDirectory(directory);
+    return new BrowserResult(revision, branchName, fileObject);
+  }
+
+  private BrowserResult createBrowserResult(String revision, String branchName, boolean directory) {
+    FileObject fileObject = new FileObject();
+    return createBrowserResult(revision, branchName, directory, fileObject);
   }
 
   private void setUpBranches(Branch... branches) throws IOException {
