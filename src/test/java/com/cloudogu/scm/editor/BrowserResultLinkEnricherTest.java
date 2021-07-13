@@ -79,7 +79,7 @@ class BrowserResultLinkEnricherTest {
     BrowserResult result = createBrowserResult("42", "master", true);
     setUpEnricherContext(repository, result);
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(false);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), result)).thenReturn(false);
 
     enricher.enrich(context, appender);
 
@@ -92,7 +92,7 @@ class BrowserResultLinkEnricherTest {
     BrowserResult result = createBrowserResult("42", "master", true);
     setUpEnricherContext(repository, result);
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), result)).thenReturn(true);
     when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "master", null)).thenReturn(singleton(null));
 
     enricher.enrich(context, appender);
@@ -106,7 +106,7 @@ class BrowserResultLinkEnricherTest {
     BrowserResult result = createBrowserResult("42", "master", false);
     setUpEnricherContext(repository, result);
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(false);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), result)).thenReturn(false);
 
     enricher.enrich(context, appender);
 
@@ -119,7 +119,7 @@ class BrowserResultLinkEnricherTest {
     BrowserResult result = createBrowserResult("42", "master", true);
     setUpEnricherContext(repository, result);
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), result)).thenReturn(true);
 
     enricher.enrich(context, appender);
 

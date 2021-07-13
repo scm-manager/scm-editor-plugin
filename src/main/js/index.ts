@@ -45,6 +45,7 @@ const byExtension = (ext: string) => {
 binder.bind("repos.sources.tree.row.right", FileDownloadIcon);
 binder.bind("repos.sources.content.actionbar", ContentActionbar);
 binder.bind("repos.sources.actionbar", SourcesActionbar);
+binder.bind("repos.sources.empty.actionbar", SourcesActionbar);
 binder.bind("repos.sources.extensions", FileUpload, byExtension("upload"));
 binder.bind("repos.sources.extensions", FileEdit, byExtension("edit"));
 binder.bind("repos.sources.extensions", FileEdit, byExtension("create"));

@@ -55,22 +55,17 @@ import static org.mockito.Mockito.when;
 class FileLinkEnricherTest {
 
   final ChangeObstacle DUMMY_OBSTACLE = null;
-
+  private final Repository repository = RepositoryTestData.createHeartOfGold();
+  BrowserResult result = createBrowserResult("42", "master", false);
   @Mock
   private HalEnricherContext context;
-
   @Mock
   private HalAppender appender;
-
   @Mock
   private EditorPreconditions preconditions;
-
   @Mock
   private ChangeGuardCheck changeGuardCheck;
-
   private FileLinkEnricher enricher;
-
-  private Repository repository = RepositoryTestData.createHeartOfGold();
 
   @BeforeEach
   void setUpObjectUnderTest() {
@@ -81,26 +76,40 @@ class FileLinkEnricherTest {
 
   @Test
   void shouldNotEnrichIfPreconditionNotMet() {
-    setUpHalContext(repository, "42", "master", true, "root");
+    setUpHalContext(repository, true, "root");
 
-    when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(false);
+    when(preconditions.isEditable(repository.getNamespaceAndName(), result)).thenReturn(false);
 
     enricher.enrich(context, appender);
 
     verifyNoMoreInteractions(appender);
   }
 
+  private BrowserResult createBrowserResult(String revision, String branchName, boolean directory) {
+    FileObject fileObject = new FileObject();
+    fileObject.setDirectory(directory);
+    return new BrowserResult(revision, branchName, fileObject);
+  }
+
+  private void setUpHalContext(Repository repository, boolean directory, String path) {
+    doReturn(repository.getNamespaceAndName()).when(context).oneRequireByType(NamespaceAndName.class);
+    doReturn(result).when(context).oneRequireByType(BrowserResult.class);
+    FileObject fileObject = new FileObject();
+    fileObject.setPath(path);
+    fileObject.setDirectory(directory);
+    doReturn(fileObject).when(context).oneRequireByType(FileObject.class);
+  }
+
   @Nested
   class ForEditableRepositories {
-
     @BeforeEach
     void whenRepositoryIsEditable() {
-      when(preconditions.isEditable(repository.getNamespaceAndName(), "42", "master")).thenReturn(true);
+      when(preconditions.isEditable(repository.getNamespaceAndName(), result)).thenReturn(true);
     }
 
     @Test
     void shouldEnrichWithFileLinks() {
-      setUpHalContext(repository, "42", "master", false, "readme.md");
+      setUpHalContext(repository, false, "readme.md");
 
       when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
       when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
@@ -114,7 +123,7 @@ class FileLinkEnricherTest {
 
     @Test
     void shouldNotEnrichWithFileDeleteLinkWithObstacle() {
-      setUpHalContext(repository, "42", "master", false, "readme.md");
+      setUpHalContext(repository, false, "readme.md");
 
       when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(singleton(DUMMY_OBSTACLE));
       when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
@@ -128,7 +137,7 @@ class FileLinkEnricherTest {
 
     @Test
     void shouldNotEnrichWithFileModifyLinkWithObstacle() {
-      setUpHalContext(repository, "42", "master", false, "readme.md");
+      setUpHalContext(repository, false, "readme.md");
 
       when(changeGuardCheck.isDeletable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(emptyList());
       when(changeGuardCheck.isModifiable(repository.getNamespaceAndName(), "master", "readme.md")).thenReturn(singleton(DUMMY_OBSTACLE));
@@ -142,7 +151,7 @@ class FileLinkEnricherTest {
 
     @Test
     void shouldEnrichWithDirectoryLinks() {
-      setUpHalContext(repository, "42", "master", true, "src/path");
+      setUpHalContext(repository, true, "src/path");
 
       when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "master", "src/path")).thenReturn(emptyList());
 
@@ -154,7 +163,7 @@ class FileLinkEnricherTest {
 
     @Test
     void shouldNotEnrichWithDirectoryCreateLinkWithObstacle() {
-      setUpHalContext(repository, "42", "master", true, "src/path");
+      setUpHalContext(repository, true, "src/path");
 
       when(changeGuardCheck.canCreateFilesIn(repository.getNamespaceAndName(), "master", "src/path")).thenReturn(singleton(DUMMY_OBSTACLE));
 
@@ -163,14 +172,5 @@ class FileLinkEnricherTest {
       verify(appender, never()).appendLink(eq("create"), any());
       verifyNoMoreInteractions(appender);
     }
-  }
-
-  private void setUpHalContext(Repository repository, String revision, String branchName, boolean directory, String path) {
-    doReturn(repository.getNamespaceAndName()).when(context).oneRequireByType(NamespaceAndName.class);
-    doReturn(new BrowserResult(revision, branchName, null)).when(context).oneRequireByType(BrowserResult.class);
-    FileObject fileObject = new FileObject();
-    fileObject.setPath(path);
-    fileObject.setDirectory(directory);
-    doReturn(fileObject).when(context).oneRequireByType(FileObject.class);
   }
 }
