@@ -27,7 +27,8 @@
       "subtitle": "File Editor",
       "selectedBranch": "Selected Branch",
       "notEditable": "This file type cannot be edited inside SCM-Manager",
-      "placeholder": "Start writing your file here"
+      "placeholder": "Start writing your file here",
+      "revisionChanged": "The latest revision has changed. Copy your changes and refresh the page to get the latest version of the file."
     },
     "upload": {
       "tooltip": "Upload",

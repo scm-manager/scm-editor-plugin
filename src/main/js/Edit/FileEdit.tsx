@@ -93,6 +93,7 @@ type Props = WithTranslation &
     repository: Repository;
     extension: string;
     revision?: string;
+    resolvedRevision?: string;
     path?: string;
     file: FileWithType;
     sources: File;
@@ -102,6 +103,7 @@ type Props = WithTranslation &
 type State = {
   file?: FileWithType;
   content: string;
+  initialRevision?: string;
   path: string;
   initialError: Error;
   initialLoading: boolean;
@@ -122,7 +124,8 @@ class FileEdit extends React.Component<Props, State> {
       loading: false,
       path: "",
       file: this.isEditMode() ? null : {},
-      isValid: true
+      isValid: true,
+      initialRevision: props.resolvedRevision
     };
   }
 
@@ -314,7 +317,7 @@ class FileEdit extends React.Component<Props, State> {
 
   commitFile = () => {
     const { sources, revision } = this.props;
-    const { file, commitMessage, path, content } = this.state;
+    const { file, commitMessage, path, content, initialRevision } = this.state;
 
     if (file) {
       let link;
@@ -338,6 +341,7 @@ class FileEdit extends React.Component<Props, State> {
       const commit = {
         commitMessage,
         branch: decodeURIComponent(revision),
+        expectedRevision: initialRevision,
         names: {
           file: file.name
         }
@@ -361,7 +365,7 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   render() {
-    const { revision, t, repository, baseUrl } = this.props;
+    const { revision, t, repository, baseUrl, resolvedRevision } = this.props;
     const {
       path,
       file,
@@ -373,7 +377,8 @@ class FileEdit extends React.Component<Props, State> {
       isValid,
       commitMessage,
       contentType,
-      contentLength
+      contentLength,
+      initialRevision
     } = this.state;
 
     if (initialLoading) {
@@ -413,6 +418,11 @@ class FileEdit extends React.Component<Props, State> {
       </>
     );
 
+    const revisionChanged = initialRevision && resolvedRevision && initialRevision !== resolvedRevision;
+    const revisionChangedWarning = revisionChanged && (
+      <Notification type={"warning"}>{t("scm-editor-plugin.edit.revisionChanged")}</Notification>
+    );
+
     return (
       <>
         <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
@@ -438,6 +448,7 @@ class FileEdit extends React.Component<Props, State> {
           {body}
         </Border>
         <ExtensionPoint name="editor.file.hints" renderAll={true} props={extensionsProps} />
+        {revisionChangedWarning}
         <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
         {error && <ErrorNotification error={error} />}
         <div className="level">
@@ -452,7 +463,7 @@ class FileEdit extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
-                disabled={!commitMessage || !isValid || !file.name}
+                disabled={!commitMessage || !isValid || !file.name || revisionChanged}
                 action={this.commitFile}
                 loading={loading}
                 testId="create-file-commit-button"
