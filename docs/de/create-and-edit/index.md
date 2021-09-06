@@ -15,3 +15,8 @@ Folgende Informationen bzw. Interaktionen bietet der Editor:
 - **Inhalt:** Der Inhalt der neuen bzw. geänderten Datei.
 - **Autor:** Dieser Benutzer wird als Autor in den neuen Commit geschrieben.
 - **Commit Nachricht:** Die Nachricht für den neuen Commit.
+
+Immer wenn der Editor neu fokussiert wird, prüft der SCM-Manager, ob auf dem Branch bzw. dem Repository neue Revisionen
+vorhanden sind. Wenn neue Revisionen vorhanden sind, wird eine Warnung angezeigt und die Änderungen können nicht mehr
+mit einem Commit abgeschlossen werden. Werden neue Revisionen nicht rechtzeitig erkannt, wird ein Commit vom Server
+abgelehnt und es wird eine Fehlermeldung bzgl. der parallelen Änderung angezeigt.
