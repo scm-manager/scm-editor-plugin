@@ -23,6 +23,7 @@
  */
 package com.cloudogu.scm.editor;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.ContextEntry;
@@ -71,7 +72,8 @@ class EditorPreconditions {
   }
 
   private boolean isEmptyRepository(BrowserResult browserResult) {
-    return browserResult.getFile() == null || browserResult.getFile().getChildren().size() == 0;
+    return browserResult.getFile() == null ||
+      browserResult.getFile().isDirectory() && StringUtils.isEmpty(browserResult.getFile().getParentPath()) && browserResult.getFile().getChildren().size() == 0;
   }
 
   private boolean isModifySupported(RepositoryService repositoryService) {

@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
-- Fix path encoding when working with files ([#42](https://github.com/scm-manager/scm-editor-plugin/pull/42))
+- Path encoding when working with files ([#42](https://github.com/scm-manager/scm-editor-plugin/pull/42))
+- Edit buttons on non-head revisions ([#43](https://github.com/scm-manager/scm-manager/pull/43))
 
 ## 2.3.0 - 2021-07-21
 ### Added
