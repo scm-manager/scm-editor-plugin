@@ -180,9 +180,19 @@ class EditorPreconditionsTest {
   void shouldReturnTrueIfHasTipButEmptyRepo() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
     BrowserResult result = createBrowserResult("abc", "tip", false);
+    result.getFile().setDirectory(true);
     setUpPermission("21", true);
 
     assertThat(preconditions.isEditable(namespaceAndName, result)).isTrue();
+  }
+
+  @Test
+  void shouldReturnFalseIfIsNotTipButIsFile() {
+    NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
+    BrowserResult result = createBrowserResult("abc", "123", false);
+    setUpPermission("21", true);
+
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
   }
 
   @Test
