@@ -27,7 +27,7 @@ import { WithTranslation, withTranslation } from "react-i18next";
 import { File, Repository, Link, Changeset } from "@scm-manager/ui-types";
 import { apiClient, Button, ButtonGroup, ErrorNotification, Subtitle, Breadcrumb } from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
-import FilePath from "../FileMetaData";
+import FileMetaData from "../FileMetaData";
 import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 import styled from "styled-components";
@@ -206,7 +206,7 @@ class FileUpload extends React.Component<Props, State> {
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")} />
         <Border>
           {revision && (
-            <Header >
+            <Header>
               <span>
                 <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
                 {decodeURIComponent(revision)}
@@ -214,7 +214,7 @@ class FileUpload extends React.Component<Props, State> {
             </Header>
           )}
           <Breadcrumb repository={repository} baseUrl={baseUrl} path={path} revision={revision} />
-          <FilePath path={path} changePath={this.changePath} />
+          <FileMetaData path={path} changePath={this.changePath} />
           <FileUploadDropzone fileHandler={this.handleFile} disabled={loading} />
         </Border>
         {files && files.length > 0 && (

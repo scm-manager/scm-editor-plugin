@@ -21,10 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC } from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
-import { InputField, validation as validator } from "@scm-manager/ui-components";
+import React, { FC, useState } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { InputField, validation as validator } from "@scm-manager/ui-components";
 import LanguageSelector from "./LanguageSelector";
 
 const NoBottomMargin = styled.div`
@@ -87,111 +87,102 @@ const FieldLabel: FC<{ value: string }> = ({ value }) => (
   </div>
 );
 
-type Props = WithTranslation & {
-  path: any;
+type Props = {
+  path: string | undefined;
   changePath: (p: string) => void;
-  file?: File;
+  file?: any;
   changeFileName?: (p: string) => void;
   disabled?: boolean;
-  validate?: (p: void) => boolean;
+  validate?: (p: boolean) => void;
   language?: string;
   changeLanguage?: (lang: string) => void;
 };
 
-type State = {
-  pathValidationError: boolean;
-  filenameValidationError: boolean;
-};
+const FileMetaData: FC<Props> = ({
+  path,
+  changePath,
+  file,
+  changeFileName,
+  disabled,
+  validate,
+  language,
+  changeLanguage
+}) => {
+  const [t] = useTranslation("plugins");
+  const [pathValidationError, setPathValidationError] = useState(false);
+  const [filenameValidationError, setFilenameValidationError] = useState(false);
 
-class FileMetaData extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      pathValidationError: false,
-      filenameValidationError: false
-    };
-  }
-
-  changePath = (path: string) => {
-    this.props.changePath(path);
-    this.setState({
-      pathValidationError: !validator.isPathValid(path)
-    });
+  const handlePathChange = (path: string) => {
+    changePath(path);
+    setPathValidationError(!validator.isPathValid(path));
   };
 
-  changeFileName = (fileName: string) => {
-    const { changeFileName } = this.props;
+  const handleFileNameChange = (fileName: string) => {
     if (changeFileName) {
       changeFileName(fileName);
-      this.setState(
-        {
-          filenameValidationError: !validator.isFilenameValid(fileName)
-        },
-        this.validate
-      );
+      setFilenameValidationError(!validator.isFilenameValid(fileName));
+      onValidate();
     }
   };
 
-  onLanguageChange = (language: string) => {
-    const { changeLanguage } = this.props;
+  const handleLanguageChange = (language: string) => {
     if (changeLanguage) {
       changeLanguage(language);
     }
   };
 
-  validate = () => {
-    this.props.validate(!(this.state.filenameValidationError || this.state.pathValidationError));
+  const onValidate = () => {
+    if (validate) {
+      validate(!(filenameValidationError || pathValidationError));
+    }
   };
 
-  render() {
-    const { t, file, language, disabled } = this.props;
-    return (
-      <NoTopBorder>
-        <PathBlock>
-          <AlignItemNormal>
-            <FieldLabel value={t("scm-editor-plugin.path.path")} />
-            <NoBottomMargin className="field">
+  return (
+    <NoTopBorder>
+      <PathBlock>
+        <AlignItemNormal>
+          <FieldLabel value={t("scm-editor-plugin.path.path")} />
+          <NoBottomMargin className="field">
+            <InputBorder disabled={disabled} className="control">
+              <InputField
+                disabled={disabled}
+                value={path ? decodeURIComponent(path) : ""}
+                validationError={pathValidationError}
+                errorMessage={t("scm-editor-plugin.validation.pathInvalid")}
+                placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.path")}
+                onChange={value => handlePathChange(value)}
+                testId="create-file-path-input"
+              />
+            </InputBorder>
+          </NoBottomMargin>
+        </AlignItemNormal>
+        {file && (
+          <>
+            <AlignItemNormal>
+              <FieldLabel value={t("scm-editor-plugin.path.filename")} />
               <InputBorder disabled={disabled} className="control">
                 <InputField
                   disabled={disabled}
-                  value={this.props.path}
-                  validationError={this.state.pathValidationError}
-                  errorMessage={t("scm-editor-plugin.validation.pathInvalid")}
-                  placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.path")}
-                  onChange={value => this.changePath(value)}
-                  testId="create-file-path-input"
+                  value={file.name}
+                  validationError={filenameValidationError}
+                  errorMessage={t("scm-editor-plugin.validation.filenameInvalid")}
+                  placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.filename")}
+                  onChange={value => handleFileNameChange(value)}
+                  testId="create-file-name-input"
                 />
               </InputBorder>
-            </NoBottomMargin>
-          </AlignItemNormal>
-          {file && (
-            <>
-              <AlignItemNormal>
-                <FieldLabel value={t("scm-editor-plugin.path.filename")} />
-                <InputBorder disabled={disabled} className="control">
-                  <InputField
-                    disabled={disabled}
-                    value={file.name}
-                    validationError={this.state.filenameValidationError}
-                    errorMessage={t("scm-editor-plugin.validation.filenameInvalid")}
-                    placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.filename")}
-                    onChange={value => this.changeFileName(value)}
-                    testId="create-file-name-input"
-                  />
-                </InputBorder>
-              </AlignItemNormal>
-              <AlignItemNormal>
-                <FieldLabel value={t("scm-editor-plugin.path.language")} />
-                <InputBorder disabled={disabled} className="control">
-                  <LanguageSelector selected={language} onChange={this.onLanguageChange} />
-                </InputBorder>
-              </AlignItemNormal>
-            </>
-          )}
-        </PathBlock>
-      </NoTopBorder>
-    );
-  }
-}
+            </AlignItemNormal>
+            <AlignItemNormal>
+              <FieldLabel value={t("scm-editor-plugin.path.language")} />
+              <InputBorder disabled={disabled} className="control">
+                <LanguageSelector selected={language} onChange={handleLanguageChange} />
+              </InputBorder>
+            </AlignItemNormal>
+          </>
+        )}
+      </PathBlock>
+    </NoTopBorder>
+  );
+};
 
-export default withTranslation("plugins")(FileMetaData);
+export default FileMetaData;
