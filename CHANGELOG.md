@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
-- EditorPreconditions are now public api ([#46](https://github.com/scm-manager/scm-editor-plugin/pull/46))
+- EditorPreconditions and ChangeGuardCheck are now public api ([#46](https://github.com/scm-manager/scm-editor-plugin/pull/46))
 
 ## 2.3.1 - 2021-09-13
 ### Fixed
