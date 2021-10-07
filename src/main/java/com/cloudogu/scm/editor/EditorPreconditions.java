@@ -41,7 +41,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Iterator;
 
-class EditorPreconditions {
+public class EditorPreconditions {
 
   private static final Logger LOG = LoggerFactory.getLogger(EditorPreconditions.class);
 
@@ -52,7 +52,7 @@ class EditorPreconditions {
     this.repositoryServiceFactory = repositoryServiceFactory;
   }
 
-  boolean isEditable(NamespaceAndName namespaceAndName, BrowserResult browserResult) {
+  public boolean isEditable(NamespaceAndName namespaceAndName, BrowserResult browserResult) {
     try (RepositoryService repositoryService = repositoryServiceFactory.create(namespaceAndName)) {
       return isEditableCheck(repositoryService, browserResult);
     } catch (IOException ex) {
