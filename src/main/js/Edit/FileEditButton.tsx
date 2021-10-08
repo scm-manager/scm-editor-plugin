@@ -21,12 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC, useEffect, useState } from "react";
+import React, { FC } from "react";
 import { useHistory } from "react-router-dom";
+import { useContentType } from "@scm-manager/ui-api";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { File, Link, Repository } from "@scm-manager/ui-types";
-import { apiClient, createAttributesForTesting } from "@scm-manager/ui-components";
+import { createAttributesForTesting } from "@scm-manager/ui-components";
 import { createSourceExtensionUrl } from "../links";
 import { isEditable } from "./isEditable";
 import { encodeFilePath } from "./encodeFilePath";
@@ -45,27 +46,15 @@ type Props = {
 };
 
 const FileEditButton: FC<Props> = ({ repository, revision, file }) => {
+  const { data, isLoading } = useContentType((file._links.self as Link).href);
   const [t] = useTranslation("plugins");
-  const [contentType, setContentType] = useState<string | null>();
-  const [language, setLanguage] = useState<string | null>();
-  const [loading, setLoading] = useState(true);
-
   const history = useHistory();
 
-  useEffect(() => {
-    const selfLink = file._links.self as Link;
-    apiClient.head(selfLink.href).then((response: Response) => {
-      setLoading(false);
-      setContentType(response.headers.get("Content-Type"));
-      setLanguage(response.headers.get("X-Programming-Language"));
-    });
-  });
-
   const shouldRender = () => {
-    if (!file._links.modify || loading) {
+    if (!file._links.modify || isLoading || !data) {
       return false;
     }
-    return isEditable(contentType, language);
+    return isEditable(data.type, data.language);
   };
 
   const pushToEditPage = () => {
@@ -79,7 +68,7 @@ const FileEditButton: FC<Props> = ({ repository, revision, file }) => {
         <Button
           title={t("scm-editor-plugin.edit.tooltip")}
           className="button"
-          onClick={() => pushToEditPage()}
+          onClick={pushToEditPage}
           {...createAttributesForTesting("edit-file-button")}
         >
           <i className="fas fa-edit" />
