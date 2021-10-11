@@ -2797,10 +2797,10 @@
     jest-junit "^12.0.0"
     regenerator-runtime "^0.13.7"
 
-"@scm-manager/plugin-scripts@1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@scm-manager/plugin-scripts/-/plugin-scripts-1.0.2.tgz#a445c92329bd11facb069dbe26066414edcd71e2"
-  integrity sha512-e5T7lP64kFmlnXJ7WAGAuRBigWtTndd+T7jQkm6L9oelX/6v/09p0hSIyjTM9AGARxxukoRCa03TjaNFnlverA==
+"@scm-manager/plugin-scripts@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@scm-manager/plugin-scripts/-/plugin-scripts-1.1.0.tgz#177373361579d0dd37cff40780951f73e32ac687"
+  integrity sha512-oIS088kF6X4V7k3kQ0wJ8AWbt1kIrul5OAMRrCNrEpYDkPBYey6s7jW6V1sj2R5Hj/y2+PaEXlc9P0SLFB5+Og==
   dependencies:
     babel-loader "^8.0.6"
     css-loader "^3.2.0"
