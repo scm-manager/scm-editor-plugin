@@ -40,6 +40,7 @@ import {
 } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
+import { encodeFilePath } from "./encodeFilePath";
 import styled from "styled-components";
 import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
@@ -213,7 +214,7 @@ class FileEdit extends React.Component<Props, State> {
 
   isEditMode = () => {
     const { extension, path } = this.props;
-    return extension === "edit" && path;
+    return !!(extension === "edit" && path);
   };
 
   changePath = (path: string) => {
@@ -269,8 +270,6 @@ class FileEdit extends React.Component<Props, State> {
   redirectAfterCommit = (newCommit: Changeset) => {
     const { path, file } = this.state;
     let redirectUrl = this.createRedirectUrl();
-
-    const pathWithEndingSlash = !path ? "" : path.endsWith("/") ? path : path + "/";
     const encodedFilename = file && file.name ? encodeURIComponent(file.name) + "/" : "";
 
     if (newCommit) {
@@ -281,7 +280,7 @@ class FileEdit extends React.Component<Props, State> {
         newCommit._embedded.branches[0].name
           ? newCommit._embedded.branches[0].name
           : newCommit.id;
-      redirectUrl += `/${encodeURIComponent(newRevision)}/${pathWithEndingSlash + encodedFilename}`;
+      redirectUrl += `/${encodeURIComponent(newRevision)}/${encodeFilePath(path, true) + encodedFilename}`;
     }
     this.props.history.push(redirectUrl);
   };
@@ -297,12 +296,11 @@ class FileEdit extends React.Component<Props, State> {
       path = this.props.path;
     }
 
-    const pathWithEndingSlash = !path ? "" : path.endsWith("/") ? path : path + "/";
     if (revision) {
       redirectUrl += `/${encodeURIComponent(revision)}`;
     }
 
-    redirectUrl += "/" + pathWithEndingSlash;
+    redirectUrl += "/" + encodeFilePath(path, true);
 
     if (this.isEditMode() && file && file.name) {
       redirectUrl += encodeURIComponent(file.name);
@@ -327,7 +325,7 @@ class FileEdit extends React.Component<Props, State> {
         type = file.type;
       } else {
         link = (sources._links.upload as Link).href;
-        link = link.replace("{path}", path ? path : "");
+        link = link.replace("{path}", path ? encodeFilePath(path) : "");
         type = "text/plain";
       }
 

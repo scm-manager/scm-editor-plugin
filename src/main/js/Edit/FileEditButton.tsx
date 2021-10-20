@@ -21,14 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
-import { File, Link, Repository } from "@scm-manager/ui-types";
-import { RouteComponentProps, withRouter } from "react-router-dom";
-import { apiClient, createAttributesForTesting } from "@scm-manager/ui-components";
-import { isEditable } from "./isEditable";
+import React, { FC } from "react";
+import { useHistory } from "react-router-dom";
+import { useContentType } from "@scm-manager/ui-api";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { File, Link, Repository } from "@scm-manager/ui-types";
+import { createAttributesForTesting } from "@scm-manager/ui-components";
 import { createSourceExtensionUrl } from "../links";
+import { isEditable } from "./isEditable";
+import { encodeFilePath } from "./encodeFilePath";
 
 const Button = styled.a`
   width: 50px;
@@ -37,73 +39,43 @@ const Button = styled.a`
   }
 `;
 
-type Props = WithTranslation &
-  RouteComponentProps & {
-    repository: Repository;
-    revision: string;
-    file: File;
-  };
-
-type State = {
-  contentType?: string | null;
-  language?: string | null;
-  loading: boolean;
+type Props = {
+  repository: Repository;
+  revision: string;
+  file: File;
 };
 
-class FileEditButton extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      loading: true
-    };
-  }
+const FileEditButton: FC<Props> = ({ repository, revision, file }) => {
+  const { data, isLoading } = useContentType((file._links.self as Link).href);
+  const [t] = useTranslation("plugins");
+  const history = useHistory();
 
-  componentDidMount() {
-    const selfLink = this.props.file._links.self as Link;
-    apiClient.head(selfLink.href).then((response: Response) =>
-      this.setState({
-        loading: false,
-        contentType: response.headers.get("Content-Type"),
-        language: response.headers.get("X-Programming-Language")
-      })
-    );
-  }
-
-  shouldRender = () => {
-    if (!this.props.file._links.modify) {
+  const shouldRender = () => {
+    if (!file._links.modify || isLoading || !data) {
       return false;
     }
-    const { loading, language, contentType } = this.state;
-    if (loading) {
-      return false;
-    }
-    return isEditable(contentType, language);
+    return isEditable(data.type, data.language);
   };
 
-  pushToEditPage() {
-    const { repository, revision, file, history } = this.props;
-    const url = createSourceExtensionUrl(repository, "edit", revision, file.path);
+  const pushToEditPage = () => {
+    const url = createSourceExtensionUrl(repository, "edit", revision, encodeFilePath(file.path));
     history.push(url);
-  }
+  };
 
-  render() {
-    const { t } = this.props;
+  return (
+    <>
+      {shouldRender() && (
+        <Button
+          title={t("scm-editor-plugin.edit.tooltip")}
+          className="button"
+          onClick={pushToEditPage}
+          {...createAttributesForTesting("edit-file-button")}
+        >
+          <i className="fas fa-edit" />
+        </Button>
+      )}
+    </>
+  );
+};
 
-    return (
-      <>
-        {this.shouldRender() && (
-          <Button
-            title={t("scm-editor-plugin.edit.tooltip")}
-            className="button"
-            onClick={() => this.pushToEditPage()}
-            {...createAttributesForTesting("edit-file-button")}
-          >
-            <i className="fas fa-edit" />
-          </Button>
-        )}
-      </>
-    );
-  }
-}
-
-export default withRouter(withTranslation("plugins")(FileEditButton));
+export default FileEditButton;

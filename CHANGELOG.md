@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Check whether the latest revision has changed during edit ([#41](https://github.com/scm-manager/scm-editor-plugin/pull/41))
 
+### Fixed
+- Multiple fetches of content type ([#47](https://github.com/scm-manager/scm-editor-plugin/pull/47))
+
+## 2.4.0 - 2021-10-07
+### Changed
+- EditorPreconditions and ChangeGuardCheck are now public api ([#46](https://github.com/scm-manager/scm-editor-plugin/pull/46))
+
+## 2.3.1 - 2021-09-13
+### Fixed
+- Path encoding when working with files ([#42](https://github.com/scm-manager/scm-editor-plugin/pull/42))
+- Edit buttons on non-head revisions ([#43](https://github.com/scm-manager/scm-editor-plugin/pull/43))
+
 ## 2.3.0 - 2021-07-21
 ### Added
 - New files can be created in empty non-initiated repositories ([#39](https://github.com/scm-manager/scm-editor-plugin/pull/39))

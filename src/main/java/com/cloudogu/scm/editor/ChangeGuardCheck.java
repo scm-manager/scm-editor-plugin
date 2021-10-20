@@ -32,7 +32,7 @@ import java.util.Set;
 import static com.cloudogu.scm.editor.ChangeGuard.Changes.changes;
 import static java.util.stream.Collectors.toList;
 
-class ChangeGuardCheck {
+public class ChangeGuardCheck {
 
   private final Set<ChangeGuard> changeGuards;
 
