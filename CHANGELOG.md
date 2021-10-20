@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Check whether the latest revision has changed during edit ([#41](https://github.com/scm-manager/scm-editor-plugin/pull/41))
+
 ### Fixed
 - Multiple fetches of content type ([#47](https://github.com/scm-manager/scm-editor-plugin/pull/47))
 
