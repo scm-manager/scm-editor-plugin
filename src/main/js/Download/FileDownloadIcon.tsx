@@ -21,8 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
+import React, { FC } from "react";
+import { File, Link } from "@scm-manager/ui-types";
 import styled from "styled-components";
+import { binder, ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Icon = styled.a`
   color: #33b2e8;
@@ -32,20 +34,21 @@ const Icon = styled.a`
 `;
 
 type Props = {
-  file: any;
+  file: File;
 };
 
-class FileDownloadIcon extends React.Component<Props> {
-  render() {
-    const { file } = this.props;
-    return (
-      <>
-        <Icon href={file._links.self.href} download={file.name}>
-          <i className="fas fa-download" />
-        </Icon>
-      </>
-    );
+const FileDownloadIcon: FC<Props> = ({ file }) => {
+  if (binder.hasExtension("repos.sources.actionbar.download")) {
+    return <ExtensionPoint name="repos.sources.actionbar.download" props={{ file }} renderAll={false} />;
   }
-}
+
+  return (
+    <>
+      <Icon href={(file._links.self as Link).href} download={file.name}>
+        <i className="fas fa-download" />
+      </Icon>
+    </>
+  );
+};
 
 export default FileDownloadIcon;

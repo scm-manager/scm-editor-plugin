@@ -21,36 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
-import { File } from "@scm-manager/ui-types";
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { File, Link } from "@scm-manager/ui-types";
 import styled from "styled-components";
+import { binder, ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Button = styled.a`
   width: 50px;
+
   &:hover {
     color: #33b2e8;
   }
 `;
 
-type Props = WithTranslation & {
+type Props = {
   file: File;
 };
 
-class FileDownloadButton extends React.Component<Props> {
-  render() {
-    const { file, t } = this.props;
-    return (
-      <Button
-        title={t("scm-editor-plugin.download.tooltip")}
-        className="button"
-        href={file._links.self.href}
-        download={file.name}
-      >
-        <i className="fas fa-download" />
-      </Button>
-    );
-  }
-}
+const FileDownloadButton: FC<Props> = ({ file }) => {
+  const [t] = useTranslation("plugins");
 
-export default withTranslation("plugins")(FileDownloadButton);
+  if (binder.hasExtension("repos.sources.content.actionbar.download")) {
+    return <ExtensionPoint name="repos.sources.content.actionbar.download" props={{ file }} renderAll={false} />;
+  }
+  return (
+    <Button
+      title={t("scm-editor-plugin.download.tooltip")}
+      className="button"
+      href={(file._links.self as Link).href}
+      download={file.name}
+    >
+      <i className="fas fa-download" />
+    </Button>
+  );
+};
+
+export default FileDownloadButton;
