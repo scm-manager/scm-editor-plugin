@@ -42,7 +42,7 @@ class ContentActionbar extends React.Component<Props> {
       <ButtonGroup>
         <FileDeleteButton file={file} handleExtensionError={handleExtensionError} revision={revision} />
         <FileEditButton repository={repository} revision={revision} file={file} />
-        <FileDownloadButton file={file} />
+        <FileDownloadButton repository={repository} file={file} />
       </ButtonGroup>
     );
   }

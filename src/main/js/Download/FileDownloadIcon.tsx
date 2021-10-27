@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 import React, { FC } from "react";
-import { File, Link } from "@scm-manager/ui-types";
+import { File, Link, Repository } from "@scm-manager/ui-types";
 import styled from "styled-components";
 import { binder, ExtensionPoint } from "@scm-manager/ui-extensions";
 
@@ -34,12 +34,13 @@ const Icon = styled.a`
 `;
 
 type Props = {
+  repository: Repository;
   file: File;
 };
 
-const FileDownloadIcon: FC<Props> = ({ file }) => {
+const FileDownloadIcon: FC<Props> = ({ repository, file }) => {
   if (binder.hasExtension("repos.sources.actionbar.download")) {
-    return <ExtensionPoint name="repos.sources.actionbar.download" props={{ file }} renderAll={false} />;
+    return <ExtensionPoint name="repos.sources.actionbar.download" props={{ repository, file }} renderAll={false} />;
   }
 
   return (

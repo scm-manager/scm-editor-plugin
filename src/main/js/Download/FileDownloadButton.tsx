@@ -23,7 +23,7 @@
  */
 import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
-import { File, Link } from "@scm-manager/ui-types";
+import { File, Link, Repository } from "@scm-manager/ui-types";
 import styled from "styled-components";
 import { binder, ExtensionPoint } from "@scm-manager/ui-extensions";
 
@@ -36,14 +36,15 @@ const Button = styled.a`
 `;
 
 type Props = {
+  repository: Repository;
   file: File;
 };
 
-const FileDownloadButton: FC<Props> = ({ file }) => {
+const FileDownloadButton: FC<Props> = ({ repository, file }) => {
   const [t] = useTranslation("plugins");
 
   if (binder.hasExtension("repos.sources.content.actionbar.download")) {
-    return <ExtensionPoint name="repos.sources.content.actionbar.download" props={{ file }} renderAll={false} />;
+    return <ExtensionPoint name="repos.sources.content.actionbar.download" props={{ repository, file }} renderAll={false} />;
   }
   return (
     <Button
