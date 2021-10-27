@@ -52,22 +52,24 @@ const Border = styled.div`
   .section:active {
     box-shadow: none;
   }
+
   ,
-  &:focus-within {
+&: focus-within {
     border-color: #33b2e8;
     box-shadow: 0 0 0 0.125em rgba(51, 178, 232, 0.25);
+
     &:hover {
       border-color: #33b2e8;
     }
   }
   ,
-  &:hover {
+&: hover {
     border: 1px solid #b5b5b5;
     border-radius: 4px;
   }
   ,
-  & .input,
-  .textarea {
+  & . input,
+  . textarea {
     border-color: #dbdbdb;
   }
 `;
@@ -110,11 +112,9 @@ class FileUpload extends React.Component<Props, State> {
     });
   };
 
-  handleFile = files => {
-    const fileArray = this.state.files ? this.state.files : [];
-    files.forEach(file => fileArray.push(file));
+  handleFile = (files: File[]) => {
     this.setState({
-      files: fileArray
+      files: [...this.state.files, ...files]
     });
   };
 
@@ -225,7 +225,7 @@ class FileUpload extends React.Component<Props, State> {
         )}
         <ExtensionPoint
           name="editorPlugin.file.upload.validation"
-          props={{ repository, files, isValid: (disable: boolean) => this.setState({ valid: disable }) }}
+          props={{ repository, files, path, isValid: (disable: boolean) => this.setState({ valid: disable }) }}
         />
         {error && <ErrorNotification error={error} />}
         <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
