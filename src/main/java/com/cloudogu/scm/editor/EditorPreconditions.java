@@ -24,6 +24,7 @@
 package com.cloudogu.scm.editor;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.shiro.SecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sonia.scm.ContextEntry;
@@ -34,12 +35,14 @@ import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryPermissions;
 import sonia.scm.repository.api.Command;
+import sonia.scm.repository.api.FileLock;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Optional;
 
 public class EditorPreconditions {
 
@@ -67,13 +70,21 @@ public class EditorPreconditions {
   private boolean isEditableCheck(RepositoryService repositoryService, BrowserResult browserResult) throws IOException {
     return isPermitted(repositoryService.getRepository())
       && isModifySupported(repositoryService)
+      && isLockedByMe(repositoryService, browserResult)
       && (isHeadRevision(repositoryService, browserResult.getRevision(), browserResult.getRequestedRevision())
       || isEmptyRepository(browserResult));
   }
 
+  private boolean isLockedByMe(RepositoryService repositoryService, BrowserResult browserResult) {
+    Optional<FileLock> fileLock = repositoryService.getLockCommand().status(browserResult.getFile().getPath());
+    return !fileLock.isPresent() || fileLock.get().getUserId().equals(SecurityUtils.getSubject().getPrincipal().toString());
+  }
+
   private boolean isEmptyRepository(BrowserResult browserResult) {
     return browserResult.getFile() == null ||
-      browserResult.getFile().isDirectory() && StringUtils.isEmpty(browserResult.getFile().getParentPath()) && browserResult.getFile().getChildren().size() == 0;
+      browserResult.getFile().isDirectory() &&
+        StringUtils.isEmpty(browserResult.getFile().getParentPath()) &&
+        browserResult.getFile().getChildren().size() == 0;
   }
 
   private boolean isModifySupported(RepositoryService repositoryService) {
