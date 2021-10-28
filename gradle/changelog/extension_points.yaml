@@ -1,0 +1,2 @@
+- type: added
+  description: Add extension points for download and upload actions ([#49](https://github.com/scm-manager/scm-editor-plugin/pull/49))
