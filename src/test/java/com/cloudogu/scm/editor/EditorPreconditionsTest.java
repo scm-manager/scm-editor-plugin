@@ -196,6 +196,7 @@ class EditorPreconditionsTest {
   void shouldReturnTrueIfFileLockedByMe() {
     LockCommandBuilder lockCommandBuilder = mock(LockCommandBuilder.class);
     when(repositoryService.getLockCommand()).thenReturn(lockCommandBuilder);
+    lenient().when(repositoryService.isSupported(Command.LOCK)).thenReturn(true);
     when(lockCommandBuilder.status("some_file")).thenReturn(Optional.of(new FileLock("some_file", "", "trillian", Instant.now())));
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
     BrowserResult result = createBrowserResult("abc", "tip", false);
@@ -210,6 +211,7 @@ class EditorPreconditionsTest {
   void shouldReturnFalseIfFileLockedNotByMe() {
     LockCommandBuilder lockCommandBuilder = mock(LockCommandBuilder.class);
     when(repositoryService.getLockCommand()).thenReturn(lockCommandBuilder);
+    lenient().when(repositoryService.isSupported(Command.LOCK)).thenReturn(true);
     when(lockCommandBuilder.status("some_file")).thenReturn(Optional.of(new FileLock("some_file", "", "dent", Instant.now())));
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
     BrowserResult result = createBrowserResult("abc", "tip", false);

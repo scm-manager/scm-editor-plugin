@@ -76,8 +76,11 @@ public class EditorPreconditions {
   }
 
   private boolean isUnlockedOrLockedByMe(RepositoryService repositoryService, BrowserResult browserResult) {
-    Optional<FileLock> fileLock = repositoryService.getLockCommand().status(browserResult.getFile().getPath());
-    return !fileLock.isPresent() || fileLock.get().getUserId().equals(SecurityUtils.getSubject().getPrincipal().toString());
+    if (repositoryService.isSupported(Command.LOCK)) {
+      Optional<FileLock> fileLock = repositoryService.getLockCommand().status(browserResult.getFile().getPath());
+      return !fileLock.isPresent() || fileLock.get().getUserId().equals(SecurityUtils.getSubject().getPrincipal().toString());
+    }
+    return true;
   }
 
   private boolean isEmptyRepository(BrowserResult browserResult) {
