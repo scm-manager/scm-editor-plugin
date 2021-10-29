@@ -24,7 +24,7 @@
 import React, { FC } from "react";
 import { File, Link, Repository } from "@scm-manager/ui-types";
 import styled from "styled-components";
-import { binder, ExtensionPoint } from "@scm-manager/ui-extensions";
+import { ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Icon = styled.a`
   color: #33b2e8;
@@ -39,16 +39,12 @@ type Props = {
 };
 
 const FileDownloadIcon: FC<Props> = ({ repository, file }) => {
-  if (binder.hasExtension("repos.sources.actionbar.download")) {
-    return <ExtensionPoint name="repos.sources.actionbar.download" props={{ repository, file }} renderAll={false} />;
-  }
-
   return (
-    <>
+    <ExtensionPoint name="repos.sources.actionbar.download" props={{ repository, file }} renderAll={false}>
       <Icon href={(file._links.self as Link).href} download={file.name}>
         <i className="fas fa-download" />
       </Icon>
-    </>
+    </ExtensionPoint>
   );
 };
 

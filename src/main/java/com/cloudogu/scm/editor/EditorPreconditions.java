@@ -70,12 +70,12 @@ public class EditorPreconditions {
   private boolean isEditableCheck(RepositoryService repositoryService, BrowserResult browserResult) throws IOException {
     return isPermitted(repositoryService.getRepository())
       && isModifySupported(repositoryService)
-      && isLockedByMe(repositoryService, browserResult)
+      && isUnlockedOrLockedByMe(repositoryService, browserResult)
       && (isHeadRevision(repositoryService, browserResult.getRevision(), browserResult.getRequestedRevision())
       || isEmptyRepository(browserResult));
   }
 
-  private boolean isLockedByMe(RepositoryService repositoryService, BrowserResult browserResult) {
+  private boolean isUnlockedOrLockedByMe(RepositoryService repositoryService, BrowserResult browserResult) {
     Optional<FileLock> fileLock = repositoryService.getLockCommand().status(browserResult.getFile().getPath());
     return !fileLock.isPresent() || fileLock.get().getUserId().equals(SecurityUtils.getSubject().getPrincipal().toString());
   }
@@ -84,7 +84,7 @@ public class EditorPreconditions {
     return browserResult.getFile() == null ||
       browserResult.getFile().isDirectory() &&
         StringUtils.isEmpty(browserResult.getFile().getParentPath()) &&
-        browserResult.getFile().getChildren().size() == 0;
+        browserResult.getFile().getChildren().isEmpty();
   }
 
   private boolean isModifySupported(RepositoryService repositoryService) {

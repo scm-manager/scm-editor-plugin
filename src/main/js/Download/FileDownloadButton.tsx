@@ -25,7 +25,7 @@ import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
 import { File, Link, Repository } from "@scm-manager/ui-types";
 import styled from "styled-components";
-import { binder, ExtensionPoint } from "@scm-manager/ui-extensions";
+import { ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Button = styled.a`
   width: 50px;
@@ -43,18 +43,17 @@ type Props = {
 const FileDownloadButton: FC<Props> = ({ repository, file }) => {
   const [t] = useTranslation("plugins");
 
-  if (binder.hasExtension("repos.sources.content.actionbar.download")) {
-    return <ExtensionPoint name="repos.sources.content.actionbar.download" props={{ repository, file }} renderAll={false} />;
-  }
   return (
-    <Button
-      title={t("scm-editor-plugin.download.tooltip")}
-      className="button"
-      href={(file._links.self as Link).href}
-      download={file.name}
-    >
-      <i className="fas fa-download" />
-    </Button>
+    <ExtensionPoint name="repos.sources.content.actionbar.download" props={{ repository, file }} renderAll={false}>
+      <Button
+        title={t("scm-editor-plugin.download.tooltip")}
+        className="button"
+        href={(file._links.self as Link).href}
+        download={file.name}
+      >
+        <i className="fas fa-download" />
+      </Button>
+    </ExtensionPoint>
   );
 };
 
