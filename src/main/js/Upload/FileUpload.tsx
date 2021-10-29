@@ -225,7 +225,7 @@ class FileUpload extends React.Component<Props, State> {
         )}
         <ExtensionPoint
           name="editorPlugin.file.upload.validation"
-          props={{ repository, files, path, isValid: (disable: boolean) => this.setState({ valid: disable }) }}
+          props={{ repository, files, path, validateFiles: (disable: boolean) => this.setState({ valid: disable }) }}
         />
         {error && <ErrorNotification error={error} />}
         <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
