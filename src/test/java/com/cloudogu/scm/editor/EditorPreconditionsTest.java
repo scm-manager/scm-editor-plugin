@@ -45,7 +45,7 @@ import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryTestData;
 import sonia.scm.repository.api.Command;
 import sonia.scm.repository.api.FileLock;
-import sonia.scm.repository.api.LockCommandBuilder;
+import sonia.scm.repository.api.FileLockCommandBuilder;
 import sonia.scm.repository.api.LogCommandBuilder;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
@@ -194,9 +194,9 @@ class EditorPreconditionsTest {
   @Test
   @SubjectAware(value = "trillian", permissions = "repository:push:21")
   void shouldReturnTrueIfFileLockedByMe() {
-    LockCommandBuilder lockCommandBuilder = mock(LockCommandBuilder.class);
+    FileLockCommandBuilder lockCommandBuilder = mock(FileLockCommandBuilder.class);
     when(repositoryService.getLockCommand()).thenReturn(lockCommandBuilder);
-    lenient().when(repositoryService.isSupported(Command.LOCK)).thenReturn(true);
+    lenient().when(repositoryService.isSupported(Command.FILE_LOCK)).thenReturn(true);
     when(lockCommandBuilder.status("some_file")).thenReturn(Optional.of(new FileLock("some_file", "", "trillian", Instant.now())));
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
     BrowserResult result = createBrowserResult("abc", "tip", false);
@@ -209,9 +209,9 @@ class EditorPreconditionsTest {
   @Test
   @SubjectAware(value = "trillian", permissions = "repository:push:21")
   void shouldReturnFalseIfFileLockedNotByMe() {
-    LockCommandBuilder lockCommandBuilder = mock(LockCommandBuilder.class);
+    FileLockCommandBuilder lockCommandBuilder = mock(FileLockCommandBuilder.class);
     when(repositoryService.getLockCommand()).thenReturn(lockCommandBuilder);
-    lenient().when(repositoryService.isSupported(Command.LOCK)).thenReturn(true);
+    lenient().when(repositoryService.isSupported(Command.FILE_LOCK)).thenReturn(true);
     when(lockCommandBuilder.status("some_file")).thenReturn(Optional.of(new FileLock("some_file", "", "dent", Instant.now())));
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
     BrowserResult result = createBrowserResult("abc", "tip", false);

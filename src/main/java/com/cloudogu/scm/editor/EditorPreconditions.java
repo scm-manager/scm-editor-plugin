@@ -76,7 +76,7 @@ public class EditorPreconditions {
   }
 
   private boolean isUnlockedOrLockedByMe(RepositoryService repositoryService, BrowserResult browserResult) {
-    if (repositoryService.isSupported(Command.LOCK)) {
+    if (repositoryService.isSupported(Command.FILE_LOCK)) {
       Optional<FileLock> fileLock = repositoryService.getLockCommand().status(browserResult.getFile().getPath());
       return !fileLock.isPresent() || fileLock.get().getUserId().equals(SecurityUtils.getSubject().getPrincipal().toString());
     }
