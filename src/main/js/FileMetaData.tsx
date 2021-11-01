@@ -77,13 +77,9 @@ const InputBorder = styled.div<InputBorderProps>`
      }`}
 `;
 
-const LabelSizing = styled.label`
-  font-size: 1rem !important;
-`;
-
 const FieldLabel: FC<{ value: string }> = ({ value }) => (
   <div className="field">
-    <LabelSizing className="label">{value}</LabelSizing>
+    <label className="label is-size-6">{value}</label>
   </div>
 );
 

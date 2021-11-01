@@ -56,12 +56,8 @@ class FileUploadButton extends React.Component<Props> {
     return (
       <>
         {sources && sources._links.upload && (
-          <Link to={this.createUploadUrl()}>
-            <Button
-              title={t("scm-editor-plugin.upload.tooltip")}
-              className="button"
-              {...createAttributesForTesting("upload-file-button")}
-            >
+          <Link to={this.createUploadUrl()} title={t("scm-editor-plugin.upload.tooltip")}>
+            <Button className="button" {...createAttributesForTesting("upload-file-button")}>
               <i className="fas fa-upload" />
             </Button>
           </Link>

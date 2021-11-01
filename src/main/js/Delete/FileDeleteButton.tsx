@@ -29,7 +29,7 @@ import { apiClient, createAttributesForTesting } from "@scm-manager/ui-component
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
 
-const Button = styled.a`
+const Button = styled.button`
   width: 50px;
   &:hover {
     color: #33b2e8;

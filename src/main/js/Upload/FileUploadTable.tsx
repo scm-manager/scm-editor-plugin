@@ -81,8 +81,11 @@ class FileUploadTable extends React.Component<Props> {
                     <FileSize bytes={file.size} />
                   </td>
                   <td>
-                    <a onClick={() => !disabled && this.removeEntry(file)}>
-                      <i className="fas fa-trash-alt" />
+                    <a
+                      onClick={() => !disabled && this.removeEntry(file)}
+                      aria-label={t("scm-editor-plugin.upload.delete")}
+                    >
+                      <i className="fas fa-trash" />
                     </a>
                   </td>
                 </tr>

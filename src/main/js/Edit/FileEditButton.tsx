@@ -32,7 +32,7 @@ import { createSourceExtensionUrl } from "../links";
 import { isEditable } from "./isEditable";
 import { encodeFilePath } from "./encodeFilePath";
 
-const Button = styled.a`
+const Button = styled.button`
   width: 50px;
   &:hover {
     color: #33b2e8;

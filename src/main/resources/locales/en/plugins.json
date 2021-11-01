@@ -41,7 +41,8 @@
         "table": {
           "title": "Selected files"
         }
-      }
+      },
+      "delete": "Delete"
     },
     "create": {
       "tooltip": "Create new file"

@@ -56,12 +56,8 @@ class FileCreateButton extends React.Component<Props> {
     return (
       <>
         {sources && sources._links.upload && (
-          <Link to={this.createCreateUrl()}>
-            <Button
-              title={t("scm-editor-plugin.create.tooltip")}
-              className="button"
-              {...createAttributesForTesting("create-file-button")}
-            >
+          <Link to={this.createCreateUrl()} title={t("scm-editor-plugin.create.tooltip")}>
+            <Button className="button" {...createAttributesForTesting("create-file-button")}>
               <i className="fas fa-file-medical" />
             </Button>
           </Link>

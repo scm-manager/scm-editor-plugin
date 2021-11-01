@@ -23,6 +23,7 @@
  */
 import React from "react";
 import styled from "styled-components";
+import { withTranslation, WithTranslation } from "react-i18next";
 
 const Icon = styled.a`
   color: #33b2e8;
@@ -31,16 +32,16 @@ const Icon = styled.a`
   }
 `;
 
-type Props = {
+type Props = WithTranslation & {
   file: any;
 };
 
 class FileDownloadIcon extends React.Component<Props> {
   render() {
-    const { file } = this.props;
+    const { file, t } = this.props;
     return (
       <>
-        <Icon href={file._links.self.href} download={file.name}>
+        <Icon title={t("scm-editor-plugin.download.tooltip")} href={file._links.self.href} download={file.name}>
           <i className="fas fa-download" />
         </Icon>
       </>
@@ -48,4 +49,4 @@ class FileDownloadIcon extends React.Component<Props> {
   }
 }
 
-export default FileDownloadIcon;
+export default withTranslation("plugins")(FileDownloadIcon);

@@ -24,11 +24,6 @@
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { Textarea, CommitAuthor } from "@scm-manager/ui-components";
-import styled from "styled-components";
-
-const MarginBottom = styled.div`
-  margin-bottom: 0.5rem;
-`;
 
 type Props = WithTranslation & {
   onChange: (p: string) => void;
@@ -40,7 +35,7 @@ class CommitMessage extends React.Component<Props> {
     const { t, onChange, disabled } = this.props;
     return (
       <>
-        <MarginBottom><CommitAuthor /></MarginBottom>
+        <CommitAuthor />
         <Textarea
           placeholder={t("scm-editor-plugin.commit.placeholder")}
           onChange={message => onChange(message)}
