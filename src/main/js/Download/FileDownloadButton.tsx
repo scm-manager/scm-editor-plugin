@@ -21,36 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
-import { File } from "@scm-manager/ui-types";
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { File, Link, Repository } from "@scm-manager/ui-types";
 import styled from "styled-components";
+import { ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Button = styled.a`
   width: 50px;
+
   &:hover {
     color: #33b2e8;
   }
 `;
 
-type Props = WithTranslation & {
+type Props = {
+  repository: Repository;
   file: File;
 };
 
-class FileDownloadButton extends React.Component<Props> {
-  render() {
-    const { file, t } = this.props;
-    return (
+const FileDownloadButton: FC<Props> = ({ repository, file }) => {
+  const [t] = useTranslation("plugins");
+
+  return (
+    <ExtensionPoint name="repos.sources.content.actionbar.download" props={{ repository, file }} renderAll={false}>
       <Button
         title={t("scm-editor-plugin.download.tooltip")}
         className="button"
-        href={file._links.self.href}
+        href={(file._links.self as Link).href}
         download={file.name}
       >
         <i className="fas fa-download" />
       </Button>
-    );
-  }
-}
+    </ExtensionPoint>
+  );
+};
 
-export default withTranslation("plugins")(FileDownloadButton);
+export default FileDownloadButton;

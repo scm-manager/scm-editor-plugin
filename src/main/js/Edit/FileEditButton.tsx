@@ -62,19 +62,19 @@ const FileEditButton: FC<Props> = ({ repository, revision, file }) => {
     history.push(url);
   };
 
+  if (!shouldRender()) {
+    return null;
+  }
+
   return (
-    <>
-      {shouldRender() && (
-        <Button
-          title={t("scm-editor-plugin.edit.tooltip")}
-          className="button"
-          onClick={pushToEditPage}
-          {...createAttributesForTesting("edit-file-button")}
-        >
-          <i className="fas fa-edit" />
-        </Button>
-      )}
-    </>
+    <Button
+      title={t("scm-editor-plugin.edit.tooltip")}
+      className="button"
+      onClick={pushToEditPage}
+      {...createAttributesForTesting("edit-file-button")}
+    >
+      <i className="fas fa-edit" />
+    </Button>
   );
 };
 
