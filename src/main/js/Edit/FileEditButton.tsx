@@ -27,10 +27,16 @@ import { useContentType } from "@scm-manager/ui-api";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { File, Link, Repository } from "@scm-manager/ui-types";
-import { createAttributesForTesting } from "@scm-manager/ui-components";
+import { createAttributesForTesting, Icon } from "@scm-manager/ui-components";
 import { createSourceExtensionUrl } from "../links";
 import { isEditable } from "./isEditable";
 import { encodeFilePath } from "./encodeFilePath";
+
+type Props = {
+  repository: Repository;
+  revision: string;
+  file: File;
+};
 
 const Button = styled.button`
   width: 50px;
@@ -38,12 +44,6 @@ const Button = styled.button`
     color: #33b2e8;
   }
 `;
-
-type Props = {
-  repository: Repository;
-  revision: string;
-  file: File;
-};
 
 const FileEditButton: FC<Props> = ({ repository, revision, file }) => {
   const { data, isLoading } = useContentType((file._links.self as Link).href);
@@ -71,7 +71,7 @@ const FileEditButton: FC<Props> = ({ repository, revision, file }) => {
           onClick={pushToEditPage}
           {...createAttributesForTesting("edit-file-button")}
         >
-          <i className="fas fa-edit" />
+          <Icon name="edit" color="inherit" />
         </Button>
       )}
     </>

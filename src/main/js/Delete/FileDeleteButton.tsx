@@ -25,7 +25,7 @@ import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { File, Link } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
-import { apiClient, createAttributesForTesting } from "@scm-manager/ui-components";
+import { apiClient, createAttributesForTesting, Icon } from "@scm-manager/ui-components";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
 
@@ -126,7 +126,7 @@ class FileDeleteButton extends React.Component<Props, State> {
             onClick={this.toggleModal}
             {...createAttributesForTesting("delete-file-button")}
           >
-            <i className="fas fa-trash" />
+            <Icon name="trash" color="inherit" />
           </Button>
         )}
       </>

@@ -21,32 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import styled from "styled-components";
-import { withTranslation, WithTranslation } from "react-i18next";
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { Tooltip, Icon } from "@scm-manager/ui-components";
 
-const Icon = styled.a`
-  color: #33b2e8;
-  &:hover {
-    color: #363636;
-  }
-`;
-
-type Props = WithTranslation & {
-  file: any;
+type Props = {
+  file: File;
 };
 
-class FileDownloadIcon extends React.Component<Props> {
-  render() {
-    const { file, t } = this.props;
-    return (
-      <>
-        <Icon title={t("scm-editor-plugin.download.tooltip")} href={file._links.self.href} download={file.name}>
-          <i className="fas fa-download" />
-        </Icon>
-      </>
-    );
-  }
-}
+const FileDownloadIcon: FC<Props> = ({ file }) => {
+  const [t] = useTranslation("plugins");
+  return (
+    <Tooltip message={t("scm-editor-plugin.download.tooltip")} location="top">
+      <a href={file._links.self.href} aria-label={t("scm-editor-plugin.download.tooltip")} download={file.name}>
+        <Icon name="download" color="inherit" />
+      </a>
+    </Tooltip>
+  );
+};
 
-export default withTranslation("plugins")(FileDownloadIcon);
+export default FileDownloadIcon;

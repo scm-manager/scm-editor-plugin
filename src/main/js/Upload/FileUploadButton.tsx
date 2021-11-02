@@ -21,15 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { File, Repository } from "@scm-manager/ui-types";
-import { WithTranslation, withTranslation } from "react-i18next";
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { File, Repository } from "@scm-manager/ui-types";
+import { createAttributesForTesting, Icon } from "@scm-manager/ui-components";
 import { createSourceExtensionUrl } from "../links";
-import { createAttributesForTesting } from "@scm-manager/ui-components";
 
-const Button = styled.span`
+type Props = {
+  repository: Repository;
+  path?: string;
+  revision?: string;
+  sources: File;
+};
+
+const ButtonLink = styled(Link)`
   width: 50px;
   color: #33b2e8;
   &:hover {
@@ -37,34 +44,22 @@ const Button = styled.span`
   }
 `;
 
-type Props = WithTranslation & {
-  repository: Repository;
-  path?: string;
-  revision?: string;
-  sources: File;
+const FileUploadButton: FC<Props> = ({ repository, revision, path, sources }) => {
+  const [t] = useTranslation("plugins");
+  return (
+    <>
+      {sources && sources._links.upload && (
+        <ButtonLink
+          to={createSourceExtensionUrl(repository, "upload", revision, path)}
+          className="button"
+          title={t("scm-editor-plugin.upload.tooltip")}
+          {...createAttributesForTesting("upload-file-button")}
+        >
+          <Icon name="upload" color="inherit" />
+        </ButtonLink>
+      )}
+    </>
+  );
 };
 
-class FileUploadButton extends React.Component<Props> {
-  createUploadUrl = () => {
-    const { repository, revision, path } = this.props;
-    return createSourceExtensionUrl(repository, "upload", revision, path);
-  };
-
-  render() {
-    const { t, sources } = this.props;
-
-    return (
-      <>
-        {sources && sources._links.upload && (
-          <Link to={this.createUploadUrl()} title={t("scm-editor-plugin.upload.tooltip")}>
-            <Button className="button" {...createAttributesForTesting("upload-file-button")}>
-              <i className="fas fa-upload" />
-            </Button>
-          </Link>
-        )}
-      </>
-    );
-  }
-}
-
-export default withTranslation("plugins")(FileUploadButton);
+export default FileUploadButton;

@@ -21,36 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
-import { File } from "@scm-manager/ui-types";
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { File } from "@scm-manager/ui-types";
+import { Icon } from "@scm-manager/ui-components";
 
-const Button = styled.a`
+type Props = {
+  file: File;
+};
+
+const ButtonA = styled.a`
   width: 50px;
   &:hover {
     color: #33b2e8;
   }
 `;
 
-type Props = WithTranslation & {
-  file: File;
+const FileDownloadButton: FC<Props> = ({ file }) => {
+  const [t] = useTranslation("plugins");
+  return (
+    <ButtonA
+      href={file._links.self.href}
+      className="button"
+      title={t("scm-editor-plugin.download.tooltip")}
+      download={file.name}
+    >
+      <Icon name="download" color="inherit" />
+    </ButtonA>
+  );
 };
 
-class FileDownloadButton extends React.Component<Props> {
-  render() {
-    const { file, t } = this.props;
-    return (
-      <Button
-        title={t("scm-editor-plugin.download.tooltip")}
-        className="button"
-        href={file._links.self.href}
-        download={file.name}
-      >
-        <i className="fas fa-download" />
-      </Button>
-    );
-  }
-}
-
-export default withTranslation("plugins")(FileDownloadButton);
+export default FileDownloadButton;
