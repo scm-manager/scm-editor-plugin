@@ -24,8 +24,8 @@
 import React from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { WithTranslation, withTranslation } from "react-i18next";
-import { File, Repository, Link, Changeset } from "@scm-manager/ui-types";
-import { apiClient, Button, ButtonGroup, ErrorNotification, Subtitle, Breadcrumb } from "@scm-manager/ui-components";
+import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
+import { apiClient, Breadcrumb, Button, ButtonGroup, ErrorNotification, Subtitle } from "@scm-manager/ui-components";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FileMetaData from "../FileMetaData";
 import CommitMessage from "../CommitMessage";
@@ -33,6 +33,7 @@ import FileUploadTable from "./FileUploadTable";
 import styled from "styled-components";
 import { Commit } from "../commit";
 import { createSourceUrl, createSourceUrlFromChangeset } from "../links";
+import { ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Header = styled.div`
   background-color: #f5f5f5;
@@ -51,22 +52,24 @@ const Border = styled.div`
   .section:active {
     box-shadow: none;
   }
+
   ,
-  &:focus-within {
+&: focus-within {
     border-color: #33b2e8;
     box-shadow: 0 0 0 0.125em rgba(51, 178, 232, 0.25);
+
     &:hover {
       border-color: #33b2e8;
     }
   }
   ,
-  &:hover {
+&: hover {
     border: 1px solid #b5b5b5;
     border-radius: 4px;
   }
   ,
-  & .input,
-  .textarea {
+  & . input,
+  . textarea {
     border-color: #dbdbdb;
   }
 `;
@@ -87,6 +90,7 @@ type State = {
   commitMessage: any;
   error: Error;
   loading: boolean;
+  valid: boolean;
 };
 
 class FileUpload extends React.Component<Props, State> {
@@ -96,7 +100,8 @@ class FileUpload extends React.Component<Props, State> {
       ...this.props,
       loading: false,
       files: [],
-      commitMessage: ""
+      commitMessage: "",
+      valid: true
     };
   }
 
@@ -107,11 +112,9 @@ class FileUpload extends React.Component<Props, State> {
     });
   };
 
-  handleFile = files => {
-    const fileArray = this.state.files ? this.state.files : [];
-    files.forEach(file => fileArray.push(file));
+  handleFile = (files: File[]) => {
     this.setState({
-      files: fileArray
+      files: [...this.state.files, ...files]
     });
   };
 
@@ -199,7 +202,7 @@ class FileUpload extends React.Component<Props, State> {
 
   render() {
     const { repository, revision, baseUrl, t } = this.props;
-    const { files, path, commitMessage, error, loading } = this.state;
+    const { files, path, commitMessage, error, loading, valid } = this.state;
 
     return (
       <>
@@ -220,6 +223,10 @@ class FileUpload extends React.Component<Props, State> {
         {files && files.length > 0 && (
           <FileUploadTable files={files} removeFileEntry={this.removeFileEntry} disabled={loading} />
         )}
+        <ExtensionPoint
+          name="editorPlugin.file.upload.validation"
+          props={{ repository, files, path, validateFiles: (disable: boolean) => this.setState({ valid: disable }) }}
+        />
         {error && <ErrorNotification error={error} />}
         <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
         <br />
@@ -231,7 +238,7 @@ class FileUpload extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
-                disabled={!commitMessage || files.length === 0}
+                disabled={!commitMessage || files.length === 0 || !valid}
                 action={this.commitFile}
                 loading={loading}
                 testId="upload-file-commit-button"

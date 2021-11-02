@@ -22,11 +22,10 @@
  * SOFTWARE.
  */
 import React from "react";
-import { Repository, File } from "@scm-manager/ui-types";
+import { File, Repository } from "@scm-manager/ui-types";
 import FileDeleteButton from "./Delete/FileDeleteButton";
 import FileEditButton from "./Edit/FileEditButton";
 import FileDownloadButton from "./Download/FileDownloadButton";
-import { ButtonGroup } from "@scm-manager/ui-components";
 
 type Props = {
   repository: Repository;
@@ -39,11 +38,11 @@ class ContentActionbar extends React.Component<Props> {
   render() {
     const { repository, file, revision, handleExtensionError } = this.props;
     return (
-      <ButtonGroup>
+      <div className="field is-grouped">
         <FileDeleteButton file={file} handleExtensionError={handleExtensionError} revision={revision} />
         <FileEditButton repository={repository} revision={revision} file={file} />
-        <FileDownloadButton file={file} />
-      </ButtonGroup>
+        <FileDownloadButton repository={repository} file={file} />
+      </div>
     );
   }
 }

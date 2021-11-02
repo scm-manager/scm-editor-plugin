@@ -24,10 +24,8 @@
 package com.cloudogu.scm.editor;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.ThreadContext;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.github.sdorra.jse.ShiroExtension;
+import org.github.sdorra.jse.SubjectAware;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -46,20 +44,26 @@ import sonia.scm.repository.Person;
 import sonia.scm.repository.Repository;
 import sonia.scm.repository.RepositoryTestData;
 import sonia.scm.repository.api.Command;
+import sonia.scm.repository.api.FileLock;
+import sonia.scm.repository.api.FileLockCommandBuilder;
 import sonia.scm.repository.api.LogCommandBuilder;
 import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, ShiroExtension.class})
+@SubjectAware(value = "trillian", permissions = "repository:push:42")
 class EditorPreconditionsTest {
 
   @Mock
@@ -71,24 +75,10 @@ class EditorPreconditionsTest {
   @InjectMocks
   private EditorPreconditions preconditions;
 
-  @Mock
-  private Subject subject;
-
-  @BeforeEach
-  void setUpSubject() {
-    ThreadContext.bind(subject);
-  }
-
-  @AfterEach
-  void tearDownSubject() {
-    ThreadContext.unbindSubject();
-  }
-
   @Test
   void shouldReturnTrueForEmptyRepositoryWithoutBranchSupport() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.LOG);
     BrowserResult result = createBrowserResult("abc", "master", false);
-    setUpPermission("42", true);
 
     assertThat(preconditions.isEditable(namespaceAndName, result)).isTrue();
   }
@@ -98,19 +88,16 @@ class EditorPreconditionsTest {
     NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.LOG);
     BrowserResult result = createBrowserResult("abc", "master", false);
 
-    setUpPermission("42", true);
-
     setUpLogCommandResult("abc");
 
     assertThat(preconditions.isEditable(namespaceAndName, result)).isTrue();
   }
 
   @Test
+  @SubjectAware(value = "trillian", permissions = "repository:push:21")
   void shouldReturnTrueForLatestRevisionOnBranch() throws IOException {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
     BrowserResult result = createBrowserResult("abc", "master", false);
-
-    setUpPermission("21", true);
 
     setUpBranches(
       Branch.normalBranch("master", "cde"),
@@ -124,25 +111,24 @@ class EditorPreconditionsTest {
   void shouldReturnFalseIfNotPermitted() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.LOG, Command.BRANCHES);
     BrowserResult result = createBrowserResult("abc", "master", false);
-    setUpPermission("21", false);
 
     assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
   }
 
   @Test
+  @SubjectAware(value = "trillian", permissions = "repository:push:21")
   void shouldReturnFalseIfModifyCommandIsNotSupported() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.LOG);
     BrowserResult result = createBrowserResult("abc", "master", false);
-    setUpPermission("21", true);
 
     assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
   }
 
   @Test
+  @SubjectAware(value = "trillian", permissions = "repository:push:21")
   void shouldReturnFalseIfLogAndBranchesCommandAreNotSupported() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY);
     BrowserResult result = createBrowserResult("abc", "master", false);
-    setUpPermission("21", true);
 
     assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
   }
@@ -153,7 +139,6 @@ class EditorPreconditionsTest {
     FileObject fileObject = new FileObject();
     fileObject.addChild(new FileObject());
     BrowserResult result = createBrowserResult("abc", "master", false, fileObject);
-    setUpPermission("42", true);
 
     setUpLogCommandResult("def");
 
@@ -161,12 +146,12 @@ class EditorPreconditionsTest {
   }
 
   @Test
+  @SubjectAware(value = "trillian", permissions = "repository:push:21")
   void shouldReturnFalseIfNotABranch() throws IOException {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
     FileObject fileObject = new FileObject();
     fileObject.addChild(new FileObject());
     BrowserResult result = createBrowserResult("abc", "notExistingBranch", false, fileObject);
-    setUpPermission("21", true);
 
     setUpBranches(
       Branch.normalBranch("master", "cde"),
@@ -177,20 +162,20 @@ class EditorPreconditionsTest {
   }
 
   @Test
+  @SubjectAware(value = "trillian", permissions = "repository:push:21")
   void shouldReturnTrueIfHasTipButEmptyRepo() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
     BrowserResult result = createBrowserResult("abc", "tip", false);
     result.getFile().setDirectory(true);
-    setUpPermission("21", true);
 
     assertThat(preconditions.isEditable(namespaceAndName, result)).isTrue();
   }
 
   @Test
+  @SubjectAware(value = "trillian", permissions = "repository:push:21")
   void shouldReturnFalseIfIsNotTipButIsFile() {
     NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
     BrowserResult result = createBrowserResult("abc", "123", false);
-    setUpPermission("21", true);
 
     assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
   }
@@ -199,12 +184,41 @@ class EditorPreconditionsTest {
   void shouldThrowInternalRepositoryExceptionOnError() throws IOException {
     NamespaceAndName namespaceAndName = setUpRepositoryService("42", Command.MODIFY, Command.LOG);
     BrowserResult result = createBrowserResult("abc", "master", false);
-    setUpPermission("42", true);
 
     LogCommandBuilder builder = repositoryService.getLogCommand().setPagingLimit(1);
     doThrow(new IOException("failed :(")).when(builder).getChangesets();
 
     assertThrows(InternalRepositoryException.class, () -> preconditions.isEditable(namespaceAndName, result));
+  }
+
+  @Test
+  @SubjectAware(value = "trillian", permissions = "repository:push:21")
+  void shouldReturnTrueIfFileLockedByMe() {
+    FileLockCommandBuilder lockCommandBuilder = mock(FileLockCommandBuilder.class);
+    when(repositoryService.getLockCommand()).thenReturn(lockCommandBuilder);
+    lenient().when(repositoryService.isSupported(Command.FILE_LOCK)).thenReturn(true);
+    when(lockCommandBuilder.status("some_file")).thenReturn(Optional.of(new FileLock("some_file", "", "trillian", Instant.now())));
+    NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
+    BrowserResult result = createBrowserResult("abc", "tip", false);
+    result.getFile().setDirectory(true);
+    result.getFile().setPath("some_file");
+
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isTrue();
+  }
+
+  @Test
+  @SubjectAware(value = "trillian", permissions = "repository:push:21")
+  void shouldReturnFalseIfFileLockedNotByMe() {
+    FileLockCommandBuilder lockCommandBuilder = mock(FileLockCommandBuilder.class);
+    when(repositoryService.getLockCommand()).thenReturn(lockCommandBuilder);
+    lenient().when(repositoryService.isSupported(Command.FILE_LOCK)).thenReturn(true);
+    when(lockCommandBuilder.status("some_file")).thenReturn(Optional.of(new FileLock("some_file", "", "dent", Instant.now())));
+    NamespaceAndName namespaceAndName = setUpRepositoryService("21", Command.MODIFY, Command.BRANCHES);
+    BrowserResult result = createBrowserResult("abc", "tip", false);
+    result.getFile().setDirectory(true);
+    result.getFile().setPath("some_file");
+
+    assertThat(preconditions.isEditable(namespaceAndName, result)).isFalse();
   }
 
   private BrowserResult createBrowserResult(String revision, String branchName, boolean directory, FileObject fileObject) {
@@ -219,10 +233,6 @@ class EditorPreconditionsTest {
 
   private void setUpBranches(Branch... branches) throws IOException {
     when(repositoryService.getBranchesCommand().getBranches()).thenReturn(new Branches(branches));
-  }
-
-  private void setUpPermission(String repositoryId, boolean permitted) {
-    when(subject.isPermitted("repository:push:" + repositoryId)).thenReturn(permitted);
   }
 
   private void setUpLogCommandResult(String changesetId) throws IOException {

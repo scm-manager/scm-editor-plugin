@@ -24,10 +24,12 @@
 import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { File } from "@scm-manager/ui-types";
+import { File, Link, Repository } from "@scm-manager/ui-types";
+import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import { Icon } from "@scm-manager/ui-components";
 
 type Props = {
+  repository: Repository;
   file: File;
 };
 
@@ -38,17 +40,20 @@ const ButtonA = styled.a`
   }
 `;
 
-const FileDownloadButton: FC<Props> = ({ file }) => {
+const FileDownloadButton: FC<Props> = ({ repository, file }) => {
   const [t] = useTranslation("plugins");
+
   return (
-    <ButtonA
-      href={file._links.self.href}
-      className="button"
-      title={t("scm-editor-plugin.download.tooltip")}
-      download={file.name}
-    >
-      <Icon name="download" color="inherit" />
-    </ButtonA>
+    <ExtensionPoint name="repos.sources.content.actionbar.download" props={{ repository, file }} renderAll={false}>
+      <ButtonA
+        href={(file._links.self as Link).href}
+        className="button"
+        title={t("scm-editor-plugin.download.tooltip")}
+        download={file.name}
+      >
+        <Icon name="download" color="inherit" />
+      </ButtonA>
+    </ExtensionPoint>
   );
 };
 

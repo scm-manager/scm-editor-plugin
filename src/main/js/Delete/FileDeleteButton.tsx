@@ -112,6 +112,10 @@ class FileDeleteButton extends React.Component<Props, State> {
     const { file, t } = this.props;
     const { showModal, loading } = this.state;
 
+    if (!this.shouldRender()) {
+      return null;
+    }
+
     const modal = showModal ? (
       <FileDeleteModal onClose={this.toggleModal} onCommit={this.deleteFile} file={file} loading={loading} />
     ) : null;
@@ -119,16 +123,14 @@ class FileDeleteButton extends React.Component<Props, State> {
     return (
       <>
         <Pointer>{modal}</Pointer>
-        {this.shouldRender() && (
-          <Button
-            title={t("scm-editor-plugin.delete.tooltip")}
-            className="button"
-            onClick={this.toggleModal}
-            {...createAttributesForTesting("delete-file-button")}
-          >
-            <Icon name="trash" color="inherit" />
-          </Button>
-        )}
+        <Button
+          title={t("scm-editor-plugin.delete.tooltip")}
+          className="button"
+          onClick={this.toggleModal}
+          {...createAttributesForTesting("delete-file-button")}
+        >
+          <Icon name="trash" color="inherit" />
+        </Button>
       </>
     );
   }

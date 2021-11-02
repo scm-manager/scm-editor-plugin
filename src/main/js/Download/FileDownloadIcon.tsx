@@ -23,20 +23,30 @@
  */
 import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
+import { File, Link, Repository } from "@scm-manager/ui-types";
+import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import { Tooltip, Icon } from "@scm-manager/ui-components";
 
 type Props = {
+  repository: Repository;
   file: File;
 };
 
-const FileDownloadIcon: FC<Props> = ({ file }) => {
+const FileDownloadIcon: FC<Props> = ({ repository, file }) => {
   const [t] = useTranslation("plugins");
+
   return (
-    <Tooltip message={t("scm-editor-plugin.download.tooltip")} location="top">
-      <a href={file._links.self.href} aria-label={t("scm-editor-plugin.download.tooltip")} download={file.name}>
-        <Icon name="download" color="inherit" />
-      </a>
-    </Tooltip>
+    <ExtensionPoint name="repos.sources.actionbar.download" props={{ repository, file }} renderAll={false}>
+      <Tooltip message={t("scm-editor-plugin.download.tooltip")} location="top">
+        <a
+          href={(file._links.self as Link).href}
+          aria-label={t("scm-editor-plugin.download.tooltip")}
+          download={file.name}
+        >
+          <Icon name="download" color="inherit" />
+        </a>
+      </Tooltip>
+    </ExtensionPoint>
   );
 };
 
