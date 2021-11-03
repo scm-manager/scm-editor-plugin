@@ -22,17 +22,17 @@
  * SOFTWARE.
  */
 import React, { FC } from "react";
-import { useHistory } from "react-router-dom";
 import { useContentType } from "@scm-manager/ui-api";
 import { useTranslation } from "react-i18next";
-import styled from "styled-components";
 import { File, Link, Repository } from "@scm-manager/ui-types";
-import { createAttributesForTesting } from "@scm-manager/ui-components";
+import { createAttributesForTesting, Icon } from "@scm-manager/ui-components";
 import { createSourceExtensionUrl } from "../links";
 import { isEditable } from "./isEditable";
 import { encodeFilePath } from "./encodeFilePath";
+import styled from "styled-components";
+import { Link as RouterLink } from "react-router-dom";
 
-const Button = styled.a`
+const ButtonStyleLink = styled(RouterLink)`
   width: 50px;
   &:hover {
     color: #33b2e8;
@@ -48,7 +48,6 @@ type Props = {
 const FileEditButton: FC<Props> = ({ repository, revision, file }) => {
   const { data, isLoading } = useContentType((file._links.self as Link).href);
   const [t] = useTranslation("plugins");
-  const history = useHistory();
 
   const shouldRender = () => {
     if (!file._links.modify || isLoading || !data) {
@@ -57,9 +56,8 @@ const FileEditButton: FC<Props> = ({ repository, revision, file }) => {
     return isEditable(data.type, data.language);
   };
 
-  const pushToEditPage = () => {
-    const url = createSourceExtensionUrl(repository, "edit", revision, encodeFilePath(file.path));
-    history.push(url);
+  const createUrl = () => {
+    return createSourceExtensionUrl(repository, "edit", revision, encodeFilePath(file.path));
   };
 
   if (!shouldRender()) {
@@ -67,14 +65,14 @@ const FileEditButton: FC<Props> = ({ repository, revision, file }) => {
   }
 
   return (
-    <Button
+    <ButtonStyleLink
+      to={createUrl()}
       title={t("scm-editor-plugin.edit.tooltip")}
       className="button"
-      onClick={pushToEditPage}
       {...createAttributesForTesting("edit-file-button")}
     >
-      <i className="fas fa-edit" />
-    </Button>
+      <Icon name="edit" color="inherit" />
+    </ButtonStyleLink>
   );
 };
 

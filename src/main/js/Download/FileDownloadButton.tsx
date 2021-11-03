@@ -23,36 +23,36 @@
  */
 import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
-import { File, Link, Repository } from "@scm-manager/ui-types";
 import styled from "styled-components";
+import { File, Link, Repository } from "@scm-manager/ui-types";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
-
-const Button = styled.a`
-  width: 50px;
-
-  &:hover {
-    color: #33b2e8;
-  }
-`;
+import { Icon } from "@scm-manager/ui-components";
 
 type Props = {
   repository: Repository;
   file: File;
 };
 
+const ButtonStyleA = styled.a`
+  width: 50px;
+  &:hover {
+    color: #33b2e8;
+  }
+`;
+
 const FileDownloadButton: FC<Props> = ({ repository, file }) => {
   const [t] = useTranslation("plugins");
 
   return (
     <ExtensionPoint name="repos.sources.content.actionbar.download" props={{ repository, file }} renderAll={false}>
-      <Button
-        title={t("scm-editor-plugin.download.tooltip")}
-        className="button"
+      <ButtonStyleA
         href={(file._links.self as Link).href}
+        className="button"
+        title={t("scm-editor-plugin.download.tooltip")}
         download={file.name}
       >
-        <i className="fas fa-download" />
-      </Button>
+        <Icon name="download" color="inherit" />
+      </ButtonStyleA>
     </ExtensionPoint>
   );
 };

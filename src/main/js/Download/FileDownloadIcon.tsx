@@ -22,16 +22,10 @@
  * SOFTWARE.
  */
 import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { File, Link, Repository } from "@scm-manager/ui-types";
-import styled from "styled-components";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
-
-const Icon = styled.a`
-  color: #33b2e8;
-  &:hover {
-    color: #363636;
-  }
-`;
+import { Tooltip, Icon } from "@scm-manager/ui-components";
 
 type Props = {
   repository: Repository;
@@ -39,11 +33,19 @@ type Props = {
 };
 
 const FileDownloadIcon: FC<Props> = ({ repository, file }) => {
+  const [t] = useTranslation("plugins");
+
   return (
     <ExtensionPoint name="repos.sources.actionbar.download" props={{ repository, file }} renderAll={false}>
-      <Icon href={(file._links.self as Link).href} download={file.name}>
-        <i className="fas fa-download" />
-      </Icon>
+      <Tooltip message={t("scm-editor-plugin.download.tooltip")} location="top">
+        <a
+          href={(file._links.self as Link).href}
+          aria-label={t("scm-editor-plugin.download.tooltip")}
+          download={file.name}
+        >
+          <Icon name="download" color="inherit" />
+        </a>
+      </Tooltip>
     </ExtensionPoint>
   );
 };

@@ -21,15 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { File, Repository } from "@scm-manager/ui-types";
-import { createAttributesForTesting } from "@scm-manager/ui-components";
-import { WithTranslation, withTranslation } from "react-i18next";
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { File, Repository } from "@scm-manager/ui-types";
+import { createAttributesForTesting, Icon } from "@scm-manager/ui-components";
 import { createSourceExtensionUrl } from "../links";
 
-const Button = styled.span`
+type Props = {
+  repository: Repository;
+  revision?: string;
+  path?: string;
+  sources: File;
+};
+
+const ButtonLink = styled(Link)`
   width: 50px;
   color: #33b2e8;
   &:hover {
@@ -37,38 +44,22 @@ const Button = styled.span`
   }
 `;
 
-type Props = WithTranslation & {
-  repository: Repository;
-  revision?: string;
-  path?: string;
-  sources: File;
+const FileCreateButton: FC<Props> = ({ repository, revision, path, sources }) => {
+  const [t] = useTranslation("plugins");
+  return (
+    <>
+      {sources && sources._links.upload && (
+        <ButtonLink
+          to={createSourceExtensionUrl(repository, "create", revision, path)}
+          className="button"
+          title={t("scm-editor-plugin.create.tooltip")}
+          {...createAttributesForTesting("create-file-button")}
+        >
+          <Icon name="file-medical" color="inherit" />
+        </ButtonLink>
+      )}
+    </>
+  );
 };
 
-class FileCreateButton extends React.Component<Props> {
-  createCreateUrl = () => {
-    const { repository, revision, path } = this.props;
-
-    return createSourceExtensionUrl(repository, "create", revision, path);
-  };
-
-  render() {
-    const { t, sources } = this.props;
-    return (
-      <>
-        {sources && sources._links.upload && (
-          <Link to={this.createCreateUrl()}>
-            <Button
-              title={t("scm-editor-plugin.create.tooltip")}
-              className="button"
-              {...createAttributesForTesting("create-file-button")}
-            >
-              <i className="fas fa-file-medical" />
-            </Button>
-          </Link>
-        )}
-      </>
-    );
-  }
-}
-
-export default withTranslation("plugins")(FileCreateButton);
+export default FileCreateButton;
