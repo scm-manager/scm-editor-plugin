@@ -33,7 +33,7 @@ type Props = {
   file: File;
 };
 
-const ButtonA = styled.a`
+const ButtonStyleA = styled.a`
   width: 50px;
   &:hover {
     color: #33b2e8;
@@ -45,14 +45,14 @@ const FileDownloadButton: FC<Props> = ({ repository, file }) => {
 
   return (
     <ExtensionPoint name="repos.sources.content.actionbar.download" props={{ repository, file }} renderAll={false}>
-      <ButtonA
+      <ButtonStyleA
         href={(file._links.self as Link).href}
         className="button"
         title={t("scm-editor-plugin.download.tooltip")}
         download={file.name}
       >
         <Icon name="download" color="inherit" />
-      </ButtonA>
+      </ButtonStyleA>
     </ExtensionPoint>
   );
 };
