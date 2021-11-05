@@ -24,7 +24,7 @@
 
 
 plugins {
-  id 'org.scm-manager.smp' version '0.8.5'
+  id 'org.scm-manager.smp' version '0.9.3'
 }
 
 dependencies {
@@ -39,7 +39,7 @@ dependencies {
 }
 
 scmPlugin {
-  scmVersion = "2.25.1-SNAPSHOT"
+  scmVersion = "2.26.0"
 
   displayName = "Editor"
   description = "Creates, edits and deletes Files"
