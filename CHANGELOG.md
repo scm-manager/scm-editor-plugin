@@ -5,8 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-### Added
 - Add alt text to button and links ([#50](https://github.com/scm-manager/scm-editor-plugin/pull/50))
+
+## 2.6.0 - 2021-11-05
+### Added
+- Add extension points for download and upload actions ([#49](https://github.com/scm-manager/scm-editor-plugin/pull/49))
+- Support for locked files ([#49](https://github.com/scm-manager/scm-editor-plugin/pull/49))
 
 ## 2.5.0 - 2021-10-21
 ### Added
@@ -76,6 +80,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - redesign ui for file editor and file uploader to match code section better
 - fix routing after major ux / ui redesign on code section
-
-## 2.0.0-rc1 - 2019-12-2
 - First public release candidate
+
