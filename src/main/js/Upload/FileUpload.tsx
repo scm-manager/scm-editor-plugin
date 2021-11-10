@@ -87,10 +87,10 @@ type Props = WithTranslation &
 type State = {
   path: string;
   files: File[];
-  commitMessage: any;
-  error: Error;
+  commitMessage: string;
+  error?: Error;
   loading: boolean;
-  valid: boolean;
+  shouldValidate: boolean;
 };
 
 class FileUpload extends React.Component<Props, State> {
@@ -101,7 +101,8 @@ class FileUpload extends React.Component<Props, State> {
       loading: false,
       files: [],
       commitMessage: "",
-      valid: true
+      path: this.props.path || "",
+      shouldValidate: true
     };
   }
 
@@ -115,12 +116,6 @@ class FileUpload extends React.Component<Props, State> {
   handleFile = (files: File[]) => {
     this.setState({
       files: [...this.state.files, ...files]
-    });
-  };
-
-  changePath = (path: string) => {
-    this.setState({
-      path
     });
   };
 
@@ -202,7 +197,7 @@ class FileUpload extends React.Component<Props, State> {
 
   render() {
     const { repository, revision, baseUrl, t } = this.props;
-    const { files, path, commitMessage, error, loading, valid } = this.state;
+    const { files, path, commitMessage, error, loading, shouldValidate } = this.state;
 
     return (
       <>
@@ -217,7 +212,16 @@ class FileUpload extends React.Component<Props, State> {
             </Header>
           )}
           <Breadcrumb repository={repository} baseUrl={baseUrl} path={path} revision={revision} />
-          <FileMetaData path={path} changePath={this.changePath} />
+          <FileMetaData
+            path={path}
+            changePath={changedPath => {
+              this.setState({
+                path: changedPath,
+                shouldValidate: false
+              });
+            }}
+            onBlur={() => this.setState({ shouldValidate: true })}
+          />
           <FileUploadDropzone fileHandler={this.handleFile} disabled={loading} />
         </Border>
         {files && files.length > 0 && (
@@ -225,7 +229,7 @@ class FileUpload extends React.Component<Props, State> {
         )}
         <ExtensionPoint
           name="editorPlugin.file.upload.validation"
-          props={{ repository, files, path, validateFiles: (disable: boolean) => this.setState({ valid: disable }) }}
+          props={{ repository, files, path, shouldValidate }}
         />
         {error && <ErrorNotification error={error} />}
         <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
@@ -238,7 +242,7 @@ class FileUpload extends React.Component<Props, State> {
               <Button
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
-                disabled={!commitMessage || files.length === 0 || !valid}
+                disabled={!commitMessage || files.length === 0}
                 action={this.commitFile}
                 loading={loading}
                 testId="upload-file-commit-button"

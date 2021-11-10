@@ -28,7 +28,7 @@ import { FileSize, Icon, Subtitle, Tooltip } from "@scm-manager/ui-components";
 
 type Props = {
   files: File[];
-  removeFileEntry: (p: any) => void;
+  removeFileEntry: (entry: File) => void;
   disabled: boolean;
 };
 
