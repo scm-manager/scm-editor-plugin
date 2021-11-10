@@ -566,6 +566,69 @@ public class EditorResource {
     return Response.status(CREATED).entity(newCommitDto).build();
   }
 
+  /**
+   * Moves a file or folder.
+   *
+   * @param namespace The namespace of the repository.
+   * @param name      The name of the repository.
+   * @param path      The path and name of the file/folder that should be moved to a new location.
+   * @param request   This object provides the destination path and encapsulates necessary specifications for the new commit:
+   *                  <ul>
+   *                    <li>The commit message for the new commit (this is required).</li>
+   *                    <li>The branch the change should be made upon (optional). If this is omitted, the default
+   *                      branch will be used.</li>
+   *                    <li>The expected revision the change should be made upon (optional). If this is set, the changes
+   *                      will only be applied if the revision of the branch (either the specified or the default branch)
+   *                      equals the given revision. If this is not the case, a conflict (status code 409) will be
+   *                      returned.</li>
+   *                  </ul>
+   */
+  @POST
+  @Path("{namespace}/{name}/move/{path: .*}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+    summary = "Move file",
+    description = "Moves an existing file or folder as new commit. Returns the created changeset.",
+    tags = "Editor Plugin",
+    operationId = "editor_move"
+  )
+  @ApiResponse(
+    responseCode = "201",
+    description = "create commit success",
+    content = @Content(
+      mediaType = MediaType.APPLICATION_JSON,
+      schema = @Schema(implementation = ChangesetDto.class)
+    )
+  )
+  @ApiResponse(responseCode = "401", description = "not authenticated / invalid credentials")
+  @ApiResponse(responseCode = "403", description = "not authorized, the current user does not have the \"push:repository\" privilege")
+  @ApiResponse(
+    responseCode = "500",
+    description = "internal server error",
+    content = @Content(
+      mediaType = VndMediaType.ERROR_TYPE,
+      schema = @Schema(implementation = ErrorDto.class)
+    )
+  )
+  public Response move(
+    @PathParam("namespace") String namespace,
+    @PathParam("name") String name,
+    @Nullable @PathParam("path") String path,
+    @Valid MoveDto request
+  ) throws IOException {
+    Changeset newCommit =
+      editorService.move(
+        namespace,
+        name,
+        request.getBranch(),
+        path,
+        request.getNewPath(),
+        request.getCommitMessage());
+    ChangesetDto newCommitDto = changesetMapper.map(newCommit, repositoryManager.get(new NamespaceAndName(namespace, name)));
+    return Response.status(CREATED).entity(newCommitDto).build();
+  }
+
   private String[] extractFileName(String path) {
     if (path.endsWith("/")) {
       path = path.substring(0, path.length() - 1);

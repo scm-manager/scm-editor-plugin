@@ -63,6 +63,10 @@ public class FileLinkEnricher implements HalEnricher {
   }
 
   private void appendLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName, String revision) {
+    if (isNotRoot(fileObject) && changeGuardCheck.isDeletable(namespaceAndName, revision, fileObject.getPath()).isEmpty()) {
+      LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
+      appender.appendLink("move", createMoveLink(fileObject, namespaceAndName, linkBuilder));
+    }
     if (fileObject.isDirectory()) {
       appendDirectoryLinks(appender, fileObject, namespaceAndName, revision);
     } else {
@@ -95,6 +99,10 @@ public class FileLinkEnricher implements HalEnricher {
     return createModifyLink("delete", fileObject.getPath(), namespaceAndName, linkBuilder);
   }
 
+  private String createMoveLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
+    return createModifyLink("move", fileObject.getPath(), namespaceAndName, linkBuilder);
+  }
+
   private String createModifyLink(FileObject fileObject, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
     // TODO fix strange api: modify parent?
     return createModifyLink("modify", fileObject.getParentPath(), namespaceAndName, linkBuilder);
@@ -102,5 +110,9 @@ public class FileLinkEnricher implements HalEnricher {
 
   private String createModifyLink(String method, String path, NamespaceAndName namespaceAndName, LinkBuilder linkBuilder) {
     return linkBuilder.method(method).parameters(namespaceAndName.getNamespace(), namespaceAndName.getName(), path).href();
+  }
+
+  private boolean isNotRoot(FileObject fileObject) {
+    return !fileObject.getPath().equals("") && !fileObject.getPath().equals("/");
   }
 }

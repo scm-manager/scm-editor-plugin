@@ -19,6 +19,32 @@
         "title": "Delete file"
       }
     },
+    "move": {
+      "tooltip": "Move",
+      "title": "Move",
+      "submit": {
+        "label": "Move"
+      },
+      "newPath": {
+        "label": "New path",
+        "errors": {
+          "leadingSlash": "The path must not start with a \"/\"",
+          "empty": "The path must not be empty"
+        }
+      },
+      "path": {
+        "label": "Path"
+      },
+      "commit": {
+        "placeholder": "Commit message"
+      },
+      "branch": {
+        "label": "Branch"
+      },
+      "cancel": {
+        "label": "Cancel"
+      }
+    },
     "download": {
       "tooltip": "Download"
     },

@@ -35,6 +35,7 @@ import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 import sonia.scm.util.ValidationUtil;
 
+import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,6 +60,29 @@ public class EditorService {
       ModifyCommandBuilder modifyCommand = initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService);
       return new FileUploader(repositoryService, modifyCommand, path, branch);
     }
+  }
+
+  Changeset move(String namespace, String repositoryName, @CheckForNull String branch, String fromPath, String toPath, String commitMessage) throws IOException {
+    doThrow()
+      .violation("invalid source path: ", fromPath)
+      .when(!ValidationUtil.isPathValid(fromPath) || StringUtils.isEmpty(fromPath));
+
+    doThrow()
+      .violation("invalid target path: ", toPath)
+      .when(!ValidationUtil.isPathValid(toPath) || StringUtils.isEmpty(toPath));
+
+    try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, repositoryName))) {
+      RepositoryPermissions.push(repositoryService.getRepository()).check();
+
+      ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
+      if (!Strings.isNullOrEmpty(branch)) {
+        modifyCommand.setBranch(branch);
+      }
+      modifyCommand.setCommitMessage(commitMessage);
+      modifyCommand.move(fromPath, toPath);
+      String newChangesetId = modifyCommand.execute();
+
+      return repositoryService.getLogCommand().setBranch(branch).getChangeset(newChangesetId);    }
   }
 
   Changeset delete(String namespace, String name, String branch, String path, String commitMessage, String revision) throws IOException {

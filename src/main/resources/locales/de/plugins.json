@@ -19,6 +19,32 @@
         "title": "Datei löschen"
       }
     },
+    "move": {
+      "tooltip": "Verschieben",
+      "title": "Verschieben",
+      "submit": {
+        "label": "Verschieben"
+      },
+      "name": {
+        "label": "Neuer Pfad",
+        "errors": {
+          "leadingSlash": "Der Pfad darf nicht mit einem \"/\" beginnen",
+          "empty": "Der Pfad darf nicht leer sein"
+        }
+      },
+      "path": {
+        "label": "Pfad"
+      },
+      "commit": {
+        "placeholder": "Commit Nachricht"
+      },
+      "branch": {
+        "label": "Branch"
+      },
+      "cancel": {
+        "label": "Abbrechen"
+      }
+    },
     "download": {
       "tooltip": "Download"
     },
