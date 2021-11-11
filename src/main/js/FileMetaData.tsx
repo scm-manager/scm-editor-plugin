@@ -92,6 +92,7 @@ type Props = {
   validate?: (p: boolean) => void;
   language?: string;
   changeLanguage?: (lang: string) => void;
+  onBlur: () => void;
 };
 
 const FileMetaData: FC<Props> = ({
@@ -102,7 +103,8 @@ const FileMetaData: FC<Props> = ({
   disabled,
   validate,
   language,
-  changeLanguage
+  changeLanguage,
+  onBlur
 }) => {
   const [t] = useTranslation("plugins");
   const [pathValidationError, setPathValidationError] = useState(false);
@@ -148,6 +150,7 @@ const FileMetaData: FC<Props> = ({
                 placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.path")}
                 onChange={value => handlePathChange(value)}
                 testId="create-file-path-input"
+                onBlur={onBlur}
               />
             </InputBorder>
           </NoBottomMargin>
