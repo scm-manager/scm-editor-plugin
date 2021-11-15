@@ -41,7 +41,7 @@ class SourcesActionbar extends React.Component<Props> {
       <ButtonGroup>
         <FileCreateButton {...this.props} />
         <FileUploadButton {...this.props} />
-        <MoveButton {...this.props} />
+        {this.props.sources?.directory ? <MoveButton {...this.props} color="#33b2e8" /> : null}
       </ButtonGroup>
     );
   }

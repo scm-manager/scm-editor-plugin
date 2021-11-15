@@ -27,21 +27,24 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import MoveModal from "./MoveModal";
 
-const Button = styled.span`
+const Button = styled.button`
   width: 50px;
-  color: #33b2e8;
-  &:hover {
-    color: #363636;
-  }
+  ${props =>
+    props.color &&
+    `color: ${props.color}; 
+    &:hover {
+      color: #363636;
+    }`};
 `;
 
 type Props = {
   repository: Repository;
   revision?: string;
   sources: File;
+  color?: string;
 };
 
-const MoveButton: FC<Props> = ({ sources, revision, repository }) => {
+const MoveButton: FC<Props> = ({ sources, revision, repository, color }) => {
   const [t] = useTranslation("plugins");
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -59,7 +62,12 @@ const MoveButton: FC<Props> = ({ sources, revision, repository }) => {
           revision={revision}
         />
       ) : null}
-      <Button className="button" title={t("scm-editor-plugin.move.tooltip")} onClick={() => setModalVisible(true)}>
+      <Button
+        className="button"
+        color={color}
+        title={t("scm-editor-plugin.move.tooltip")}
+        onClick={() => setModalVisible(true)}
+      >
         <i className="fas fa-exchange-alt" />
       </Button>
     </>

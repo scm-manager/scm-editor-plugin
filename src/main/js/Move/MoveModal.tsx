@@ -107,7 +107,7 @@ const MoveModal: FC<Props> = ({ sources, revision, path, onClose, repository }) 
     move(repository, sources, {
       commitMessage,
       branch: revision || "",
-      newPath: newPath.substring(1)
+      newPath
     });
 
   const body = (
