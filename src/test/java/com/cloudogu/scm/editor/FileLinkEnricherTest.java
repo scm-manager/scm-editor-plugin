@@ -118,6 +118,7 @@ class FileLinkEnricherTest {
 
       verify(appender).appendLink(eq("modify"), eq("/v2/edit/hitchhiker/HeartOfGold/modify/"));
       verify(appender).appendLink(eq("delete"), eq("/v2/edit/hitchhiker/HeartOfGold/delete/readme.md"));
+      verify(appender).appendLink(eq("move"), eq("/v2/edit/hitchhiker/HeartOfGold/move/readme.md"));
       verifyNoMoreInteractions(appender);
     }
 
@@ -132,6 +133,7 @@ class FileLinkEnricherTest {
 
       verify(appender).appendLink(eq("modify"), eq("/v2/edit/hitchhiker/HeartOfGold/modify/"));
       verify(appender, never()).appendLink(eq("delete"), any());
+      verify(appender, never()).appendLink(eq("move"), any());
       verifyNoMoreInteractions(appender);
     }
 
@@ -146,6 +148,7 @@ class FileLinkEnricherTest {
 
       verify(appender, never()).appendLink(eq("modify"), any());
       verify(appender).appendLink(eq("delete"), eq("/v2/edit/hitchhiker/HeartOfGold/delete/readme.md"));
+      verify(appender).appendLink(eq("move"), eq("/v2/edit/hitchhiker/HeartOfGold/move/readme.md"));
       verifyNoMoreInteractions(appender);
     }
 
@@ -158,6 +161,7 @@ class FileLinkEnricherTest {
       enricher.enrich(context, appender);
 
       verify(appender).appendLink(eq("create"), eq("/v2/edit/hitchhiker/HeartOfGold/create/src%2Fpath"));
+      verify(appender).appendLink(eq("move"), eq("/v2/edit/hitchhiker/HeartOfGold/move/src%2Fpath"));
       verifyNoMoreInteractions(appender);
     }
 
@@ -170,6 +174,7 @@ class FileLinkEnricherTest {
       enricher.enrich(context, appender);
 
       verify(appender, never()).appendLink(eq("create"), any());
+      verify(appender).appendLink(eq("move"), eq("/v2/edit/hitchhiker/HeartOfGold/move/src%2Fpath"));
       verifyNoMoreInteractions(appender);
     }
   }
