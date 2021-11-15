@@ -39,6 +39,8 @@ import { useHistory } from "react-router-dom";
 import { MoveRequest } from "./moveRequest";
 import { createSourceUrlFromChangeset } from "../links";
 
+const PATH_PATTERN = /^\/[^\\]+$/g;
+
 type UseMovePayload = {
   repository: Repository;
   sources: File;
@@ -83,15 +85,16 @@ type Props = {
 };
 
 const MoveModal: FC<Props> = ({ sources, revision, path, onClose, repository }) => {
+  const originalPath = sources.path === "/" ? "/" : "/" + sources.path;
   const [t] = useTranslation("plugins");
-  const [newPath, setNewPath] = useState("");
+  const [newPath, setNewPath] = useState(originalPath);
   const [commitMessage, setCommitMessage] = useState("");
   const { isLoading, error, move } = useMoveFolder();
   const [newPathError, setNewPathError] = useState("");
 
   const updateNewPath = (newPathValue: string) => {
-    if (newPathValue.startsWith("/")) {
-      setNewPathError("scm-editor-plugin.move.newPath.errors.leadingSlash");
+    if (!newPathValue.match(PATH_PATTERN)) {
+      setNewPathError("scm-editor-plugin.move.newPath.errors.pattern");
     } else if (newPathValue.trim() === "") {
       setNewPathError("scm-editor-plugin.move.newPath.errors.empty");
     } else {
@@ -104,7 +107,7 @@ const MoveModal: FC<Props> = ({ sources, revision, path, onClose, repository }) 
     move(repository, sources, {
       commitMessage,
       branch: revision || "",
-      newPath
+      newPath: newPath.substring(1)
     });
 
   const body = (
@@ -113,11 +116,7 @@ const MoveModal: FC<Props> = ({ sources, revision, path, onClose, repository }) 
       {revision ? (
         <InputField label={t("scm-editor-plugin.move.branch.label")} value={revision} disabled={true} />
       ) : null}
-      <InputField
-        label={t("scm-editor-plugin.move.path.label")}
-        value={sources.path === "/" ? "/" : "/" + sources.path}
-        disabled={true}
-      />
+      <InputField label={t("scm-editor-plugin.move.path.label")} value={originalPath} disabled={true} />
       <InputField
         label={t("scm-editor-plugin.move.newPath.label")}
         value={newPath}
@@ -159,7 +158,7 @@ const MoveModal: FC<Props> = ({ sources, revision, path, onClose, repository }) 
     <Modal
       body={body}
       footer={footer}
-      title={t("scm-editor-plugin.create.title")}
+      title={t("scm-editor-plugin.move.title")}
       closeFunction={onClose}
       active={true}
     />

@@ -52,6 +52,7 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
@@ -155,6 +156,43 @@ class EditorResourceTest {
 
     assertThat(response.getStatus()).isEqualTo(400);
     assertThat(response.getContentAsString()).isEqualTo("form part for commit object with key 'message' missing or without message");
+  }
+
+  @Test
+  void shouldFailMoveWithMissingTargetDirectoryIncludingBackslash() throws URISyntaxException {
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/move/some/path")
+        .contentType("application/json")
+        .content("{\"commitMessage\":\"move file please\",\"newPath\":\"/other\\\\with\\\\path\",\"branch\":\"master\"}".getBytes(StandardCharsets.UTF_8));
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(400);
+  }
+
+  @Test
+  void shouldFailMoveWithTargetDirectoryNotStartingWithASlash() throws URISyntaxException {
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/move/some/path")
+        .contentType("application/json")
+        .content("{\"commitMessage\":\"move file please\",\"newPath\":\"other/path\",\"branch\":\"master\"}".getBytes(StandardCharsets.UTF_8));
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(400);
+  }
+
+  @Test
+  void shouldPerformMove() throws URISyntaxException, IOException {
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/move/some/path")
+        .contentType("application/json")
+        .content("{\"commitMessage\":\"move file please\",\"newPath\":\"/other/path\",\"branch\":\"master\"}".getBytes(StandardCharsets.UTF_8));
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(201);
+    verify(service).move("space", "name", "master", "some/path", "/other/path", "move file please");
   }
 
   @Test

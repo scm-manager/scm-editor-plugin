@@ -28,7 +28,7 @@
       "name": {
         "label": "Neuer Pfad",
         "errors": {
-          "leadingSlash": "Der Pfad darf nicht mit einem \"/\" beginnen",
+          "pattern": "Der Pfad muss mit \"/\" beginnen und darf kein \"\\\" enthalten",
           "empty": "Der Pfad darf nicht leer sein"
         }
       },

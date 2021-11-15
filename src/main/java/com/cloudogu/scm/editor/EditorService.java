@@ -72,7 +72,7 @@ public class EditorService {
       .when(!ValidationUtil.isPathValid(toPath) || StringUtils.isEmpty(toPath));
 
     try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, repositoryName))) {
-      RepositoryPermissions.push(repositoryService.getRepository()).check();
+      checkWritePermission(repositoryService);
 
       ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
       if (!Strings.isNullOrEmpty(branch)) {
