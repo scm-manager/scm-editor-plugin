@@ -1,2 +1,0 @@
-- type: changed
-  description: Validate file upload also if path changed ([#54](https://github.com/scm-manager/scm-editor-plugin/pull/54))

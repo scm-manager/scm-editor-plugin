@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 - Add alt text to button and links ([#50](https://github.com/scm-manager/scm-editor-plugin/pull/50))
 
+## 2.7.0 - 2021-11-17
+### Changed
+- Validate file upload also if path changed ([#54](https://github.com/scm-manager/scm-editor-plugin/pull/54))
+
 ## 2.6.0 - 2021-11-05
 ### Added
 - Add extension points for download and upload actions ([#49](https://github.com/scm-manager/scm-editor-plugin/pull/49))
