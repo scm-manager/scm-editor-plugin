@@ -74,12 +74,11 @@ const useMoveFolder = () => {
 type Props = {
   repository: Repository;
   revision?: string;
-  path?: string;
   sources: File;
   onClose: () => void;
 };
 
-const MoveModal: FC<Props> = ({ sources, revision, path, onClose, repository }) => {
+const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
   const originalPath = sources.path === "/" ? "/" : "/" + sources.path;
   const [t] = useTranslation("plugins");
   const [newPath, setNewPath] = useState(originalPath);
