@@ -21,15 +21,27 @@
     },
     "move": {
       "tooltip": "Verschieben",
-      "title": "Verschieben",
+      "file": {
+        "title": "Datei verschieben"
+      },
+      "directory": {
+        "title": "Verzeichnis verschieben"
+      },
       "submit": {
         "label": "Verschieben"
       },
       "newPath": {
         "label": "Neuer Pfad",
         "errors": {
-          "pattern": "Der Pfad muss mit \"/\" beginnen und darf kein \"\\\" enthalten",
+          "pattern": "Der Pfad muss mit \"/\" beginnen, darf kein \"\\\" enthalten und nicht mit Leerzeichen enden",
           "empty": "Der Pfad darf nicht leer sein"
+        }
+      },
+      "newFilename": {
+        "label": "Neuer Dateiname",
+        "errors": {
+          "pattern": "Der Dateiname darf weder \"/\" oder \"\\\" enthalten und nicht mit Leerzeichen enden",
+          "empty": "Der Dateiname darf nicht leer sein"
         }
       },
       "path": {

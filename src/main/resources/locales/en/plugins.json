@@ -21,15 +21,27 @@
     },
     "move": {
       "tooltip": "Move",
-      "title": "Move",
+      "file": {
+        "title": "Move File"
+      },
+      "directory": {
+        "title": "Move Directory"
+      },
       "submit": {
         "label": "Move"
       },
       "newPath": {
         "label": "New path",
         "errors": {
-          "pattern": "The path must start with \"/\" and must not contain \"\\\"",
+          "pattern": "The path must start with \"/\", must not contain \"\\\" and must not end with space",
           "empty": "The path must not be empty"
+        }
+      },
+      "newFilename": {
+        "label": "New filename",
+        "errors": {
+          "pattern": "The filename must not contain \"/\" or \"\\\" and must not end with space",
+          "empty": "The filename must not be empty"
         }
       },
       "path": {

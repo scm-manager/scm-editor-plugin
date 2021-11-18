@@ -39,7 +39,8 @@ import { useHistory } from "react-router-dom";
 import { MoveRequest } from "./moveRequest";
 import { createSourceUrlFromChangeset } from "../links";
 
-const PATH_PATTERN = /^\/[^\\]+$/g;
+const PATH_PATTERN = /^\/[^\\]*[^\s\\]$/g;
+const FILENAME_PATTERN = /^[^\\\/]*[^\s\\\/]$/g;
 
 type UseMovePayload = {
   repository: Repository;
@@ -80,29 +81,66 @@ type Props = {
 
 const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
   const originalPath = sources.path === "/" ? "/" : "/" + sources.path;
+  let pathToEdit = sources.directory ? originalPath : originalPath.substr(0, originalPath.lastIndexOf("/"));
+  if (pathToEdit === "") {
+    pathToEdit = "/";
+  }
+  const filenameToEdit = sources.directory ? undefined : originalPath.substr(originalPath.lastIndexOf("/") + 1);
   const [t] = useTranslation("plugins");
-  const [newPath, setNewPath] = useState(originalPath);
+  const [newPath, setNewPath] = useState(pathToEdit);
+  const [newFilename, setNewFilename] = useState(filenameToEdit);
   const [commitMessage, setCommitMessage] = useState("");
   const { isLoading, error, move } = useMoveFolder();
   const [newPathError, setNewPathError] = useState("");
+  const [newFilenameError, setNewFilenameError] = useState("");
 
   const updateNewPath = (newPathValue: string) => {
-    if (!newPathValue.match(PATH_PATTERN)) {
-      setNewPathError("scm-editor-plugin.move.newPath.errors.pattern");
-    } else if (newPathValue.trim() === "") {
+    if (newPathValue.trim() === "") {
       setNewPathError("scm-editor-plugin.move.newPath.errors.empty");
+    } else if (!newPathValue.match(PATH_PATTERN) && !(!sources.directory && newPathValue === "/")) {
+      setNewPathError("scm-editor-plugin.move.newPath.errors.pattern");
     } else {
       setNewPathError("");
     }
     setNewPath(newPathValue);
   };
 
-  const submit = () =>
+  const updateNewFilename = (newFilenameValue: string) => {
+    if (newFilenameValue.trim() === "") {
+      setNewFilenameError("scm-editor-plugin.move.newFilename.errors.empty");
+    } else if (!newFilenameValue.match(FILENAME_PATTERN)) {
+      setNewFilenameError("scm-editor-plugin.move.newFilename.errors.pattern");
+    } else {
+      setNewFilenameError("");
+    }
+    setNewFilename(newFilenameValue);
+  };
+
+  const submit = () => {
+    let resultingPath = newPath.trim();
+    if (!sources.directory) {
+      if (!newPath.trim().endsWith("/")) {
+        resultingPath = resultingPath + "/";
+      }
+      resultingPath = resultingPath + newFilename;
+    }
     move(repository, sources, {
       commitMessage,
       branch: revision || "",
-      newPath
+      newPath: resultingPath
     });
+  };
+
+  const filenameInput = !sources.directory && (
+    <InputField
+      label={t("scm-editor-plugin.move.newFilename.label")}
+      value={newFilename}
+      onChange={updateNewFilename}
+      disabled={isLoading}
+      errorMessage={newFilenameError && t(newFilenameError)}
+      validationError={!!newFilenameError}
+    />
+  );
 
   const body = (
     <>
@@ -119,6 +157,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
         errorMessage={newPathError && t(newPathError)}
         validationError={!!newPathError}
       />
+      {filenameInput}
       <div className="mb-2 mt-5">
         <CommitAuthor />
       </div>
@@ -152,7 +191,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
     <Modal
       body={body}
       footer={footer}
-      title={t("scm-editor-plugin.move.title")}
+      title={sources.directory ? t("scm-editor-plugin.move.directory.title") : t("scm-editor-plugin.move.file.title")}
       closeFunction={onClose}
       active={true}
     />
