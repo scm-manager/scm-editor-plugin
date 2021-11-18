@@ -56,13 +56,10 @@ const useMoveFolder = () => {
     {
       onSuccess: async (changeset, { repository, moveRequest: { newPath } }) => {
         await queryClient.invalidateQueries(["repository", repository.namespace, repository.name]);
-        history.push(
-          createSourceUrlFromChangeset(
-            repository,
-            changeset,
-            `${newPath || ""}${!newPath || newPath?.endsWith("/") ? "" : "/"}`
-          )
-        );
+        if (newPath && !newPath.endsWith("/")) {
+          newPath += "/";
+        }
+        history.push(createSourceUrlFromChangeset(repository, changeset, newPath));
       }
     }
   );
