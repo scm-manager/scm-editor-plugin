@@ -29,22 +29,18 @@ import MoveModal from "./MoveModal";
 
 const Button = styled.button`
   width: 50px;
-  ${props =>
-    props.color &&
-    `color: ${props.color}; 
-    &:hover {
-      color: #363636;
-    }`};
+  &:hover {
+    color: #33b2e8;
+  }
 `;
 
 type Props = {
   repository: Repository;
   revision?: string;
   sources: File;
-  color?: string;
 };
 
-const MoveButton: FC<Props> = ({ sources, revision, repository, color }) => {
+const MoveButton: FC<Props> = ({ sources, revision, repository }) => {
   const [t] = useTranslation("plugins");
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -62,12 +58,7 @@ const MoveButton: FC<Props> = ({ sources, revision, repository, color }) => {
           revision={revision}
         />
       ) : null}
-      <Button
-        className="button"
-        color={color}
-        title={t("scm-editor-plugin.move.tooltip")}
-        onClick={() => setModalVisible(true)}
-      >
+      <Button className="button" title={t("scm-editor-plugin.move.tooltip")} onClick={() => setModalVisible(true)}>
         <i className="fas fa-exchange-alt" />
       </Button>
     </>
