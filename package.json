@@ -44,7 +44,7 @@
         "@scm-manager/eslint-config": "^2.12.0",
         "@scm-manager/integration-test-runner": "^1.3.7",
         "@scm-manager/jest-preset": "^2.13.0",
-        "@scm-manager/plugin-scripts": "^1.2.1",
+        "@scm-manager/plugin-scripts": "^1.2.2",
         "@scm-manager/prettier-config": "^2.10.1",
         "@scm-manager/tsconfig": "^2.12.0",
         "@scm-manager/ui-scripts": "^2.27.0",
