@@ -82,7 +82,8 @@ public class EditorService {
       modifyCommand.move(fromPath, toPath);
       String newChangesetId = modifyCommand.execute();
 
-      return repositoryService.getLogCommand().setBranch(branch).getChangeset(newChangesetId);    }
+      return repositoryService.getLogCommand().setBranch(branch).getChangeset(newChangesetId);
+    }
   }
 
   Changeset delete(String namespace, String name, String branch, String path, String commitMessage, String revision) throws IOException {

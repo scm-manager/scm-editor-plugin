@@ -159,12 +159,12 @@ class EditorResourceTest {
   }
 
   @Test
-  void shouldFailMoveWithMissingTargetDirectoryIncludingBackslash() throws URISyntaxException {
-    MockHttpRequest request =
-      MockHttpRequest
+  void shouldFailMoveWithTargetDirectoryIncludingBackslash() throws URISyntaxException {
+    JsonMockHttpRequest request =
+      JsonMockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/move/some/path")
         .contentType("application/json")
-        .content("{\"commitMessage\":\"move file please\",\"newPath\":\"/other\\\\with\\\\path\",\"branch\":\"master\"}".getBytes(StandardCharsets.UTF_8));
+        .json("{'commitMessage':'move file please','newPath':'/other\\\\with\\\\path','branch':'master'}")
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(400);
