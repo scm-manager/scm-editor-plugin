@@ -38,9 +38,7 @@ import { useMutation, useQueryClient } from "react-query";
 import { useHistory } from "react-router-dom";
 import { MoveRequest } from "./moveRequest";
 import { createSourceUrlFromChangeset } from "../links";
-
-const PATH_PATTERN = /^\/[^\\]*[^\s\\]$/g;
-const FILENAME_PATTERN = /^[^\\\/]*[^\s\\\/]$/g;
+import { validateNewFilename, validateNewPath } from "./moveDialogValidation";
 
 type UseMovePayload = {
   repository: Repository;
@@ -95,24 +93,12 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
   const [newFilenameError, setNewFilenameError] = useState("");
 
   const updateNewPath = (newPathValue: string) => {
-    if (newPathValue.trim() === "") {
-      setNewPathError("scm-editor-plugin.move.newPath.errors.empty");
-    } else if (!newPathValue.match(PATH_PATTERN) && !(!sources.directory && newPathValue === "/")) {
-      setNewPathError("scm-editor-plugin.move.newPath.errors.pattern");
-    } else {
-      setNewPathError("");
-    }
+    setNewPathError(validateNewPath(newPathValue, sources.directory));
     setNewPath(newPathValue);
   };
 
   const updateNewFilename = (newFilenameValue: string) => {
-    if (newFilenameValue.trim() === "") {
-      setNewFilenameError("scm-editor-plugin.move.newFilename.errors.empty");
-    } else if (!newFilenameValue.match(FILENAME_PATTERN)) {
-      setNewFilenameError("scm-editor-plugin.move.newFilename.errors.pattern");
-    } else {
-      setNewFilenameError("");
-    }
+    setNewFilenameError(validateNewFilename(newFilenameValue));
     setNewFilename(newFilenameValue);
   };
 
