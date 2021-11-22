@@ -41,6 +41,7 @@ import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Person;
 import sonia.scm.repository.RepositoryManager;
 import sonia.scm.repository.RepositoryTestData;
+import sonia.scm.web.JsonMockHttpRequest;
 import sonia.scm.web.RestDispatcher;
 
 import java.io.ByteArrayInputStream;
@@ -164,7 +165,7 @@ class EditorResourceTest {
       JsonMockHttpRequest
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/move/some/path")
         .contentType("application/json")
-        .json("{'commitMessage':'move file please','newPath':'/other\\\\with\\\\path','branch':'master'}")
+        .json("{'commitMessage':'move file please','newPath':'/other\\\\with\\\\path','branch':'master'}");
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(400);
@@ -177,6 +178,18 @@ class EditorResourceTest {
         .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/move/some/path")
         .contentType("application/json")
         .content("{\"commitMessage\":\"move file please\",\"newPath\":\"other/path\",\"branch\":\"master\"}".getBytes(StandardCharsets.UTF_8));
+    dispatcher.invoke(request, response);
+
+    assertThat(response.getStatus()).isEqualTo(400);
+  }
+
+  @Test
+  void shouldFailMoveWithTargetDirectoryConsistingOfOnlyASlash() throws URISyntaxException {
+    MockHttpRequest request =
+      MockHttpRequest
+        .post("/" + EditorResource.EDITOR_REQUESTS_PATH_V2 + "/space/name/move/some/path")
+        .contentType("application/json")
+        .content("{\"commitMessage\":\"move file please\",\"newPath\":\"/\",\"branch\":\"master\"}".getBytes(StandardCharsets.UTF_8));
     dispatcher.invoke(request, response);
 
     assertThat(response.getStatus()).isEqualTo(400);
