@@ -21,12 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { validation as validator } from "@scm-manager/ui-components";
 import LanguageSelector from "./LanguageSelector";
 import { FilenameValidation, PathInputField, DirectoryValidation } from "./PathInputField";
+import { useDirectoryValidation, useFilenameValidation } from "./validation";
+import { sanitizePath } from "./pathSanitizer";
 
 const NoBottomMargin = styled.div`
   margin-bottom: 0 !important;
@@ -108,18 +109,20 @@ const FileMetaData: FC<Props> = ({
   onBlur
 }) => {
   const [t] = useTranslation("plugins");
-  const [pathValidationError, setPathValidationError] = useState(false);
-  const [filenameValidationError, setFilenameValidationError] = useState(false);
+  const [validateFilename, filenameErrorMessage] = useFilenameValidation();
+  const [validateDirectory, directoryErrorMessage] = useDirectoryValidation();
 
-  const handlePathChange = (path: string, valid: boolean) => {
-    changePath(path);
-    setPathValidationError(!valid);
+  const handlePathChange = (path: string) => {
+    const sanitizedPath = sanitizePath(path);
+    changePath(sanitizedPath);
+    validateDirectory(sanitizedPath);
   };
 
-  const handleFileNameChange = (fileName: string, valid: boolean) => {
+  const handleFileNameChange = (fileName: string) => {
     if (changeFileName) {
-      changeFileName(fileName);
-      setFilenameValidationError(!valid);
+      const sanitizedFilename = sanitizePath(fileName);
+      changeFileName(sanitizedFilename);
+      validateFilename(sanitizedFilename);
       onValidate();
     }
   };
@@ -132,7 +135,7 @@ const FileMetaData: FC<Props> = ({
 
   const onValidate = () => {
     if (validate) {
-      validate(!(filenameValidationError || pathValidationError));
+      validate(!(filenameErrorMessage || directoryErrorMessage));
     }
   };
 
