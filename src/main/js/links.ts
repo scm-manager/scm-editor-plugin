@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 import { Repository, Changeset } from "@scm-manager/ui-types";
+import { sanitizePath } from "./pathSanitizer";
 
 export function createSourceExtensionUrl(repository: Repository, extension: string, revision?: string, path?: string) {
   const url = `/repo/${repository.namespace}/${repository.name}/code/sourceext/${extension}/`;
@@ -36,7 +37,7 @@ export function createSourceUrl(repository: Repository, revision?: string, path?
 
 export function createSourceUrlFromChangeset(repository: Repository, changeset: Changeset, path?: string) {
   const revision = getBranchOrId(changeset);
-  return createSourceUrl(repository, revision, path);
+  return createSourceUrl(repository, revision, sanitizePath(path));
 }
 
 function getBranchOrId(changeset: Changeset) {

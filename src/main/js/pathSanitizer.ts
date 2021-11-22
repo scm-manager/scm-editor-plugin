@@ -22,25 +22,15 @@
  * SOFTWARE.
  */
 
-const PATH_PATTERN = /^\/[^\\]*[^\s\\]$/g;
-const FILENAME_PATTERN = /^[^\\/]*[^\s\\/]$/g;
+import { useState } from "react";
 
-export const validateNewPath = (newPath: string, forDirectoryMove: boolean) => {
-  if (newPath.trim() === "") {
-    return "scm-editor-plugin.move.newPath.errors.empty";
-  } else if (!newPath.match(PATH_PATTERN) && !(!forDirectoryMove && newPath === "/")) {
-    return "scm-editor-plugin.move.newPath.errors.pattern";
-  } else {
-    return "";
-  }
+export const sanitizePath = (path?: string) => {
+  const pathWithSlashOnly = path ? path.replace(/\\/, "/") : "";
+  return pathWithSlashOnly.startsWith("/") ? pathWithSlashOnly.substr(1) : pathWithSlashOnly;
 };
 
-export const validateNewFilename = (newFilename: string) => {
-  if (newFilename.trim() === "") {
-    return "scm-editor-plugin.move.newFilename.errors.empty";
-  } else if (!newFilename.match(FILENAME_PATTERN)) {
-    return "scm-editor-plugin.move.newFilename.errors.pattern";
-  } else {
-    return "";
-  }
+export const usePathState = (initialPath: string) => {
+  const [path, setPath] = useState(initialPath);
+
+  return { path, setPath, sanitizedPath: sanitizePath(path) };
 };

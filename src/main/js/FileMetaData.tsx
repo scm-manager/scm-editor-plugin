@@ -24,8 +24,9 @@
 import React, { FC, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { InputField, validation as validator } from "@scm-manager/ui-components";
+import { validation as validator } from "@scm-manager/ui-components";
 import LanguageSelector from "./LanguageSelector";
+import { FilenameValidation, PathInputField, DirectoryValidation } from "./PathInputField";
 
 const NoBottomMargin = styled.div`
   margin-bottom: 0 !important;
@@ -110,15 +111,15 @@ const FileMetaData: FC<Props> = ({
   const [pathValidationError, setPathValidationError] = useState(false);
   const [filenameValidationError, setFilenameValidationError] = useState(false);
 
-  const handlePathChange = (path: string) => {
+  const handlePathChange = (path: string, valid: boolean) => {
     changePath(path);
-    setPathValidationError(!validator.isPathValid(path));
+    setPathValidationError(!valid);
   };
 
-  const handleFileNameChange = (fileName: string) => {
+  const handleFileNameChange = (fileName: string, valid: boolean) => {
     if (changeFileName) {
       changeFileName(fileName);
-      setFilenameValidationError(!validator.isFilenameValid(fileName));
+      setFilenameValidationError(!valid);
       onValidate();
     }
   };
@@ -142,13 +143,13 @@ const FileMetaData: FC<Props> = ({
           <FieldLabel value={t("scm-editor-plugin.path.path")} />
           <NoBottomMargin className="field">
             <InputBorder disabled={disabled} className="control">
-              <InputField
+              <PathInputField
                 disabled={disabled}
-                value={path ? decodeURIComponent(path) : ""}
-                validationError={pathValidationError}
+                initialPath={path ? decodeURIComponent(path) : ""}
                 errorMessage={t("scm-editor-plugin.validation.pathInvalid")}
+                validation={DirectoryValidation}
                 placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.path")}
-                onChange={value => handlePathChange(value)}
+                onChange={handlePathChange}
                 testId="create-file-path-input"
                 onBlur={onBlur}
               />
@@ -160,13 +161,12 @@ const FileMetaData: FC<Props> = ({
             <AlignItemNormal>
               <FieldLabel value={t("scm-editor-plugin.path.filename")} />
               <InputBorder disabled={disabled} className="control">
-                <InputField
+                <PathInputField
+                  onChange={handleFileNameChange}
                   disabled={disabled}
-                  value={file.name}
-                  validationError={filenameValidationError}
+                  initialPath={file.name}
+                  validation={FilenameValidation}
                   errorMessage={t("scm-editor-plugin.validation.filenameInvalid")}
-                  placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.filename")}
-                  onChange={value => handleFileNameChange(value)}
                   testId="create-file-name-input"
                 />
               </InputBorder>

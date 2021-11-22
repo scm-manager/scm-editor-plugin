@@ -39,6 +39,7 @@ import { useHistory } from "react-router-dom";
 import { MoveRequest } from "./moveRequest";
 import { createSourceUrlFromChangeset } from "../links";
 import { validateNewFilename, validateNewPath } from "./moveDialogValidation";
+import { DirectoryValidation, FilenameValidation, PathInputField } from "../PathInputField";
 
 type UseMovePayload = {
   repository: Repository;
@@ -89,16 +90,16 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
   const [newFilename, setNewFilename] = useState(filenameToEdit);
   const [commitMessage, setCommitMessage] = useState("");
   const { isLoading, error, move } = useMoveFolder();
-  const [newPathError, setNewPathError] = useState("");
-  const [newFilenameError, setNewFilenameError] = useState("");
+  const [newPathValid, setNewPathValid] = useState(true);
+  const [newFilenameValid, setNewFilenameValid] = useState(true);
 
-  const updateNewPath = (newPathValue: string) => {
-    setNewPathError(validateNewPath(newPathValue, sources.directory));
+  const updateNewPath = (newPathValue: string, valid: boolean) => {
+    setNewPathValid(valid);
     setNewPath(newPathValue);
   };
 
-  const updateNewFilename = (newFilenameValue: string) => {
-    setNewFilenameError(validateNewFilename(newFilenameValue));
+  const updateNewFilename = (newFilenameValue: string, valid: boolean) => {
+    setNewFilenameValid(valid);
     setNewFilename(newFilenameValue);
   };
 
@@ -118,13 +119,13 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
   };
 
   const filenameInput = !sources.directory && (
-    <InputField
+    <PathInputField
       label={t("scm-editor-plugin.move.newFilename.label")}
-      value={newFilename}
+      initialPath={newFilename}
       onChange={updateNewFilename}
       disabled={isLoading}
-      errorMessage={newFilenameError && t(newFilenameError)}
-      validationError={!!newFilenameError}
+      errorMessage={t("scm-editor-plugin.validation.filenameInvalid")}
+      validation={FilenameValidation}
     />
   );
 
@@ -135,13 +136,13 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
         <InputField label={t("scm-editor-plugin.move.branch.label")} value={revision} disabled={true} />
       ) : null}
       <InputField label={t("scm-editor-plugin.move.path.label")} value={originalPath} disabled={true} />
-      <InputField
+      <PathInputField
         label={t("scm-editor-plugin.move.newPath.label")}
-        value={newPath}
+        initialPath={newPath}
         onChange={updateNewPath}
         disabled={isLoading}
-        errorMessage={newPathError && t(newPathError)}
-        validationError={!!newPathError}
+        errorMessage={t("scm-editor-plugin.validation.pathInvalid")}
+        validation={DirectoryValidation}
       />
       {filenameInput}
       <div className="mb-2 mt-5">
@@ -156,6 +157,10 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
     </>
   );
 
+  const commitDisabled = !commitMessage || !newPath || !newPathValid || !newFilenameValid;
+
+  console.log(newFilenameValid)
+
   const footer = (
     <ButtonGroup>
       <Button className="is-marginless" action={onClose} disabled={isLoading}>
@@ -164,7 +169,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
       <Button
         className="is-marginless"
         action={submit}
-        disabled={!commitMessage || !newPath || !!newPathError}
+        disabled={commitDisabled}
         loading={isLoading}
         color="primary"
       >
