@@ -93,6 +93,9 @@
       "branchMissing": "In der URL fehlt der Branch"
     },
     "validation": {
+      "directoryEmpty": "Pfad darf nicht leer sein",
+      "directoryInvalid": "Pfad ungültig",
+      "filenameEmpty": "Dateiname darf nicht leer sein",
       "filenameInvalid": "Dateiname ungültig",
       "pathInvalid": "Pfad ungültig"
     }

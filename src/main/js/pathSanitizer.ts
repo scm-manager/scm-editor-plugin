@@ -25,12 +25,18 @@
 import { useState } from "react";
 
 export const sanitizePath = (path?: string) => {
-  const pathWithSlashOnly = path ? path.replace(/\\/, "/") : "";
+  const pathWithSlashOnly = path ? path.trim().replace(/\\/, "/") : "";
   return pathWithSlashOnly.startsWith("/") ? pathWithSlashOnly.substr(1) : pathWithSlashOnly;
 };
 
-export const usePathState = (initialPath: string) => {
-  const [path, setPath] = useState(initialPath);
+export const usePathState = (initialPath?: string) => {
+  const [path, setInternalPath] = useState(initialPath);
+  const [sanitizedPath, setSanitizedPath] = useState(sanitizePath(initialPath));
 
-  return { path, setPath, sanitizedPath: sanitizePath(path) };
+  const setPath = (newPath: string) => {
+    setInternalPath(newPath);
+    setSanitizedPath(sanitizePath(newPath));
+  };
+
+  return [path, setPath, sanitizedPath] as const;
 };

@@ -28,6 +28,7 @@ import LanguageSelector from "./LanguageSelector";
 import { FilenameValidation, PathInputField, DirectoryValidation } from "./PathInputField";
 import { useDirectoryValidation, useFilenameValidation } from "./validation";
 import { sanitizePath } from "./pathSanitizer";
+import {InputField} from "@scm-manager/ui-components";
 
 const NoBottomMargin = styled.div`
   margin-bottom: 0 !important;
@@ -113,16 +114,14 @@ const FileMetaData: FC<Props> = ({
   const [validateDirectory, directoryErrorMessage] = useDirectoryValidation();
 
   const handlePathChange = (path: string) => {
-    const sanitizedPath = sanitizePath(path);
-    changePath(sanitizedPath);
-    validateDirectory(sanitizedPath);
+    changePath(path);
+    validateDirectory(path);
   };
 
   const handleFileNameChange = (fileName: string) => {
     if (changeFileName) {
-      const sanitizedFilename = sanitizePath(fileName);
-      changeFileName(sanitizedFilename);
-      validateFilename(sanitizedFilename);
+      changeFileName(fileName);
+      validateFilename(fileName);
       onValidate();
     }
   };
@@ -146,11 +145,11 @@ const FileMetaData: FC<Props> = ({
           <FieldLabel value={t("scm-editor-plugin.path.path")} />
           <NoBottomMargin className="field">
             <InputBorder disabled={disabled} className="control">
-              <PathInputField
+              <InputField
                 disabled={disabled}
-                initialPath={path ? decodeURIComponent(path) : ""}
-                errorMessage={t("scm-editor-plugin.validation.pathInvalid")}
-                validation={DirectoryValidation}
+                value={path ? decodeURIComponent(path) : ""}
+                validationError={!!directoryErrorMessage}
+                errorMessage={directoryErrorMessage}
                 placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.path")}
                 onChange={handlePathChange}
                 testId="create-file-path-input"
@@ -164,12 +163,12 @@ const FileMetaData: FC<Props> = ({
             <AlignItemNormal>
               <FieldLabel value={t("scm-editor-plugin.path.filename")} />
               <InputBorder disabled={disabled} className="control">
-                <PathInputField
+                <InputField
                   onChange={handleFileNameChange}
                   disabled={disabled}
-                  initialPath={file.name}
-                  validation={FilenameValidation}
-                  errorMessage={t("scm-editor-plugin.validation.filenameInvalid")}
+                  value={file.name}
+                  validationError={!!filenameErrorMessage}
+                  errorMessage={filenameErrorMessage}
                   testId="create-file-name-input"
                 />
               </InputBorder>

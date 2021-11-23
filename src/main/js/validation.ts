@@ -30,35 +30,42 @@ export const useFilenameValidation = () => {
   const [t] = useTranslation("plugins");
 
   const validate = (filename: string) => {
-    if (filename.includes("/")) {
-      setErrorMessage(t("scm-editor-plugin.validation.filenameInvalid"));
-    } else {
-      setErrorMessage(undefined);
+    const sanitizedFilename = filename.replace(/\\/g, "/").trim();
+
+    if (sanitizedFilename.length === 0) {
+      setErrorMessage(t("scm-editor-plugin.validation.filenameEmpty"));
+      return;
     }
+
+    if (sanitizedFilename.includes("/")) {
+      setErrorMessage(t("scm-editor-plugin.validation.filenameInvalid"));
+      return;
+    }
+
+    setErrorMessage(undefined);
   };
 
   return [validate, errorMessage] as const;
-};
-
-type DirectoryValidationOptions = {
-  allowEmpty?: boolean;
 };
 
 export const useDirectoryValidation = () => {
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [t] = useTranslation("plugins");
 
-  const validate = (directory: string, options?: DirectoryValidationOptions) => {
-    setErrorMessage(undefined);
+  const validate = (directory: string, allowRoot = true) => {
+    const sanitizedDirectory = directory.replace(/\\/g, "/").trim();
 
-    if (!options?.allowEmpty && directory.trim().length === 0) {
+    if (!allowRoot && (sanitizedDirectory.length === 0 || sanitizedDirectory === "/")) {
       setErrorMessage(t("scm-editor-plugin.validation.directoryEmpty"));
       return;
     }
 
-    if (directory.includes("//")) {
+    if (sanitizedDirectory.includes("//")) {
       setErrorMessage(t("scm-editor-plugin.validation.directoryInvalid"));
+      return;
     }
+
+    setErrorMessage(undefined);
   };
 
   return [validate, errorMessage] as const;
