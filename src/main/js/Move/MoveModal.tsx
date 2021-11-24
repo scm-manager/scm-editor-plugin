@@ -39,7 +39,7 @@ import { useHistory } from "react-router-dom";
 import { MoveRequest } from "./moveRequest";
 import { createSourceUrlFromChangeset } from "../links";
 import { useDirectoryValidation, useFilenameValidation } from "../validation";
-import {usePathState} from "../pathSanitizer";
+import { usePathState } from "../pathSanitizer";
 
 type UseMovePayload = {
   repository: Repository;
@@ -87,7 +87,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
   const filenameToEdit = sources.directory ? undefined : originalPath.substr(originalPath.lastIndexOf("/") + 1);
   const [t] = useTranslation("plugins");
   const [newPath, setNewPath, sanitizedPath] = usePathState(pathToEdit);
-  const [newFilename, setNewFilename, sanitizedFilename] = usePathState(filenameToEdit);
+  const [newFilename, setNewFilename] = usePathState(filenameToEdit);
   const [commitMessage, setCommitMessage] = useState("");
   const { isLoading, error, move } = useMoveFolder();
   const [validateFilename, filenameErrorMessage] = useFilenameValidation();
@@ -106,7 +106,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
   const submit = () => {
     let resultingPath = sanitizedPath;
     if (!sources.directory) {
-      if (!resultingPath.endsWith("/")) {
+      if (resultingPath.length !== 0 && !resultingPath.endsWith("/")) {
         resultingPath = resultingPath + "/";
       }
       resultingPath = resultingPath + newFilename;
@@ -157,7 +157,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
     </>
   );
 
-  const commitDisabled = !commitMessage || !newPath || !!directoryErrorMessage || !!filenameErrorMessage;
+  const commitDisabled = !commitMessage || !!directoryErrorMessage || !!filenameErrorMessage;
 
   const footer = (
     <ButtonGroup>
