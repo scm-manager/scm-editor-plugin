@@ -25,7 +25,7 @@
 import { useState } from "react";
 
 export const sanitizePath = (path?: string) => {
-  const pathWithSlashOnly = path ? path.trim().replace(/\\/, "/") : "";
+  const pathWithSlashOnly = path ? path.trim().replace(/\\/g, "/") : "";
   return pathWithSlashOnly.startsWith("/") ? pathWithSlashOnly.substr(1) : pathWithSlashOnly;
 };
 

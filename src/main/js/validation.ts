@@ -60,7 +60,7 @@ export const useDirectoryValidation = () => {
       return;
     }
 
-    if (sanitizedDirectory.includes("//")) {
+    if (sanitizedDirectory.includes("//") || sanitizedDirectory.includes("..")) {
       setErrorMessage(t("scm-editor-plugin.validation.directoryInvalid"));
       return;
     }
