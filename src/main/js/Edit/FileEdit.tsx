@@ -280,7 +280,7 @@ class FileEdit extends React.Component<Props, State> {
         newCommit._embedded.branches[0].name
           ? newCommit._embedded.branches[0].name
           : newCommit.id;
-      let redirectPath = encodeFilePath(path.replace(/\\/g, "/"), true) + encodedFilename;
+      let redirectPath = encodeFilePath(path, true) + encodedFilename;
       if (redirectPath[0] === "/") {
         redirectPath = redirectPath.substr(1);
       }
@@ -329,7 +329,7 @@ class FileEdit extends React.Component<Props, State> {
         type = file.type;
       } else {
         link = (sources._links.upload as Link).href;
-        const pathToReplace = path ? encodeFilePath(path.replace(/\\/g, "/")) : "";
+        const pathToReplace = path ? encodeFilePath(path) : "";
         link = link.replace("{path}", pathToReplace);
         type = "text/plain";
       }

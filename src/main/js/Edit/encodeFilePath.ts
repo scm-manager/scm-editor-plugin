@@ -23,7 +23,7 @@
  */
 export function encodeFilePath(path?: string, withEndingSlash?: boolean) {
   if (path) {
-    const pathParts = path.split("/");
+    const pathParts = path.replace(/\\/g, "/").split("/");
     pathParts.forEach((part, index) => (pathParts[index] = encodeURIComponent(part)));
     const encodedPath = pathParts.join("/");
     if (withEndingSlash) {

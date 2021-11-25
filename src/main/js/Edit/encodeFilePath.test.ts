@@ -46,4 +46,8 @@ describe("encodeFilePath tests", () => {
     const pathWithSpecialCharacters = encodeFilePath("a#b/c#/öü");
     expect(pathWithSpecialCharacters).toBe("a%23b/c%23/%C3%B6%C3%BC");
   });
+  it("should replace backslashes", () => {
+    const pathWithBackslash = encodeFilePath("a\\b\\c");
+    expect(pathWithBackslash).toBe("a/b/c");
+  });
 });
