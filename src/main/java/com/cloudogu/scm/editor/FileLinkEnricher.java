@@ -65,7 +65,9 @@ public class FileLinkEnricher implements HalEnricher {
   private void appendLinks(HalAppender appender, FileObject fileObject, NamespaceAndName namespaceAndName, String revision) {
     if (isNotRoot(fileObject) && changeGuardCheck.isDeletable(namespaceAndName, revision, fileObject.getPath()).isEmpty()) {
       LinkBuilder linkBuilder = new LinkBuilder(scmPathInfoStore.get().get(), EditorResource.class);
-      appender.appendLink("move", createMoveLink(fileObject, namespaceAndName, linkBuilder));
+      if (editorPreconditions.supportsMove(namespaceAndName)) {
+        appender.appendLink("move", createMoveLink(fileObject, namespaceAndName, linkBuilder));
+      }
     }
     if (fileObject.isDirectory()) {
       appendDirectoryLinks(appender, fileObject, namespaceAndName, revision);

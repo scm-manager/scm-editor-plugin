@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import sonia.scm.ContextEntry;
 import sonia.scm.repository.BrowserResult;
 import sonia.scm.repository.Changeset;
+import sonia.scm.repository.Feature;
 import sonia.scm.repository.InternalRepositoryException;
 import sonia.scm.repository.NamespaceAndName;
 import sonia.scm.repository.Repository;
@@ -61,9 +62,15 @@ public class EditorPreconditions {
     } catch (IOException ex) {
       throw new InternalRepositoryException(
         ContextEntry.ContextBuilder.entity(namespaceAndName),
-        "could not check if the repository and revision is enrichable",
+        "could not check if the repository and revision is editable",
         ex
       );
+    }
+  }
+
+  public boolean supportsMove(NamespaceAndName namespaceAndName) {
+    try (RepositoryService repositoryService = repositoryServiceFactory.create(namespaceAndName)) {
+      return repositoryService.isSupported(Feature.MODIFY_SUPPORTS_MOVE);
     }
   }
 

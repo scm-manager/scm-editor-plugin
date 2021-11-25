@@ -91,6 +91,8 @@ class EditorServiceTest {
   @Mock
   ModifyCommandBuilder.SimpleContentLoader modifyContentLoader;
   @Mock
+  ModifyCommandBuilder.MoveBuilder moveBuilder;
+  @Mock
   ChangeGuardCheck changeGuardCheck;
 
   EditorService editorService;
@@ -142,13 +144,14 @@ class EditorServiceTest {
   @Test
   void shouldCreateCorrectModifyCommandAndReturnChangesetForMove() throws IOException {
     when(modifyCommandBuilder.execute()).thenReturn("1337");
+    when(modifyCommandBuilder.move(SOME_PATH)).thenReturn(moveBuilder);
     when(logCommandBuilder.getChangeset("1337")).thenReturn(new Changeset("1337", new Date().getTime(), new Person("Trillian")));
 
     Changeset changeset = editorService.move("space", "name", "master", SOME_PATH, SOME_OTHER_PATH, "move file");
 
     verify(modifyCommandBuilder).setBranch("master");
     verify(modifyCommandBuilder).setCommitMessage("move file");
-    verify(modifyCommandBuilder).move(SOME_PATH, SOME_OTHER_PATH);
+    verify(moveBuilder).to(SOME_OTHER_PATH);
     verify(modifyCommandBuilder).execute();
     assertThat(changeset).isNotNull();
     assertThat(changeset.getId()).isEqualTo("1337");

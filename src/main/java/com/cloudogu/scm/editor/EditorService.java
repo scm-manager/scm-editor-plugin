@@ -63,13 +63,15 @@ public class EditorService {
   }
 
   Changeset move(String namespace, String repositoryName, @CheckForNull String branch, String fromPath, String toPath, String commitMessage) throws IOException {
+    validatePath(fromPath, "source path");
     doThrow()
-      .violation("invalid source path: ", fromPath)
-      .when(!ValidationUtil.isPathValid(fromPath) || StringUtils.isEmpty(fromPath));
+      .violation("must not be empty", "source path")
+      .when(StringUtils.isEmpty(fromPath));
 
+    validatePath(toPath, "target path");
     doThrow()
-      .violation("invalid target path: ", toPath)
-      .when(!ValidationUtil.isPathValid(toPath) || StringUtils.isEmpty(toPath));
+      .violation("must not be empty", "target path")
+      .when(StringUtils.isEmpty(toPath));
 
     try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, repositoryName))) {
       checkWritePermission(repositoryService);
@@ -79,7 +81,7 @@ public class EditorService {
         modifyCommand.setBranch(branch);
       }
       modifyCommand.setCommitMessage(commitMessage);
-      modifyCommand.move(fromPath, toPath);
+      modifyCommand.move(fromPath).to(toPath);
       String newChangesetId = modifyCommand.execute();
 
       return repositoryService.getLogCommand().setBranch(branch).getChangeset(newChangesetId);
@@ -162,13 +164,9 @@ public class EditorService {
     }
 
     private String computeCompleteFileName(String fileName) {
-      doThrow()
-        .violation("invalid filename: ", fileName)
-        .when(!ValidationUtil.isFilenameValid(fileName));
+      validateFilename(fileName);
 
-      doThrow()
-        .violation("invalid path: ", path)
-        .when(!ValidationUtil.isPathValid(path));
+      validatePath(path, "path");
 
       if (StringUtils.isEmpty(path)) {
         return fileName;
@@ -196,5 +194,17 @@ public class EditorService {
     public void close() {
       repositoryService.close();
     }
+  }
+
+  private void validatePath(String path, String variableName) {
+    doThrow()
+      .violation("must not contain \"..\", \"//\", or \"\\\" and must not equal \"..\"", variableName)
+      .when(!ValidationUtil.isPathValid(path));
+  }
+
+  private void validateFilename(String fileName) {
+    doThrow()
+      .violation("must not contain \"/\", \"\\\", or \":\"", "fileName")
+      .when(!ValidationUtil.isFilenameValid(fileName));
   }
 }
