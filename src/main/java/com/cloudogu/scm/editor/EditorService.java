@@ -35,6 +35,7 @@ import sonia.scm.repository.api.RepositoryService;
 import sonia.scm.repository.api.RepositoryServiceFactory;
 import sonia.scm.util.ValidationUtil;
 
+import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,6 +59,32 @@ public class EditorService {
     try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, name))) {
       ModifyCommandBuilder modifyCommand = initializeModifyCommandBuilder(branch, commitMessage, revision, repositoryService);
       return new FileUploader(repositoryService, modifyCommand, path, branch);
+    }
+  }
+
+  Changeset move(String namespace, String repositoryName, @CheckForNull String branch, String fromPath, String toPath, String commitMessage) throws IOException {
+    validatePath(fromPath, "source path");
+    doThrow()
+      .violation("must not be empty", "source path")
+      .when(StringUtils.isEmpty(fromPath));
+
+    validatePath(toPath, "target path");
+    doThrow()
+      .violation("must not be empty", "target path")
+      .when(StringUtils.isEmpty(toPath));
+
+    try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, repositoryName))) {
+      checkWritePermission(repositoryService);
+
+      ModifyCommandBuilder modifyCommand = repositoryService.getModifyCommand();
+      if (!Strings.isNullOrEmpty(branch)) {
+        modifyCommand.setBranch(branch);
+      }
+      modifyCommand.setCommitMessage(commitMessage);
+      modifyCommand.move(fromPath).to(toPath);
+      String newChangesetId = modifyCommand.execute();
+
+      return repositoryService.getLogCommand().setBranch(branch).getChangeset(newChangesetId);
     }
   }
 
@@ -137,13 +164,9 @@ public class EditorService {
     }
 
     private String computeCompleteFileName(String fileName) {
-      doThrow()
-        .violation("invalid filename: ", fileName)
-        .when(!ValidationUtil.isFilenameValid(fileName));
+      validateFilename(fileName);
 
-      doThrow()
-        .violation("invalid path: ", path)
-        .when(!ValidationUtil.isPathValid(path));
+      validatePath(path, "path");
 
       if (StringUtils.isEmpty(path)) {
         return fileName;
@@ -171,5 +194,17 @@ public class EditorService {
     public void close() {
       repositoryService.close();
     }
+  }
+
+  private void validatePath(String path, String variableName) {
+    doThrow()
+      .violation("must not contain \"..\", \"//\", or \"\\\" and must not equal \"..\"", variableName)
+      .when(!ValidationUtil.isPathValid(path));
+  }
+
+  private void validateFilename(String fileName) {
+    doThrow()
+      .violation("must not contain \"/\", \"\\\", or \":\"", "fileName")
+      .when(!ValidationUtil.isFilenameValid(fileName));
   }
 }

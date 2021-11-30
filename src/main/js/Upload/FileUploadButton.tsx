@@ -38,9 +38,8 @@ type Props = {
 
 const ButtonLink = styled(Link)`
   width: 50px;
-  color: #33b2e8;
   &:hover {
-    color: #363636;
+    color: #33b2e8;
   }
 `;
 

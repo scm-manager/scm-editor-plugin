@@ -19,6 +19,44 @@
         "title": "Datei löschen"
       }
     },
+    "move": {
+      "tooltip": "Verschieben",
+      "file": {
+        "title": "Datei verschieben"
+      },
+      "directory": {
+        "title": "Verzeichnis verschieben"
+      },
+      "submit": {
+        "label": "Verschieben"
+      },
+      "newPath": {
+        "label": "Neuer Pfad",
+        "errors": {
+          "pattern": "Der Pfad muss mit \"/\" beginnen, darf kein \"\\\" enthalten und nicht mit Leerzeichen enden",
+          "empty": "Der Pfad darf nicht leer sein"
+        }
+      },
+      "newFilename": {
+        "label": "Neuer Dateiname",
+        "errors": {
+          "pattern": "Der Dateiname darf weder \"/\" oder \"\\\" enthalten und nicht mit Leerzeichen enden",
+          "empty": "Der Dateiname darf nicht leer sein"
+        }
+      },
+      "path": {
+        "label": "Pfad"
+      },
+      "commit": {
+        "placeholder": "Commit Nachricht"
+      },
+      "branch": {
+        "label": "Branch"
+      },
+      "cancel": {
+        "label": "Abbrechen"
+      }
+    },
     "download": {
       "tooltip": "Download"
     },
@@ -55,6 +93,9 @@
       "branchMissing": "In der URL fehlt der Branch"
     },
     "validation": {
+      "directoryEmpty": "Pfad darf nicht leer sein",
+      "directoryInvalid": "Pfad ungültig",
+      "filenameEmpty": "Dateiname darf nicht leer sein",
       "filenameInvalid": "Dateiname ungültig",
       "pathInvalid": "Pfad ungültig"
     }

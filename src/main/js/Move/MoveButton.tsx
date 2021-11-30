@@ -21,30 +21,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import FileCreateButton from "./Create/FileCreateButton";
-import FileUploadButton from "./Upload/FileUploadButton";
+import React, { FC, useState } from "react";
 import { File, Repository } from "@scm-manager/ui-types";
-import { ButtonGroup } from "@scm-manager/ui-components";
-import MoveButton from "./Move/MoveButton";
+import { useTranslation } from "react-i18next";
+import styled from "styled-components";
+import MoveModal from "./MoveModal";
+
+const Button = styled.button`
+  width: 50px;
+  &:hover {
+    color: #33b2e8;
+  }
+`;
 
 type Props = {
   repository: Repository;
-  path?: string;
   revision?: string;
   sources: File;
 };
 
-class SourcesActionbar extends React.Component<Props> {
-  render() {
-    return (
-      <ButtonGroup>
-        <FileCreateButton {...this.props} />
-        <FileUploadButton {...this.props} />
-        {this.props.sources?.directory ? <MoveButton {...this.props} /> : null}
-      </ButtonGroup>
-    );
-  }
-}
+const MoveButton: FC<Props> = ({ sources, revision, repository }) => {
+  const [t] = useTranslation("plugins");
+  const [modalVisible, setModalVisible] = useState(false);
 
-export default SourcesActionbar;
+  if (!sources || !("move" in sources._links)) {
+    return null;
+  }
+
+  return (
+    <>
+      {modalVisible ? (
+        <MoveModal
+          onClose={() => setModalVisible(false)}
+          repository={repository}
+          sources={sources}
+          revision={revision}
+        />
+      ) : null}
+      <Button className="button" title={t("scm-editor-plugin.move.tooltip")} onClick={() => setModalVisible(true)}>
+        <i className="fas fa-exchange-alt" />
+      </Button>
+    </>
+  );
+};
+
+export default MoveButton;

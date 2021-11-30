@@ -19,6 +19,44 @@
         "title": "Delete file"
       }
     },
+    "move": {
+      "tooltip": "Move",
+      "file": {
+        "title": "Move File"
+      },
+      "directory": {
+        "title": "Move Directory"
+      },
+      "submit": {
+        "label": "Move"
+      },
+      "newPath": {
+        "label": "New path",
+        "errors": {
+          "pattern": "The path must start with \"/\", must not contain \"\\\" and must not end with space",
+          "empty": "The path must not be empty"
+        }
+      },
+      "newFilename": {
+        "label": "New filename",
+        "errors": {
+          "pattern": "The filename must not contain \"/\" or \"\\\" and must not end with space",
+          "empty": "The filename must not be empty"
+        }
+      },
+      "path": {
+        "label": "Path"
+      },
+      "commit": {
+        "placeholder": "Commit message"
+      },
+      "branch": {
+        "label": "Branch"
+      },
+      "cancel": {
+        "label": "Cancel"
+      }
+    },
     "download": {
       "tooltip": "Download"
     },
@@ -55,6 +93,9 @@
       "branchMissing": "Branch not specified in URL"
     },
     "validation": {
+      "directoryEmpty": "path must not be empty",
+      "directoryInvalid": "path invalid",
+      "filenameEmpty": "filename must not be empty",
       "filenameInvalid": "filename invalid",
       "pathInvalid": "path invalid"
     }

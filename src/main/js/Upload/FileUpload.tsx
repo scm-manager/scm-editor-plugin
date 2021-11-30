@@ -34,6 +34,7 @@ import styled from "styled-components";
 import { Commit } from "../commit";
 import { createSourceUrl, createSourceUrlFromChangeset } from "../links";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
+import { sanitizePath } from "../pathSanitizer";
 
 const Header = styled.div`
   background-color: #f5f5f5;
@@ -151,7 +152,7 @@ class FileUpload extends React.Component<Props, State> {
     };
 
     apiClient
-      .postBinary(link.replace("{path}", path ? path : ""), formdata => {
+      .postBinary(link.replace("{path}", path ? sanitizePath(path) : ""), formdata => {
         Object.keys(fileAliases).forEach(name => formdata.append(name, fileAliases[name], name));
         formdata.append("commit", JSON.stringify(commit));
       })

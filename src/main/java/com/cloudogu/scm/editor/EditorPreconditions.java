@@ -61,7 +61,7 @@ public class EditorPreconditions {
     } catch (IOException ex) {
       throw new InternalRepositoryException(
         ContextEntry.ContextBuilder.entity(namespaceAndName),
-        "could not check if the repository and revision is enrichable",
+        "could not check if the repository and revision is editable",
         ex
       );
     }

@@ -42,6 +42,7 @@ import sonia.scm.repository.api.RepositoryServiceFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
@@ -71,6 +72,7 @@ class EditorServiceTest {
   };
 
   static final String SOME_PATH = "some/path";
+  static final String SOME_OTHER_PATH = "/other/path";
   static final String NEW_FILE = "newFile";
   static final String CHANGED_FILE = "changedFile";
   static final Changeset NEW_COMMIT = new Changeset("1", 1L, new Person("trillian"));
@@ -88,6 +90,8 @@ class EditorServiceTest {
   ModifyCommandBuilder.WithOverwriteFlagContentLoader createContentLoader;
   @Mock
   ModifyCommandBuilder.SimpleContentLoader modifyContentLoader;
+  @Mock
+  ModifyCommandBuilder.MoveBuilder moveBuilder;
   @Mock
   ChangeGuardCheck changeGuardCheck;
 
@@ -135,6 +139,22 @@ class EditorServiceTest {
     verify(modifyCommandBuilder).setExpectedRevision("expected");
     verify(modifyCommandBuilder).execute();
     assertThat(newCommit).isEqualTo(NEW_COMMIT);
+  }
+
+  @Test
+  void shouldCreateCorrectModifyCommandAndReturnChangesetForMove() throws IOException {
+    when(modifyCommandBuilder.execute()).thenReturn("1337");
+    when(modifyCommandBuilder.move(SOME_PATH)).thenReturn(moveBuilder);
+    when(logCommandBuilder.getChangeset("1337")).thenReturn(new Changeset("1337", new Date().getTime(), new Person("Trillian")));
+
+    Changeset changeset = editorService.move("space", "name", "master", SOME_PATH, SOME_OTHER_PATH, "move file");
+
+    verify(modifyCommandBuilder).setBranch("master");
+    verify(modifyCommandBuilder).setCommitMessage("move file");
+    verify(moveBuilder).to(SOME_OTHER_PATH);
+    verify(modifyCommandBuilder).execute();
+    assertThat(changeset).isNotNull();
+    assertThat(changeset.getId()).isEqualTo("1337");
   }
 
   @Test

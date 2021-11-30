@@ -21,11 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { InputField, validation as validator } from "@scm-manager/ui-components";
 import LanguageSelector from "./LanguageSelector";
+import { FilenameValidation, PathInputField, DirectoryValidation } from "./PathInputField";
+import { useDirectoryValidation, useFilenameValidation } from "./validation";
+import { sanitizePath } from "./pathSanitizer";
+import {InputField} from "@scm-manager/ui-components";
 
 const NoBottomMargin = styled.div`
   margin-bottom: 0 !important;
@@ -107,18 +110,18 @@ const FileMetaData: FC<Props> = ({
   onBlur
 }) => {
   const [t] = useTranslation("plugins");
-  const [pathValidationError, setPathValidationError] = useState(false);
-  const [filenameValidationError, setFilenameValidationError] = useState(false);
+  const [validateFilename, filenameErrorMessage] = useFilenameValidation();
+  const [validateDirectory, directoryErrorMessage] = useDirectoryValidation();
 
   const handlePathChange = (path: string) => {
     changePath(path);
-    setPathValidationError(!validator.isPathValid(path));
+    validateDirectory(path);
   };
 
   const handleFileNameChange = (fileName: string) => {
     if (changeFileName) {
       changeFileName(fileName);
-      setFilenameValidationError(!validator.isFilenameValid(fileName));
+      validateFilename(fileName);
       onValidate();
     }
   };
@@ -131,7 +134,7 @@ const FileMetaData: FC<Props> = ({
 
   const onValidate = () => {
     if (validate) {
-      validate(!(filenameValidationError || pathValidationError));
+      validate(!(filenameErrorMessage || directoryErrorMessage));
     }
   };
 
@@ -145,10 +148,10 @@ const FileMetaData: FC<Props> = ({
               <InputField
                 disabled={disabled}
                 value={path ? decodeURIComponent(path) : ""}
-                validationError={pathValidationError}
-                errorMessage={t("scm-editor-plugin.validation.pathInvalid")}
+                validationError={!!directoryErrorMessage}
+                errorMessage={directoryErrorMessage}
                 placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.path")}
-                onChange={value => handlePathChange(value)}
+                onChange={handlePathChange}
                 testId="create-file-path-input"
                 onBlur={onBlur}
               />
@@ -161,12 +164,11 @@ const FileMetaData: FC<Props> = ({
               <FieldLabel value={t("scm-editor-plugin.path.filename")} />
               <InputBorder disabled={disabled} className="control">
                 <InputField
+                  onChange={handleFileNameChange}
                   disabled={disabled}
                   value={file.name}
-                  validationError={filenameValidationError}
-                  errorMessage={t("scm-editor-plugin.validation.filenameInvalid")}
-                  placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.filename")}
-                  onChange={value => handleFileNameChange(value)}
+                  validationError={!!filenameErrorMessage}
+                  errorMessage={filenameErrorMessage}
                   testId="create-file-name-input"
                 />
               </InputBorder>

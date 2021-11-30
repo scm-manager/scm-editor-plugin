@@ -28,15 +28,15 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import FileMetaData from "../FileMetaData";
 import {
   apiClient,
+  Breadcrumb,
   Button,
   ButtonGroup,
   ErrorNotification,
+  Level,
   Loading,
   Notification,
-  Subtitle,
-  Breadcrumb,
   OpenInFullscreenButton,
-  Level
+  Subtitle
 } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
@@ -124,7 +124,7 @@ class FileEdit extends React.Component<Props, State> {
       initialLoading: true,
       loading: false,
       path: "",
-      file: this.isEditMode() ? null : {},
+      file: this.isEditMode() ? undefined : {},
       isValid: true,
       initialRevision: props.resolvedRevision
     };
@@ -280,7 +280,11 @@ class FileEdit extends React.Component<Props, State> {
         newCommit._embedded.branches[0].name
           ? newCommit._embedded.branches[0].name
           : newCommit.id;
-      redirectUrl += `/${encodeURIComponent(newRevision)}/${encodeFilePath(path, true) + encodedFilename}`;
+      let redirectPath = encodeFilePath(path, true) + encodedFilename;
+      if (redirectPath[0] === "/") {
+        redirectPath = redirectPath.substr(1);
+      }
+      redirectUrl += `/${encodeURIComponent(newRevision)}/${redirectPath}`;
     }
     this.props.history.push(redirectUrl);
   };
@@ -325,7 +329,8 @@ class FileEdit extends React.Component<Props, State> {
         type = file.type;
       } else {
         link = (sources._links.upload as Link).href;
-        link = link.replace("{path}", path ? encodeFilePath(path) : "");
+        const pathToReplace = path ? encodeFilePath(path) : "";
+        link = link.replace("{path}", pathToReplace);
         type = "text/plain";
       }
 

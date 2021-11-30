@@ -21,30 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import FileCreateButton from "./Create/FileCreateButton";
-import FileUploadButton from "./Upload/FileUploadButton";
-import { File, Repository } from "@scm-manager/ui-types";
-import { ButtonGroup } from "@scm-manager/ui-components";
-import MoveButton from "./Move/MoveButton";
+package com.cloudogu.scm.editor;
 
-type Props = {
-  repository: Repository;
-  path?: string;
-  revision?: string;
-  sources: File;
-};
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-class SourcesActionbar extends React.Component<Props> {
-  render() {
-    return (
-      <ButtonGroup>
-        <FileCreateButton {...this.props} />
-        <FileUploadButton {...this.props} />
-        {this.props.sources?.directory ? <MoveButton {...this.props} /> : null}
-      </ButtonGroup>
-    );
-  }
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class MoveDto {
+  @NotNull
+  @Size(min = 1)
+  private String commitMessage;
+
+  @Pattern(regexp = "^/[^\\\\]+$")
+  @NotBlank
+  private String newPath;
+
+  private String branch;
 }
-
-export default SourcesActionbar;

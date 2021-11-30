@@ -26,6 +26,7 @@ import { File, Repository } from "@scm-manager/ui-types";
 import FileDeleteButton from "./Delete/FileDeleteButton";
 import FileEditButton from "./Edit/FileEditButton";
 import FileDownloadButton from "./Download/FileDownloadButton";
+import MoveButton from "./Move/MoveButton";
 
 type Props = {
   repository: Repository;
@@ -42,6 +43,7 @@ class ContentActionbar extends React.Component<Props> {
         <FileDeleteButton file={file} handleExtensionError={handleExtensionError} revision={revision} />
         <FileEditButton repository={repository} revision={revision} file={file} />
         <FileDownloadButton repository={repository} file={file} />
+        <MoveButton repository={repository} sources={file} revision={revision} />
       </div>
     );
   }

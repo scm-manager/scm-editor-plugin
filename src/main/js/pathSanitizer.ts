@@ -21,30 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import FileCreateButton from "./Create/FileCreateButton";
-import FileUploadButton from "./Upload/FileUploadButton";
-import { File, Repository } from "@scm-manager/ui-types";
-import { ButtonGroup } from "@scm-manager/ui-components";
-import MoveButton from "./Move/MoveButton";
 
-type Props = {
-  repository: Repository;
-  path?: string;
-  revision?: string;
-  sources: File;
+import { useState } from "react";
+
+export const sanitizePath = (path?: string) => {
+  const pathWithSlashOnly = path ? path.trim().replace(/\\/g, "/") : "";
+  return pathWithSlashOnly.startsWith("/") ? pathWithSlashOnly.substr(1) : pathWithSlashOnly;
 };
 
-class SourcesActionbar extends React.Component<Props> {
-  render() {
-    return (
-      <ButtonGroup>
-        <FileCreateButton {...this.props} />
-        <FileUploadButton {...this.props} />
-        {this.props.sources?.directory ? <MoveButton {...this.props} /> : null}
-      </ButtonGroup>
-    );
-  }
-}
+export const usePathState = (initialPath?: string) => {
+  const [path, setInternalPath] = useState(initialPath);
+  const [sanitizedPath, setSanitizedPath] = useState(sanitizePath(initialPath));
 
-export default SourcesActionbar;
+  const setPath = (newPath: string) => {
+    setInternalPath(newPath);
+    setSanitizedPath(sanitizePath(newPath));
+  };
+
+  return [path, setPath, sanitizedPath] as const;
+};
