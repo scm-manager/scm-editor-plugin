@@ -2853,26 +2853,26 @@
   dependencies:
     typescript "^4.3.5"
 
-"@scm-manager/ui-api@^2.28.0":
-  version "2.28.0"
-  resolved "https://registry.yarnpkg.com/@scm-manager/ui-api/-/ui-api-2.28.0.tgz#a94ec1e567850edbbb6e9242cb7641a7639afbff"
-  integrity sha512-xBITEexhGhubmCkBTMCbgKFSUgNlMU+mPETONmRk/83ITGKE8fT3nCsGLSUj4JGdrfLV69ajL55/ScpzUf5MvA==
+"@scm-manager/ui-api@^2.28.1-20211123-091454":
+  version "2.28.1-20211123-091454"
+  resolved "https://registry.yarnpkg.com/@scm-manager/ui-api/-/ui-api-2.28.1-20211123-091454.tgz#27259dbcae1a87f3916d281b2279308017fa478a"
+  integrity sha512-TEE0oCVY3pEu+xNHCWnr+Jy5w0oc6i5AY9r33gUg594PqJj0pBiy2sVaAJ7tGjOjvIx+0EXPzYN0nBEOzHB1Zg==
   dependencies:
-    "@scm-manager/ui-types" "^2.28.0"
+    "@scm-manager/ui-types" "^2.28.1-20211123-091454"
     fetch-mock-jest "^1.5.1"
     gitdiff-parser "^0.1.2"
     query-string "6.14.1"
     react "^17.0.1"
     react-query "^3.25.1"
 
-"@scm-manager/ui-components@^2.28.0":
-  version "2.28.0"
-  resolved "https://registry.yarnpkg.com/@scm-manager/ui-components/-/ui-components-2.28.0.tgz#f86dda2c4db0e56fbd7427501b03257faeab6e7f"
-  integrity sha512-Uf9sNhG4vTterTcKtAnPJrp/AVOQ7mVuGQnOWLOfVsdD8HEgngAesohx+LthQ76diOr+0hIOUjT/Xj2vAr0Tew==
+"@scm-manager/ui-components@^2.28.1-20211123-091454":
+  version "2.28.1-20211123-091454"
+  resolved "https://registry.yarnpkg.com/@scm-manager/ui-components/-/ui-components-2.28.1-20211123-091454.tgz#d42a71be6c86219558169d3ec34b80551534fe3a"
+  integrity sha512-oOgqrU1YXvePfY3U2R/Jn22dnDNIHCUidS8uD8dsqqxQoef1uNM27rdta/nYBBjXUDIht3iH4xslS0SsYqgtiQ==
   dependencies:
-    "@scm-manager/ui-api" "^2.28.0"
-    "@scm-manager/ui-extensions" "^2.28.0"
-    "@scm-manager/ui-types" "^2.28.0"
+    "@scm-manager/ui-api" "^2.28.1-20211123-091454"
+    "@scm-manager/ui-extensions" "^2.28.1-20211123-091454"
+    "@scm-manager/ui-types" "^2.28.1-20211123-091454"
     classnames "^2.2.6"
     date-fns "^2.4.1"
     deepmerge "^4.2.2"
@@ -2922,12 +2922,12 @@
     react-syntax-highlighter "^15.2.1"
     refractor "^3.0.0"
 
-"@scm-manager/ui-extensions@^2.28.0":
-  version "2.28.0"
-  resolved "https://registry.yarnpkg.com/@scm-manager/ui-extensions/-/ui-extensions-2.28.0.tgz#8bee2d10ef35cf234e323c3e2becba3531ab9641"
-  integrity sha512-XqupU5ZX3m2cMJPmWt5vO4T/ij7J/IQ0I6hoxhw5cAQj7DGiHKPqPnuUqnf7LxHCrE/KKF7DQ9O/ekaXrDBgNw==
+"@scm-manager/ui-extensions@^2.28.1-20211123-091454":
+  version "2.28.1-20211123-091454"
+  resolved "https://registry.yarnpkg.com/@scm-manager/ui-extensions/-/ui-extensions-2.28.1-20211123-091454.tgz#d1ef4693c950c79f0561339bdc4b0718fb9b1664"
+  integrity sha512-Wy2BUXSP+4LOX6eDZR/0s1EuGq+0KcQjJVhss80pMFQSuYP280x1XoHV/ha66ikGY5mYB2EFNw66srCiPm6qIA==
   dependencies:
-    "@scm-manager/ui-types" "^2.28.0"
+    "@scm-manager/ui-types" "^2.28.1-20211123-091454"
     react "^17.0.1"
 
 "@scm-manager/ui-extensions@^2.8.0":
@@ -2937,13 +2937,13 @@
   dependencies:
     react "^16.10.2"
 
-"@scm-manager/ui-plugins@2.28.0":
-  version "2.28.0"
-  resolved "https://registry.yarnpkg.com/@scm-manager/ui-plugins/-/ui-plugins-2.28.0.tgz#adaf262e017aff98eca42b3dbaa2cf493bbb4e8f"
-  integrity sha512-mw5b5WhOwj73ptt2iBwq6svW7qHBgrdODN1Lik8SWoggSHe8EDQ3qQQz4nxCvfsiDUFrUWnFQab5WOaZE+MwBA==
+"@scm-manager/ui-plugins@2.28.1-20211123-091454":
+  version "2.28.1-20211123-091454"
+  resolved "https://registry.yarnpkg.com/@scm-manager/ui-plugins/-/ui-plugins-2.28.1-20211123-091454.tgz#7635f907f2658164a96eb0a5f4f8d0281dcd8cd7"
+  integrity sha512-9M2Ql+3gaxILodFmXQcDVvjbJGIOOf+aXhGdnOO5ZVyajMWjUK3RFdLIqDr4rPtp3c2bKlXCbMZMuKj4zHmnkg==
   dependencies:
-    "@scm-manager/ui-components" "^2.28.0"
-    "@scm-manager/ui-extensions" "^2.28.0"
+    "@scm-manager/ui-components" "^2.28.1-20211123-091454"
+    "@scm-manager/ui-extensions" "^2.28.1-20211123-091454"
     classnames "^2.2.6"
     query-string "6.14.1"
     react "^17.0.1"
@@ -2970,10 +2970,10 @@
     redux "^4.0.0"
     styled-components "^5.1.0"
 
-"@scm-manager/ui-scripts@^2.28.0":
-  version "2.28.0"
-  resolved "https://registry.yarnpkg.com/@scm-manager/ui-scripts/-/ui-scripts-2.28.0.tgz#6ca05bb97d88a407133765b68727158e4b281fb0"
-  integrity sha512-psbqqO2AAoToFOWWl0bX+OXSzHXnvMh7aDXqQW3TIhzp/NoNS9Sm6OgNpvo6ZDy5KClX8TPKlsefSLfYB0pb5A==
+"@scm-manager/ui-scripts@^2.28.1-20211123-091454":
+  version "2.28.1-20211123-091454"
+  resolved "https://registry.yarnpkg.com/@scm-manager/ui-scripts/-/ui-scripts-2.28.1-20211123-091454.tgz#b01c6ebede42d93417142f59e024c10777dc5beb"
+  integrity sha512-F6CgCQlO5NEejlDKL6C5o9brhr2bzIIvztpnFme1r+Oaf8j6/vrfTSUYjnNbfL6fZYnpZyFDGDCgTKrnyM6TKw==
   dependencies:
     "@pmmmwh/react-refresh-webpack-plugin" "^0.5.1"
     babel-loader "^8.2.3"
@@ -2991,10 +2991,10 @@
     webpack-cli "^4.9.1"
     webpack-dev-server "^4.4.0"
 
-"@scm-manager/ui-tests@^2.28.0":
-  version "2.28.0"
-  resolved "https://registry.yarnpkg.com/@scm-manager/ui-tests/-/ui-tests-2.28.0.tgz#724843781cb38da48f7a9adc459a4d9e81efc954"
-  integrity sha512-JkW0eowKg6KJKU3bvn3eINKC7ou83wwlMueZRRxzpuY2YlUoT3lAaPU9ypPUhXY7E4V9wtc420f9ZDm1RsV6XA==
+"@scm-manager/ui-tests@^2.28.1-20211123-091454":
+  version "2.28.1-20211123-091454"
+  resolved "https://registry.yarnpkg.com/@scm-manager/ui-tests/-/ui-tests-2.28.1-20211123-091454.tgz#b00213b36fb38d15c932e3ed23b5499e0dfd2ce9"
+  integrity sha512-DbYZcHKV1LFJL7nkMCSX2fR5OD73Myiri6jWEPsrFKH6a17ALfg15wKiRSMvVKuCxy0m1/8G/oCZuslTY3s/YQ==
   dependencies:
     "@wojtekmaj/enzyme-adapter-react-17" "^0.6.0"
     babel-plugin-istanbul "^6.0.0"
@@ -3005,10 +3005,10 @@
     raf "^3.4.1"
     react-test-renderer "^17.0.1"
 
-"@scm-manager/ui-types@^2.28.0":
-  version "2.28.0"
-  resolved "https://registry.yarnpkg.com/@scm-manager/ui-types/-/ui-types-2.28.0.tgz#c05404ab553913993e5160824e3d04cc55ed9226"
-  integrity sha512-hA1i0GGVCbAKe/TYKJwa4gKvbIbT57g1JKObnsQ/PbzGDwB80nmpg6wY/wcTIpBcktDfl9DT9Jty2nwdKWMUwg==
+"@scm-manager/ui-types@^2.28.1-20211123-091454":
+  version "2.28.1-20211123-091454"
+  resolved "https://registry.yarnpkg.com/@scm-manager/ui-types/-/ui-types-2.28.1-20211123-091454.tgz#d6ad7217dc8e0d3faca05b8e079b8baba5781864"
+  integrity sha512-C6uSPZaH970Zfgc9o/+Qbtaf2WS32mm2BnioievzwZqVr0sSXnSP1t3hgTbAN4P6Dm7jsXEYJB6wNrvV00jKdw==
 
 "@scm-manager/ui-types@^2.8.0":
   version "2.8.0"
