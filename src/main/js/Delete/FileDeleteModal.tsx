@@ -60,7 +60,7 @@ class FileRemoveModal extends React.Component<Props, State> {
       <CommitMessage
         onChange={this.changeCommitMessage}
         disabled={loading}
-        onSubmit={() => onCommit(this.state.commitMessage)}
+        onSubmit={() => !!commitMessage && onCommit(this.state.commitMessage)}
       />
     );
 
