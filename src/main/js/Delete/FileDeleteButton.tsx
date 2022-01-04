@@ -26,7 +26,7 @@ import { WithTranslation, withTranslation } from "react-i18next";
 import { File, Link } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
 import { apiClient, createAttributesForTesting, Icon } from "@scm-manager/ui-components";
-import { withRouter, RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, withRouter } from "react-router-dom";
 import styled from "styled-components";
 
 const Button = styled.button`
@@ -81,7 +81,7 @@ class FileDeleteButton extends React.Component<Props, State> {
         branch: decodeURIComponent(revision)
       })
       .then(r => r.json())
-      .then(newCommit => {
+      .then(async newCommit => {
         if (newCommit) {
           const newRevision =
             newCommit._embedded &&
@@ -93,8 +93,24 @@ class FileDeleteButton extends React.Component<Props, State> {
           const filePath = location.pathname
             .substr(0, location.pathname.length - file.name.length - 1)
             .split("/sources/" + revision)[1];
+
+          const filePathParts = filePath.split("/");
+          const checkFolderBaseUrl =
+            (newCommit._links.self as Link).href.split("/changesets/")[0] +
+            `/sources/${encodeURIComponent(newRevision)}`;
+          let exists = false;
+          while (!exists) {
+            try {
+              await apiClient.get(checkFolderBaseUrl + filePathParts.join("/"));
+              exists = true;
+            } catch (err) {
+              filePathParts.pop();
+            }
+          }
+
           const redirectUrl =
-            location.pathname.split("/sources")[0] + `/sources/${encodeURIComponent(newRevision)}${filePath}`;
+            location.pathname.split("/sources")[0] +
+            `/sources/${encodeURIComponent(newRevision)}${filePathParts.join("/")}`;
           history.push(redirectUrl);
         }
       })
