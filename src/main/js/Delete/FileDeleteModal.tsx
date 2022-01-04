@@ -22,12 +22,10 @@
  * SOFTWARE.
  */
 import React from "react";
-import { compose } from "redux";
-import { connect } from "react-redux";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { Button, ButtonGroup, Modal } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
-import { File, Me } from "@scm-manager/ui-types";
+import { File } from "@scm-manager/ui-types";
 
 type Props = WithTranslation & {
   file: File;
@@ -48,7 +46,7 @@ class FileRemoveModal extends React.Component<Props, State> {
     };
   }
 
-  changeCommitMessage = commitMessage => {
+  changeCommitMessage = (commitMessage: string) => {
     this.setState({
       commitMessage
     });
@@ -60,9 +58,9 @@ class FileRemoveModal extends React.Component<Props, State> {
 
     const body = (
       <CommitMessage
-        commitMessage={this.state.commitMessage}
         onChange={this.changeCommitMessage}
         disabled={loading}
+        onSubmit={() => onCommit(this.state.commitMessage)}
       />
     );
 

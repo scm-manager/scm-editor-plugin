@@ -103,7 +103,13 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
     setNewFilename(newFilenameValue);
   };
 
+  const commitDisabled = !commitMessage || !!directoryErrorMessage || !!filenameErrorMessage;
+
   const submit = () => {
+    if (commitDisabled) {
+      return;
+    }
+
     let resultingPath = sanitizedPath;
     if (!sources.directory) {
       if (resultingPath.length !== 0 && !resultingPath.endsWith("/")) {
@@ -126,6 +132,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
       disabled={isLoading}
       validationError={!!filenameErrorMessage}
       errorMessage={filenameErrorMessage}
+      onReturnPressed={submit}
     />
   );
 
@@ -143,6 +150,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
         disabled={isLoading}
         validationError={!!directoryErrorMessage}
         errorMessage={directoryErrorMessage}
+        onReturnPressed={submit}
       />
       {filenameInput}
       <div className="mb-2 mt-5">
@@ -153,11 +161,10 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
         onChange={message => setCommitMessage(message)}
         value={commitMessage}
         disabled={isLoading}
+        onSubmit={submit}
       />
     </>
   );
-
-  const commitDisabled = !commitMessage || !!directoryErrorMessage || !!filenameErrorMessage;
 
   const footer = (
     <ButtonGroup>

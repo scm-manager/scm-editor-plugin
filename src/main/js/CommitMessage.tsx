@@ -21,29 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
-import { Textarea, CommitAuthor } from "@scm-manager/ui-components";
+import React, { FC } from "react";
+import { useTranslation } from "react-i18next";
+import { CommitAuthor, Textarea } from "@scm-manager/ui-components";
 
-type Props = WithTranslation & {
+type Props = {
   onChange: (p: string) => void;
   disabled: boolean;
+  onSubmit?: () => void;
 };
 
-class CommitMessage extends React.Component<Props> {
-  render() {
-    const { t, onChange, disabled } = this.props;
-    return (
-      <>
-        <CommitAuthor />
-        <Textarea
-          placeholder={t("scm-editor-plugin.commit.placeholder")}
-          onChange={message => onChange(message)}
-          disabled={disabled}
-        />
-      </>
-    );
-  }
-}
+const CommitMessage: FC<Props> = ({ onChange, onSubmit, disabled }) => {
+  const [t] = useTranslation("plugins");
+  return (
+    <>
+      <CommitAuthor />
+      <Textarea
+        placeholder={t("scm-editor-plugin.commit.placeholder")}
+        onChange={onChange}
+        disabled={disabled}
+        autofocus={true}
+        onSubmit={onSubmit}
+      />
+    </>
+  );
+};
 
-export default withTranslation("plugins")(CommitMessage);
+export default CommitMessage;
