@@ -406,7 +406,7 @@ class FileEdit extends React.Component<Props, State> {
 
     const body = (
       <>
-        <Breadcrumb repository={repository} baseUrl={baseUrl} path={this.props.path} revision={revision} />
+        <Breadcrumb repository={repository} baseUrl={baseUrl} path={path} revision={revision} clickable={false} />
         <FileMetaData
           changePath={this.changePath}
           path={path}

@@ -212,7 +212,7 @@ class FileUpload extends React.Component<Props, State> {
               </span>
             </Header>
           )}
-          <Breadcrumb repository={repository} baseUrl={baseUrl} path={path} revision={revision} />
+          <Breadcrumb repository={repository} baseUrl={baseUrl} path={path} revision={revision} clickable={false} />
           <FileMetaData
             path={path}
             changePath={changedPath => {

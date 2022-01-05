@@ -1,0 +1,2 @@
+- type: Fixed
+  description: Make breadcrumb not clickable ([#57](https://github.com/scm-manager/scm-editor-plugin/pull/57))
