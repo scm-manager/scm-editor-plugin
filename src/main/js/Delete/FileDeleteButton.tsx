@@ -23,7 +23,7 @@
  */
 import React from "react";
 import { WithTranslation, withTranslation } from "react-i18next";
-import { File, Link } from "@scm-manager/ui-types";
+import { Changeset, File, Link } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
 import { apiClient, createAttributesForTesting, Icon } from "@scm-manager/ui-components";
 import { RouteComponentProps, withRouter } from "react-router-dom";
@@ -71,7 +71,7 @@ class FileDeleteButton extends React.Component<Props, State> {
   };
 
   deleteFile = (commitMessage: string) => {
-    const { file, revision, history, location, handleExtensionError } = this.props;
+    const { revision, handleExtensionError } = this.props;
     this.setState({
       loading: true
     });
@@ -83,35 +83,7 @@ class FileDeleteButton extends React.Component<Props, State> {
       .then(r => r.json())
       .then(async newCommit => {
         if (newCommit) {
-          const newRevision =
-            newCommit._embedded &&
-            newCommit._embedded.branches &&
-            newCommit._embedded.branches[0] &&
-            newCommit._embedded.branches[0].name
-              ? newCommit._embedded.branches[0].name
-              : newCommit.id;
-          const filePath = location.pathname
-            .substr(0, location.pathname.length - file.name.length - 1)
-            .split("/sources/" + revision)[1];
-
-          const filePathParts = filePath.split("/");
-          const checkFolderBaseUrl =
-            (newCommit._links.self as Link).href.split("/changesets/")[0] +
-            `/sources/${encodeURIComponent(newRevision)}`;
-          let exists = false;
-          while (!exists) {
-            try {
-              await apiClient.get(checkFolderBaseUrl + filePathParts.join("/"));
-              exists = true;
-            } catch (err) {
-              filePathParts.pop();
-            }
-          }
-
-          const redirectUrl =
-            location.pathname.split("/sources")[0] +
-            `/sources/${encodeURIComponent(newRevision)}${filePathParts.join("/")}`;
-          history.push(redirectUrl);
+          await this.redirectAfterNewCommit(newCommit);
         }
       })
       .catch(error => {
@@ -119,6 +91,38 @@ class FileDeleteButton extends React.Component<Props, State> {
         handleExtensionError(error);
       });
   };
+
+  async redirectAfterNewCommit(newCommit: Changeset) {
+    const { file, revision, history, location } = this.props;
+
+    const newRevision =
+      newCommit._embedded &&
+      newCommit._embedded.branches &&
+      newCommit._embedded.branches[0] &&
+      newCommit._embedded.branches[0].name
+        ? newCommit._embedded.branches[0].name
+        : newCommit.id;
+    const filePath = location.pathname
+      .substr(0, location.pathname.length - file.name.length - 1)
+      .split("/sources/" + revision)[1];
+
+    const filePathParts = filePath.split("/");
+    const checkFolderBaseUrl =
+      (newCommit._links.self as Link).href.split("/changesets/")[0] + `/sources/${encodeURIComponent(newRevision)}`;
+    let exists = false;
+    while (!exists) {
+      try {
+        await apiClient.get(checkFolderBaseUrl + filePathParts.join("/"));
+        exists = true;
+      } catch (err) {
+        filePathParts.pop();
+      }
+    }
+
+    const redirectUrl =
+      location.pathname.split("/sources")[0] + `/sources/${encodeURIComponent(newRevision)}${filePathParts.join("/")}`;
+    history.push(redirectUrl);
+  }
 
   shouldRender = () => {
     return !!this.props.file._links.delete;
