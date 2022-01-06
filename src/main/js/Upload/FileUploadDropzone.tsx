@@ -51,7 +51,7 @@ const Description = styled.div`
 `;
 
 const Icon = styled.i`
-  margin: 1rem 0rem;
+  margin: 1rem 0;
 `;
 
 type Props = WithTranslation & {
@@ -76,7 +76,7 @@ class FileUploadDropzone extends React.Component<Props> {
                   <input {...getInputProps()} disabled={disabled} />
                   <StyledDropzone>
                     <InnerBorder>
-                      <Description className="has-text-grey-light">
+                      <Description className="has-text-secondary">
                         <Icon className="fas fa-plus-circle fa-2x has-text-grey-lighter" />
                         {t("scm-editor-plugin.upload.dragAndDrop")}
                       </Description>

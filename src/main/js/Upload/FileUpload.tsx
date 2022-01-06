@@ -37,7 +37,6 @@ import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import { sanitizePath } from "../pathSanitizer";
 
 const Header = styled.div`
-  background-color: #f5f5f5;
   line-height: 1.25;
   padding: 1em;
   border-bottom: solid 1px #dbdbdb;
@@ -205,7 +204,7 @@ class FileUpload extends React.Component<Props, State> {
         <Subtitle subtitle={t("scm-editor-plugin.upload.title")} />
         <Border>
           {revision && (
-            <Header>
+            <Header className="has-background-secondary-less">
               <span>
                 <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
                 {decodeURIComponent(revision)}
