@@ -31,20 +31,27 @@ type Props = {
   onSubmit?: () => void;
 };
 
-const CommitMessage: FC<Props> = ({ onChange, onSubmit, disabled }) => {
+type InnerProps = Props & {
+  innerRef: React.Ref<HTMLTextAreaElement>;
+};
+
+const CommitMessage: FC<InnerProps> = ({ onChange, onSubmit, disabled, innerRef }) => {
   const [t] = useTranslation("plugins");
   return (
     <>
       <CommitAuthor />
       <Textarea
         placeholder={t("scm-editor-plugin.commit.placeholder")}
-        onChange={onChange}
+        onChange={event => onChange(event.target.value)}
         disabled={disabled}
         autofocus={true}
         onSubmit={onSubmit}
+        ref={innerRef}
       />
     </>
   );
 };
 
-export default CommitMessage;
+export default React.forwardRef<HTMLTextAreaElement, Props>((props, ref) => (
+  <CommitMessage {...props} innerRef={ref} />
+));

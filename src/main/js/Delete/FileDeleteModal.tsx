@@ -21,79 +21,63 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
+import React, { FC, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, ButtonGroup, Modal } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
 import { File } from "@scm-manager/ui-types";
 
-type Props = WithTranslation & {
+type Props = {
   file: File;
   onCommit: (p: string) => void;
   onClose: () => void;
   loading: boolean;
 };
 
-type State = {
-  commitMessage: string;
+const FileRemoveModal: FC<Props> = ({ onCommit, onClose, loading }) => {
+  const [t] = useTranslation("plugins");
+  const [commitMessage, setCommitMessage] = useState("");
+  const [initialFocusNode, setInitialFocusNode] = useState<HTMLTextAreaElement | null>(null);
+
+  const body = (
+    <CommitMessage
+      onChange={setCommitMessage}
+      disabled={loading}
+      onSubmit={() => !!commitMessage && onCommit(commitMessage)}
+      ref={setInitialFocusNode}
+    />
+  );
+
+  const footer = (
+    <ButtonGroup>
+      <Button
+        className="is-marginless"
+        label={t("scm-editor-plugin.button.cancel")}
+        action={onClose}
+        disabled={loading}
+      />
+      <Button
+        className="is-marginless"
+        label={t("scm-editor-plugin.button.commit")}
+        color="primary"
+        disabled={!commitMessage}
+        loading={loading}
+        action={() => onCommit(commitMessage)}
+        testId={"delete-file-commit-button"}
+      />
+    </ButtonGroup>
+  );
+
+  return (
+    <Modal
+      title={t("scm-editor-plugin.delete.modal.title")}
+      closeFunction={() => onClose()}
+      body={body}
+      footer={footer}
+      active={true}
+      initialFocusNode={initialFocusNode}
+    />
+  );
 };
 
-class FileRemoveModal extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      commitMessage: ""
-    };
-  }
-
-  changeCommitMessage = (commitMessage: string) => {
-    this.setState({
-      commitMessage
-    });
-  };
-
-  render() {
-    const { onCommit, onClose, loading, t } = this.props;
-    const { commitMessage } = this.state;
-
-    const body = (
-      <CommitMessage
-        onChange={this.changeCommitMessage}
-        disabled={loading}
-        onSubmit={() => !!commitMessage && onCommit(this.state.commitMessage)}
-      />
-    );
-
-    const footer = (
-      <ButtonGroup>
-        <Button
-          className="is-marginless"
-          label={t("scm-editor-plugin.button.cancel")}
-          action={onClose}
-          disabled={loading}
-        />
-        <Button
-          className="is-marginless"
-          label={t("scm-editor-plugin.button.commit")}
-          color="primary"
-          disabled={!commitMessage}
-          loading={loading}
-          action={() => onCommit(this.state.commitMessage)}
-          testId={"delete-file-commit-button"}
-        />
-      </ButtonGroup>
-    );
-
-    return (
-      <Modal
-        title={t("scm-editor-plugin.delete.modal.title")}
-        closeFunction={() => onClose()}
-        body={body}
-        footer={footer}
-        active={true}
-      />
-    );
-  }
-}
-
-export default withTranslation("plugins")(FileRemoveModal);
+export default FileRemoveModal;
