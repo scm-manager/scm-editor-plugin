@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import {
   apiClient,
   Button,
@@ -92,7 +92,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
   const { isLoading, error, move } = useMoveFolder();
   const [validateFilename, filenameErrorMessage] = useFilenameValidation();
   const [validateDirectory, directoryErrorMessage] = useDirectoryValidation();
-  const [initialFocusNode, setInitialFocusNode] = useState<HTMLInputElement | null>(null);
+  const initialFocusRef = useRef<HTMLInputElement>(null);
 
   const updateNewPath = (newPathValue: string) => {
     validateDirectory(newPathValue, !sources.directory);
@@ -152,7 +152,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
         validationError={!!directoryErrorMessage}
         errorMessage={directoryErrorMessage}
         onReturnPressed={submit}
-        ref={setInitialFocusNode}
+        ref={initialFocusRef}
       />
       {filenameInput}
       <div className="mb-2 mt-5">
@@ -186,7 +186,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
       title={sources.directory ? t("scm-editor-plugin.move.directory.title") : t("scm-editor-plugin.move.file.title")}
       closeFunction={onClose}
       active={true}
-      initialFocusNode={initialFocusNode}
+      initialFocusRef={initialFocusRef}
     />
   );
 };

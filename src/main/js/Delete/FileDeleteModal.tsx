@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button, ButtonGroup, Modal } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
@@ -34,17 +34,17 @@ type Props = {
   loading: boolean;
 };
 
-const FileRemoveModal: FC<Props> = ({ onCommit, onClose, loading }) => {
+const FileDeleteModal: FC<Props> = ({ onCommit, onClose, loading }) => {
   const [t] = useTranslation("plugins");
   const [commitMessage, setCommitMessage] = useState("");
-  const [initialFocusNode, setInitialFocusNode] = useState<HTMLTextAreaElement | null>(null);
+  const initialFocusRef = useRef<HTMLTextAreaElement>(null);
 
   const body = (
     <CommitMessage
       onChange={setCommitMessage}
       disabled={loading}
       onSubmit={() => !!commitMessage && onCommit(commitMessage)}
-      ref={setInitialFocusNode}
+      ref={initialFocusRef}
     />
   );
 
@@ -75,9 +75,9 @@ const FileRemoveModal: FC<Props> = ({ onCommit, onClose, loading }) => {
       body={body}
       footer={footer}
       active={true}
-      initialFocusNode={initialFocusNode}
+      initialFocusRef={initialFocusRef}
     />
   );
 };
 
-export default FileRemoveModal;
+export default FileDeleteModal;
