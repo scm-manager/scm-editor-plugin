@@ -44,7 +44,6 @@ const CommitMessage: FC<InnerProps> = ({ onChange, onSubmit, disabled, innerRef 
         placeholder={t("scm-editor-plugin.commit.placeholder")}
         onChange={event => onChange(event.target.value)}
         disabled={disabled}
-        autofocus={true}
         onSubmit={onSubmit}
         ref={innerRef}
       />
