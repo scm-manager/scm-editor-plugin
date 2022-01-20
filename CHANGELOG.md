@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.9.1 - 2022-01-07
+### Fixed
+- High contrast mode findings ([#58](https://github.com/scm-manager/scm-editor-plugin/pull/58))
+- Make breadcrumb not clickable ([#57](https://github.com/scm-manager/scm-editor-plugin/pull/57))
+- Redirect to non-empty parent folder or root if folder is empty after deleting a file ([#56](https://github.com/scm-manager/scm-editor-plugin/pull/56))
+
 ## 2.8.0 - 2021-12-22
 ### Added
 - Enable renaming/moving of files and folders ([#55](https://github.com/scm-manager/scm-editor-plugin/pull/55))

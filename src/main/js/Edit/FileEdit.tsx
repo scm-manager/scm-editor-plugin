@@ -46,7 +46,6 @@ import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 
 const Header = styled.div`
-  background-color: #f5f5f5;
   line-height: 1.25;
   padding: 1em;
   border-bottom: solid 1px #dbdbdb;
@@ -406,7 +405,7 @@ class FileEdit extends React.Component<Props, State> {
 
     const body = (
       <>
-        <Breadcrumb repository={repository} baseUrl={baseUrl} path={this.props.path} revision={revision} />
+        <Breadcrumb repository={repository} baseUrl={baseUrl} path={path} revision={revision} clickable={false} />
         <FileMetaData
           changePath={this.changePath}
           path={path}
@@ -431,7 +430,7 @@ class FileEdit extends React.Component<Props, State> {
         <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
         <Border>
           {revision && (
-            <Header>
+            <Header className="has-background-secondary-less">
               <Level
                 left={
                   <span>
