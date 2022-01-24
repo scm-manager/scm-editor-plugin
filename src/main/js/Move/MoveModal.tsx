@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import {
   apiClient,
   Button,
@@ -92,6 +92,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
   const { isLoading, error, move } = useMoveFolder();
   const [validateFilename, filenameErrorMessage] = useFilenameValidation();
   const [validateDirectory, directoryErrorMessage] = useDirectoryValidation();
+  const initialFocusRef = useRef<HTMLInputElement>(null);
 
   const updateNewPath = (newPathValue: string) => {
     validateDirectory(newPathValue, !sources.directory);
@@ -103,7 +104,13 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
     setNewFilename(newFilenameValue);
   };
 
+  const commitDisabled = !commitMessage || !!directoryErrorMessage || !!filenameErrorMessage;
+
   const submit = () => {
+    if (commitDisabled) {
+      return;
+    }
+
     let resultingPath = sanitizedPath;
     if (!sources.directory) {
       if (resultingPath.length !== 0 && !resultingPath.endsWith("/")) {
@@ -126,6 +133,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
       disabled={isLoading}
       validationError={!!filenameErrorMessage}
       errorMessage={filenameErrorMessage}
+      onReturnPressed={submit}
     />
   );
 
@@ -139,10 +147,12 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
       <InputField
         label={t("scm-editor-plugin.move.newPath.label")}
         value={newPath}
-        onChange={updateNewPath}
+        onChange={event => updateNewPath(event.target.value)}
         disabled={isLoading}
         validationError={!!directoryErrorMessage}
         errorMessage={directoryErrorMessage}
+        onReturnPressed={submit}
+        ref={initialFocusRef}
       />
       {filenameInput}
       <div className="mb-2 mt-5">
@@ -153,11 +163,10 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
         onChange={message => setCommitMessage(message)}
         value={commitMessage}
         disabled={isLoading}
+        onSubmit={submit}
       />
     </>
   );
-
-  const commitDisabled = !commitMessage || !!directoryErrorMessage || !!filenameErrorMessage;
 
   const footer = (
     <ButtonGroup>
@@ -177,6 +186,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
       title={sources.directory ? t("scm-editor-plugin.move.directory.title") : t("scm-editor-plugin.move.file.title")}
       closeFunction={onClose}
       active={true}
+      initialFocusRef={initialFocusRef}
     />
   );
 };
