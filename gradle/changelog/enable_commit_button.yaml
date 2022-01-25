@@ -1,0 +1,2 @@
+- type: fixed
+  description: Enable commit button when commit is possible ([#64](https://github.com/scm-manager/scm-editor-plugin/pull/64))

@@ -35,6 +35,10 @@ type InnerProps = Props & {
   innerRef: React.Ref<HTMLTextAreaElement>;
 };
 
+const isStringOnChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string): event is string => {
+  return typeof event === "string";
+};
+
 const CommitMessage: FC<InnerProps> = ({ onChange, onSubmit, disabled, innerRef }) => {
   const [t] = useTranslation("plugins");
   return (
@@ -42,7 +46,13 @@ const CommitMessage: FC<InnerProps> = ({ onChange, onSubmit, disabled, innerRef 
       <CommitAuthor />
       <Textarea
         placeholder={t("scm-editor-plugin.commit.placeholder")}
-        onChange={event => onChange(event.target.value)}
+        onChange={event => {
+          if (isStringOnChange(event)) {
+            onChange(event);
+          } else {
+            onChange(event.target.value);
+          }
+        }}
         disabled={disabled}
         onSubmit={onSubmit}
         ref={innerRef}
