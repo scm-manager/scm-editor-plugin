@@ -1,0 +1,4 @@
+- type: fixed
+  description: Fix file edit for file names with hashtags ([#65](https://github.com/scm-manager/scm-editor-plugin/pull/65))
+- type: fixed
+  description: Fix missing encoding on file move ([#65](https://github.com/scm-manager/scm-editor-plugin/pull/65))
