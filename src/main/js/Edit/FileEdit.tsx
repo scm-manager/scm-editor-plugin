@@ -178,7 +178,9 @@ class FileEdit extends React.Component<Props, State> {
   afterLoading = () => {
     const pathWithFilename = this.props.path;
     const { file, initialLoading, path } = this.state;
-    const parentDirPath = this.isEditMode() ? pathWithFilename?.replace(file.name, "") : pathWithFilename;
+    const parentDirPath = this.isEditMode()
+      ? pathWithFilename?.replace(encodeURIComponent(file?.name ?? ""), "")
+      : pathWithFilename;
 
     if ((!path || !pathWithFilename) && parentDirPath !== pathWithFilename) {
       this.setState({
