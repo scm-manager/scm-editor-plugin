@@ -104,7 +104,7 @@ type State = {
   file?: FileWithType;
   content: string;
   initialRevision?: string;
-  path: string;
+  path?: string;
   initialError: Error;
   initialLoading: boolean;
   error: Error;
@@ -178,9 +178,11 @@ class FileEdit extends React.Component<Props, State> {
   afterLoading = () => {
     const pathWithFilename = this.props.path;
     const { file, initialLoading, path } = this.state;
-    const parentDirPath = this.isEditMode() ? pathWithFilename?.replace(file.name, "") : pathWithFilename;
+    const parentDirPath = this.isEditMode()
+      ? pathWithFilename?.replace(encodeURIComponent(file?.name ?? ""), "")
+      : pathWithFilename;
 
-    if (!path) {
+    if ((!path || !pathWithFilename) && parentDirPath !== pathWithFilename) {
       this.setState({
         path: parentDirPath
       });
@@ -193,7 +195,7 @@ class FileEdit extends React.Component<Props, State> {
     }
   };
 
-  createFileUrl = () =>
+  createFileUrl = (): Promise<string> =>
     new Promise((resolve, reject) => {
       const { repository, revision, path, t } = this.props;
       if (repository._links.sources) {
