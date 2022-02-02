@@ -112,7 +112,7 @@ Then("The created file is displayed", { timeout: 10000 }, function() {
     .and("include", this.repository.namespace)
     .and("include", this.repository.name);
   cy.contains(this.file.name);
-  cy.contains(this.file.content);
+  cy.contains(this.file.content.trim());
 });
 
 Then("The updated file is displayed", { timeout: 10000 }, function() {
