@@ -21,3 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+// This file is a template, please update the contents with commands specific to your plugin if there are any
+// Otherwise you can leave it blank.
