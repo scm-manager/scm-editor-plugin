@@ -329,7 +329,7 @@ class FileEdit extends React.Component<Props, State> {
         type = file.type;
       } else {
         link = (sources._links.upload as Link).href;
-        const pathToReplace = path ? encodeFilePath(path) : "";
+        const pathToReplace = path || "";
         link = link.replace("{path}", pathToReplace);
         type = "text/plain";
       }
