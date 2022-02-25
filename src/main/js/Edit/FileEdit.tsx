@@ -176,7 +176,7 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   afterLoading = () => {
-    const pathWithFilename = this.props.path;
+    const pathWithFilename = decodeURIComponent(this.props.path || "");
     const { initialLoading, path } = this.state;
     const lastPathDelimiter = pathWithFilename?.lastIndexOf("/");
     const parentDirPath = this.isEditMode() ? pathWithFilename?.substr(0, lastPathDelimiter) : pathWithFilename;
@@ -317,6 +317,16 @@ class FileEdit extends React.Component<Props, State> {
     return `/repo/${repository.namespace}/${repository.name}/code/sources`;
   };
 
+  encodePath = (path: string | undefined) => {
+    if (!path) {
+      return "";
+    }
+    return path
+      .split("/")
+      .map(encodeURIComponent)
+      .join("/");
+  };
+
   commitFile = () => {
     const { sources, revision } = this.props;
     const { file, commitMessage, path, content, initialRevision } = this.state;
@@ -329,7 +339,7 @@ class FileEdit extends React.Component<Props, State> {
         type = file.type;
       } else {
         link = (sources._links.upload as Link).href;
-        const pathToReplace = path || "";
+        const pathToReplace = this.encodePath(path);
         link = link.replace("{path}", pathToReplace);
         type = "text/plain";
       }
