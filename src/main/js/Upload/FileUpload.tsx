@@ -100,7 +100,7 @@ class FileUpload extends React.Component<Props, State> {
       loading: false,
       files: [],
       commitMessage: "",
-      path: this.props.path || "",
+      path: decodeURIComponent(this.props.path || ""),
       shouldValidate: true
     };
   }
