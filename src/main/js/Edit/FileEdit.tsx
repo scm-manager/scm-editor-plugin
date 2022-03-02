@@ -44,6 +44,7 @@ import { encodeFilePath } from "./encodeFilePath";
 import styled from "styled-components";
 import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
+import { setPathInLink } from "../links";
 
 const Header = styled.div`
   line-height: 1.25;
@@ -317,16 +318,6 @@ class FileEdit extends React.Component<Props, State> {
     return `/repo/${repository.namespace}/${repository.name}/code/sources`;
   };
 
-  encodePath = (path: string | undefined) => {
-    if (!path) {
-      return "";
-    }
-    return path
-      .split("/")
-      .map(encodeURIComponent)
-      .join("/");
-  };
-
   commitFile = () => {
     const { sources, revision } = this.props;
     const { file, commitMessage, path, content, initialRevision } = this.state;
@@ -339,8 +330,7 @@ class FileEdit extends React.Component<Props, State> {
         type = file.type;
       } else {
         link = (sources._links.upload as Link).href;
-        const pathToReplace = this.encodePath(path);
-        link = link.replace("{path}", pathToReplace);
+        link = setPathInLink(link, path);
         type = "text/plain";
       }
 
