@@ -22,5 +22,5 @@
  * SOFTWARE.
  */
 
-// This file is a template, please update the contents with commands specific to your plugin if there are any
-// Otherwise you can leave it blank.
+// This file is a template, please update the contents with commands specific to your plugin.
+// You can leave it blank, but do not add any other files to this directory or any of its subdirectories.
