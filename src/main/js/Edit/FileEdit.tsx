@@ -44,6 +44,7 @@ import { encodeFilePath } from "./encodeFilePath";
 import styled from "styled-components";
 import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
+import { setPathInLink } from "../links";
 
 const Header = styled.div`
   line-height: 1.25;
@@ -176,15 +177,14 @@ class FileEdit extends React.Component<Props, State> {
   };
 
   afterLoading = () => {
-    const pathWithFilename = this.props.path;
-    const { file, initialLoading, path } = this.state;
-    const parentDirPath = this.isEditMode()
-      ? pathWithFilename?.replace(encodeURIComponent(file?.name ?? ""), "")
-      : pathWithFilename;
+    const pathWithFilename = decodeURIComponent(this.props.path || "");
+    const { initialLoading, path } = this.state;
+    const lastPathDelimiter = pathWithFilename?.lastIndexOf("/");
+    const parentDirPath = this.isEditMode() ? pathWithFilename?.substr(0, lastPathDelimiter) : pathWithFilename;
 
-    if ((!path || !pathWithFilename) && parentDirPath !== pathWithFilename) {
+    if (!path) {
       this.setState({
-        path: parentDirPath
+        path: parentDirPath || ""
       });
     }
 
@@ -330,8 +330,7 @@ class FileEdit extends React.Component<Props, State> {
         type = file.type;
       } else {
         link = (sources._links.upload as Link).href;
-        const pathToReplace = path ? encodeFilePath(path) : "";
-        link = link.replace("{path}", pathToReplace);
+        link = setPathInLink(link, path);
         type = "text/plain";
       }
 

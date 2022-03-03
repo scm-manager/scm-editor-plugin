@@ -1,0 +1,2 @@
+- type: fixed
+  description: Path inconsistencies for editor, move and upload ([#70](https://github.com/scm-manager/scm-editor-plugin/pull/70))

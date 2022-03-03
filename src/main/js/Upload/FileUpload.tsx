@@ -32,9 +32,8 @@ import CommitMessage from "../CommitMessage";
 import FileUploadTable from "./FileUploadTable";
 import styled from "styled-components";
 import { Commit } from "../commit";
-import { createSourceUrl, createSourceUrlFromChangeset } from "../links";
+import { createSourceUrl, createSourceUrlFromChangeset, setPathInLink } from "../links";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
-import { sanitizePath } from "../pathSanitizer";
 
 const Header = styled.div`
   line-height: 1.25;
@@ -101,7 +100,7 @@ class FileUpload extends React.Component<Props, State> {
       loading: false,
       files: [],
       commitMessage: "",
-      path: this.props.path || "",
+      path: decodeURIComponent(this.props.path || ""),
       shouldValidate: true
     };
   }
@@ -151,7 +150,7 @@ class FileUpload extends React.Component<Props, State> {
     };
 
     apiClient
-      .postBinary(link.replace("{path}", path ? sanitizePath(path) : ""), formdata => {
+      .postBinary(setPathInLink(link, path), formdata => {
         Object.keys(fileAliases).forEach(name => formdata.append(name, fileAliases[name], name));
         formdata.append("commit", JSON.stringify(commit));
       })
