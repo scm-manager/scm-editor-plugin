@@ -83,6 +83,11 @@ const Border = styled.div`
 
 const MarginlessModalContent = styled.div`
   margin: -1.25rem;
+
+  .ace_editor {
+    min-height: 80px;
+    height: calc(97vh - 23rem) !important;
+  }
 `;
 
 type FileWithType = File & {
@@ -441,7 +446,7 @@ class FileEdit extends React.Component<Props, State> {
                 }
                 right={
                   <OpenInFullscreenButton
-                    modalTitle={file?.name}
+                    modalTitle={file?.name || ""}
                     modalBody={<MarginlessModalContent>{body}</MarginlessModalContent>}
                   />
                 }
