@@ -21,32 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { File, Repository } from "@scm-manager/ui-types";
-import FileDeleteButton from "./Delete/FileDeleteButton";
-import FileEditButton from "./Edit/FileEditButton";
-import FileDownloadButton from "./Download/FileDownloadButton";
-import MoveButton from "./Move/MoveButton";
 
-type Props = {
-  repository: Repository;
-  file: File;
-  revision: string;
-  handleExtensionError: (error: Error) => void;
+import { FC, useEffect } from "react";
+import { useHistory } from "react-router-dom";
+import { createSourceExtensionUrl } from "../links";
+import { encodeFilePath } from "./encodeFilePath";
+import { extensionPoints } from "@scm-manager/ui-extensions";
+
+export const FileEditAction: FC<extensionPoints.ActionBarExtensionsProps> = ({ repository, revision, file }) => {
+  const history = useHistory();
+
+  useEffect(() => {
+    history.push(createSourceExtensionUrl(repository, "edit", revision, encodeFilePath(file.path)));
+  });
+
+  return null;
 };
-
-class ContentActionbar extends React.Component<Props> {
-  render() {
-    const { repository, file, revision, handleExtensionError } = this.props;
-    return (
-      <div className="field is-grouped">
-        <FileDeleteButton file={file} handleExtensionError={handleExtensionError} revision={revision} />
-        <FileEditButton repository={repository} revision={revision} file={file} />
-        <FileDownloadButton repository={repository} file={file} />
-        <MoveButton repository={repository} sources={file} revision={revision} />
-      </div>
-    );
-  }
-}
-
-export default ContentActionbar;

@@ -21,40 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC } from "react";
-import { useTranslation } from "react-i18next";
-import styled from "styled-components";
-import { File, Link, Repository } from "@scm-manager/ui-types";
-import { ExtensionPoint } from "@scm-manager/ui-extensions";
-import { Icon } from "@scm-manager/ui-components";
 
-type Props = {
-  repository: Repository;
-  file: File;
+import { Link } from "@scm-manager/ui-types";
+import { FC } from "react";
+import { extensionPoints } from "@scm-manager/ui-extensions";
+
+export const FileDownloadAction: FC<extensionPoints.ActionBarExtensionsProps> = ({ file }) => {
+  const link = document.createElement("a");
+  link.href = (file._links.self as Link).href;
+  link.setAttribute("download", file.name);
+  document.body.appendChild(link);
+  link.click();
+  link.parentNode?.removeChild(link);
+  return null;
 };
-
-const ButtonStyleA = styled.a`
-  width: 50px;
-  &:hover {
-    color: #33b2e8;
-  }
-`;
-
-const FileDownloadButton: FC<Props> = ({ repository, file }) => {
-  const [t] = useTranslation("plugins");
-
-  return (
-    <ExtensionPoint name="repos.sources.content.actionbar.download" props={{ repository, file }} renderAll={false}>
-      <ButtonStyleA
-        href={(file._links.self as Link).href}
-        className="button"
-        title={t("scm-editor-plugin.download.tooltip")}
-        download={file.name}
-      >
-        <Icon name="download" color="inherit" />
-      </ButtonStyleA>
-    </ExtensionPoint>
-  );
-};
-
-export default FileDownloadButton;

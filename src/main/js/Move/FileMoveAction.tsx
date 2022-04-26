@@ -22,35 +22,15 @@
  * SOFTWARE.
  */
 
+import { extensionPoints } from "@scm-manager/ui-extensions";
+import React, { FC } from "react";
+import MoveModal from "./MoveModal";
 
-plugins {
-  id 'org.scm-manager.smp' version '0.10.3'
-}
-
-dependencies {
-  // we don't want the transitive dependencies in the resulting smp ...
-  implementation("org.jboss.resteasy:resteasy-multipart-provider:4.5.8.Final") {
-    transitive = false
-  }
-  // ... but we want them on the classpath for testing
-  testImplementation "org.jboss.resteasy:resteasy-multipart-provider:4.5.8.Final"
-
-  plugin 'sonia.scm.plugins:scm-code-editor-plugin:1.0.0'
-}
-
-scmPlugin {
-  scmVersion = "2.32.3-SNAPSHOT"
-
-  displayName = "Editor"
-  description = "Creates, edits and deletes Files"
-  author = "Cloudogu GmbH"
-  category = "Workflow"
-
-  openapi {
-    packages = [
-      "com.cloudogu.scm.editor"
-    ]
-  }
-
-}
-
+export const FileMoveAction: FC<extensionPoints.ActionBarExtensionsProps> = ({
+  repository,
+  revision,
+  file,
+  unmountComponent
+}) => {
+  return <MoveModal onClose={unmountComponent} repository={repository} sources={file} revision={revision} />;
+};

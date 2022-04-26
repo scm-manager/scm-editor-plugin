@@ -24,10 +24,15 @@
 import { binder } from "@scm-manager/ui-extensions";
 import FileDownloadIcon from "./Download/FileDownloadIcon";
 import SourcesActionbar from "./SourcesActionbar";
-import ContentActionbar from "./ContentActionbar";
 import FileUpload from "./Upload/FileUpload";
 import { Repository } from "@scm-manager/ui-types";
 import FileEdit from "./Edit/FileEdit";
+import { createAttributesForTesting } from "@scm-manager/ui-components";
+import { FileDownloadAction } from "./Download/FileDownloadAction";
+import { FileEditAction } from "./Edit/FileEditAction";
+import FileDeleteAction from "./Delete/FileDeleteAction";
+import { isEditable } from "./Edit/isEditable";
+import { FileMoveAction } from "./Move/FileMoveAction";
 
 type ExtensionProps = {
   repository: Repository;
@@ -42,8 +47,46 @@ const byExtension = (ext: string) => {
   };
 };
 
+binder.bind(
+  "repos.sources.content.actionbar.menu",
+  {
+    category: "Editor",
+    label: "scm-editor-plugin.edit.tooltip",
+    icon: "edit",
+    component: FileEditAction,
+    props: { ...createAttributesForTesting("edit-file-button") }
+  },
+  props =>
+    props.file._links.modify && props.contentType && isEditable(props.contentType.type, props.contentType.language)
+);
+binder.bind(
+  "repos.sources.content.actionbar.menu",
+  {
+    category: "Editor",
+    label: "scm-editor-plugin.move.tooltip",
+    icon: "exchange-alt",
+    component: FileMoveAction
+  },
+  props => props.file && "move" in props.file._links
+);
+binder.bind("repos.sources.content.actionbar.menu", {
+  category: "Editor",
+  label: "scm-editor-plugin.download.tooltip",
+  icon: "download",
+  component: FileDownloadAction
+});
+binder.bind(
+  "repos.sources.content.actionbar.menu",
+  {
+    category: "",
+    label: "scm-editor-plugin.delete.tooltip",
+    icon: "trash",
+    component: FileDeleteAction
+  },
+  props => !!props.file._links.delete
+);
+
 binder.bind("repos.sources.tree.row.right", FileDownloadIcon);
-binder.bind("repos.sources.content.actionbar", ContentActionbar);
 binder.bind("repos.sources.actionbar", SourcesActionbar);
 binder.bind("repos.sources.empty.actionbar", SourcesActionbar);
 binder.bind("repos.sources.extensions", FileUpload, byExtension("upload"));
