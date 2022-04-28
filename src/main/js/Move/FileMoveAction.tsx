@@ -22,15 +22,15 @@
  * SOFTWARE.
  */
 
-import { extensionPoints } from "@scm-manager/ui-extensions";
+import { extensionPoints, ExtractProps } from "@scm-manager/ui-extensions";
 import React, { FC } from "react";
 import MoveModal from "./MoveModal";
 
-export const FileMoveAction: FC<extensionPoints.ActionBarExtensionsProps> = ({
+export const FileMoveAction: FC<ExtractProps<extensionPoints.ModalMenuProps["modalElement"]>> = ({
   repository,
   revision,
   file,
-  unmountComponent
+  close
 }) => {
-  return <MoveModal onClose={unmountComponent} repository={repository} sources={file} revision={revision} />;
+  return <MoveModal onClose={close} repository={repository} sources={file} revision={revision} />;
 };

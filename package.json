@@ -14,7 +14,7 @@
         "@scm-manager/scm-code-editor-plugin": "1.0.0",
         "@scm-manager/ui-components": "^2.30.0",
         "@scm-manager/ui-extensions": "^2.30.0",
-        "@scm-manager/ui-plugins": "2.30.0",
+        "@scm-manager/ui-plugins": "2.33.1-SNAPSHOT",
         "classnames": "^2.2.6",
         "human-readable-ids": "^1.0.4",
         "query-string": "6.14.1",

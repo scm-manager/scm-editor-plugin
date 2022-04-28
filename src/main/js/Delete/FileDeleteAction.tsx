@@ -27,17 +27,17 @@ import FileDeleteModal from "./FileDeleteModal";
 import { apiClient } from "@scm-manager/ui-components";
 import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import { extensionPoints } from "@scm-manager/ui-extensions";
+import { extensionPoints, ExtractProps } from "@scm-manager/ui-extensions";
 
 const Pointer = styled.div`
   cursor: initial;
 `;
 
-export const FileDeleteAction: FC<extensionPoints.ActionBarExtensionsProps> = ({
+export const FileDeleteAction: FC<ExtractProps<extensionPoints.ModalMenuProps["modalElement"]>> = ({
   revision,
   file,
   handleExtensionError,
-  unmountComponent
+  close
 }) => {
   const [loading, setLoading] = useState(false);
   const history = useHistory();
@@ -94,7 +94,7 @@ export const FileDeleteAction: FC<extensionPoints.ActionBarExtensionsProps> = ({
 
   return (
     <Pointer>
-      <FileDeleteModal onClose={unmountComponent} onCommit={deleteFile} file={file} loading={loading} />
+      <FileDeleteModal onClose={close} onCommit={deleteFile} file={file} loading={loading} />
     </Pointer>
   );
 };
