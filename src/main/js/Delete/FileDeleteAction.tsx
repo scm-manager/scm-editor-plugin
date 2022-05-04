@@ -21,80 +21,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
-import { Changeset, File, Link } from "@scm-manager/ui-types";
+import React, { FC, useState } from "react";
+import { Changeset, Link } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
-import { apiClient, createAttributesForTesting, Icon } from "@scm-manager/ui-components";
-import { RouteComponentProps, withRouter } from "react-router-dom";
+import { apiClient } from "@scm-manager/ui-components";
+import { useHistory, useLocation } from "react-router-dom";
 import styled from "styled-components";
-
-const Button = styled.button`
-  width: 50px;
-  &:hover {
-    color: #33b2e8;
-  }
-`;
+import { extensionPoints, ExtractProps } from "@scm-manager/ui-extensions";
 
 const Pointer = styled.div`
   cursor: initial;
 `;
 
-type Props = WithTranslation &
-  RouteComponentProps & {
-    file: File;
-    revision: string;
-    handleExtensionError: (error: Error) => void;
-  };
+export const FileDeleteAction: FC<ExtractProps<extensionPoints.ModalMenuProps["modalElement"]>> = ({
+  revision,
+  file,
+  handleExtensionError,
+  close
+}) => {
+  const [loading, setLoading] = useState(false);
+  const history = useHistory();
+  const location = useLocation();
 
-type State = {
-  showModal: boolean;
-  loading: boolean;
-  error: Error;
-};
-
-class FileDeleteButton extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-
-    // @ts-ignore
-    this.state = {
-      showModal: false,
-      loading: false
-    };
-  }
-
-  toggleModal = () => {
-    this.setState(prevState => ({
-      showModal: !prevState.showModal
-    }));
-  };
-
-  deleteFile = (commitMessage: string) => {
-    const { revision, handleExtensionError } = this.props;
-    this.setState({
-      loading: true
-    });
+  const deleteFile = (commitMessage: string) => {
+    setLoading(true);
     apiClient
-      .post((this.props.file._links.delete as Link).href, {
+      .post((file._links.delete as Link).href, {
         commitMessage: commitMessage,
         branch: decodeURIComponent(revision)
       })
       .then(r => r.json())
       .then(async newCommit => {
         if (newCommit) {
-          await this.redirectAfterNewCommit(newCommit);
+          await redirectAfterNewCommit(newCommit);
         }
       })
       .catch(error => {
-        this.toggleModal();
+        unmountComponent();
         handleExtensionError(error);
       });
   };
 
-  async redirectAfterNewCommit(newCommit: Changeset) {
-    const { file, revision, history, location } = this.props;
-
+  const redirectAfterNewCommit = async (newCommit: Changeset) => {
     const newRevision =
       newCommit._embedded &&
       newCommit._embedded.branches &&
@@ -122,38 +90,13 @@ class FileDeleteButton extends React.Component<Props, State> {
     const redirectUrl =
       location.pathname.split("/sources")[0] + `/sources/${encodeURIComponent(newRevision)}${filePathParts.join("/")}`;
     history.push(redirectUrl);
-  }
-
-  shouldRender = () => {
-    return !!this.props.file._links.delete;
   };
 
-  render() {
-    const { file, t } = this.props;
-    const { showModal, loading } = this.state;
+  return (
+    <Pointer>
+      <FileDeleteModal onClose={close} onCommit={deleteFile} file={file} loading={loading} />
+    </Pointer>
+  );
+};
 
-    if (!this.shouldRender()) {
-      return null;
-    }
-
-    const modal = showModal ? (
-      <FileDeleteModal onClose={this.toggleModal} onCommit={this.deleteFile} file={file} loading={loading} />
-    ) : null;
-
-    return (
-      <>
-        <Pointer>{modal}</Pointer>
-        <Button
-          title={t("scm-editor-plugin.delete.tooltip")}
-          className="button"
-          onClick={this.toggleModal}
-          {...createAttributesForTesting("delete-file-button")}
-        >
-          <Icon name="trash" color="inherit" />
-        </Button>
-      </>
-    );
-  }
-}
-
-export default withRouter(withTranslation("plugins")(FileDeleteButton));
+export default FileDeleteAction;

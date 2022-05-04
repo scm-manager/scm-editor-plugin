@@ -21,13 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import { binder } from "@scm-manager/ui-extensions";
+import { binder, extensionPoints } from "@scm-manager/ui-extensions";
 import FileDownloadIcon from "./Download/FileDownloadIcon";
 import SourcesActionbar from "./SourcesActionbar";
-import ContentActionbar from "./ContentActionbar";
 import FileUpload from "./Upload/FileUpload";
-import { Repository } from "@scm-manager/ui-types";
+import { Link, Repository } from "@scm-manager/ui-types";
 import FileEdit from "./Edit/FileEdit";
+import { createAttributesForTesting } from "@scm-manager/ui-components";
+import FileDeleteAction from "./Delete/FileDeleteAction";
+import { isEditable } from "./Edit/isEditable";
+import { FileMoveAction } from "./Move/FileMoveAction";
+import { createSourceExtensionUrl } from "./links";
+import { encodeFilePath } from "./Edit/encodeFilePath";
 
 type ExtensionProps = {
   repository: Repository;
@@ -42,8 +47,53 @@ const byExtension = (ext: string) => {
   };
 };
 
+binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
+  "repos.sources.content.actionbar.menu",
+  {
+    category: "Editor",
+    label: "scm-editor-plugin.edit.tooltip",
+    icon: "edit",
+    link: props => createSourceExtensionUrl(props.repository, "edit", props.revision, encodeFilePath(props.file.path)),
+    props: { ...createAttributesForTesting("edit-file-button") }
+  },
+  props =>
+    props.file._links.modify && props.contentType && isEditable(props.contentType.type, props.contentType.language)
+);
+binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
+  "repos.sources.content.actionbar.menu",
+  {
+    category: "Editor",
+    label: "scm-editor-plugin.move.tooltip",
+    icon: "exchange-alt",
+    modalElement: FileMoveAction
+  },
+  props => props.file && "move" in props.file._links
+);
+binder.bind<extensionPoints.FileViewActionBarOverflowMenu>("repos.sources.content.actionbar.menu", {
+  category: "Editor",
+  label: "scm-editor-plugin.download.tooltip",
+  icon: "download",
+  action: props => {
+    const link = document.createElement("a");
+    link.href = (props.file._links.self as Link).href;
+    link.setAttribute("download", props.file.name);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode?.removeChild(link);
+  }
+});
+binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
+  "repos.sources.content.actionbar.menu",
+  {
+    category: "",
+    label: "scm-editor-plugin.delete.tooltip",
+    icon: "trash",
+    modalElement: FileDeleteAction
+  },
+  props => !!props.file._links.delete
+);
+
 binder.bind("repos.sources.tree.row.right", FileDownloadIcon);
-binder.bind("repos.sources.content.actionbar", ContentActionbar);
 binder.bind("repos.sources.actionbar", SourcesActionbar);
 binder.bind("repos.sources.empty.actionbar", SourcesActionbar);
 binder.bind("repos.sources.extensions", FileUpload, byExtension("upload"));
