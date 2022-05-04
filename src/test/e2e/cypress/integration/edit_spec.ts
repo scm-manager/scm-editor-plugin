@@ -45,13 +45,14 @@ describe("Edit Files", () => {
 
   it("should edit file", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "WRITE");
+    cy.restSetUserPermissions(username, ["repository:read,pull,push:*"]);
 
     // Act
     const commitMessage = hri.random();
     const newContent = hri.random();
 
     cy.visit(`/repo/${namespace}/${name}/code/sources/main/README.md`);
+    cy.get(".fa-ellipsis-v").click();
     cy.byTestId("edit-file-button").click();
     cy.get("textarea.ace_text-input").type(newContent, { force: true });
     cy.get("div.control textarea.textarea").type(commitMessage);
@@ -68,7 +69,7 @@ describe("Edit Files", () => {
 
   it("should not show edit button when write permissions are missing", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "READ");
+    cy.restSetUserPermissions(username, ["repository:read,pull:*"]);
 
     // Act
     cy.visit(`/repo/${namespace}/${name}/code/sources/main/README.md`);

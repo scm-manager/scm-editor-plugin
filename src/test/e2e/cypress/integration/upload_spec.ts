@@ -45,7 +45,7 @@ describe("Upload Files", () => {
 
   it("should upload a file", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "WRITE");
+    cy.restSetUserPermissions(username, ["repository:read,pull,push:*"]);
 
     // Act
     cy.fixture("foo.txt").then(function(newFileContent) {
@@ -74,7 +74,7 @@ describe("Upload Files", () => {
 
   it("should upload multiple files", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "WRITE");
+    cy.restSetUserPermissions(username, ["repository:read,pull,push:*"]);
 
     // Act
     cy.fixture("foo.txt").then(fileContentA => {
@@ -103,7 +103,7 @@ describe("Upload Files", () => {
 
   it("should show upload button", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "WRITE");
+    cy.restSetUserPermissions(username, ["repository:read,pull,push:*"]);
 
     // Act
     cy.visit(`/repo/${namespace}/${name}/code/sources/main`);
@@ -114,7 +114,7 @@ describe("Upload Files", () => {
 
   it("should not show upload button when write permissions are missing", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "READ");
+    cy.restSetUserPermissions(username, ["repository:read,pull:*"]);
 
     // Act
     cy.visit(`/repo/${namespace}/${name}/code/sources/main`);

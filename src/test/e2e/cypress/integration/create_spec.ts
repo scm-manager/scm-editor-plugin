@@ -45,7 +45,8 @@ describe("Create Files", () => {
 
   it("should create a file", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "WRITE");
+    // cy.restSetUserRepositoryRole(username, namespace, name, "WRITE");
+    cy.restSetUserPermissions(username, ["repository:read,pull,push:*"]);
 
     // Act
     cy.fixture("foo.txt").then(function(newFileContent) {
@@ -72,7 +73,8 @@ describe("Create Files", () => {
 
   it("should show a create button for permitted users", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "WRITE");
+    // cy.restSetUserRepositoryRole(username, namespace, name, "WRITE");
+    cy.restSetUserPermissions(username, ["repository:read,pull,push:*"]);
 
     // Act
     cy.visit(`/repo/${namespace}/${name}/code/sources/main`);
@@ -83,7 +85,8 @@ describe("Create Files", () => {
 
   it("should not show create button when write permissions are missing", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "READ");
+    // cy.restSetUserRepositoryRole(username, namespace, name, "READ");
+    cy.restSetUserPermissions(username, ["repository:read,pull,push:*"]);
 
     // Act
     cy.visit(`/repo/${namespace}/${name}/code/sources/main`);

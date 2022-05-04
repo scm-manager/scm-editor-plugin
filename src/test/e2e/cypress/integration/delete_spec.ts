@@ -45,13 +45,15 @@ describe("Delete Files", () => {
 
   it("should delete file", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "WRITE");
+    // cy.restSetUserRepositoryRole(username, namespace, name, "WRITE");
+    cy.restSetUserPermissions(username, ["repository:read,pull,push:*"]);
 
     // Act
     cy.visit(`/repo/${namespace}/${name}/code/sources/main/README.md`);
     const newFileCommitMessage = hri.random();
 
     cy.visit(`/repo/${namespace}/${name}/code/sources/main/README.md`);
+    cy.get(".fa-ellipsis-v").click();
     cy.byTestId("delete-file-button").click();
     cy.get("div.control textarea.textarea").type(newFileCommitMessage);
     cy.byTestId("delete-file-commit-button").click();
@@ -62,7 +64,7 @@ describe("Delete Files", () => {
 
   it("should not show delete button when write permissions are missing", () => {
     // Arrange
-    cy.restSetUserRepositoryRole(username, namespace, name, "READ");
+    cy.restSetUserPermissions(username, ["repository:read,pull:*"]);
 
     // Act
     cy.visit(`/repo/${namespace}/${name}/code/sources/main/README.txt`);

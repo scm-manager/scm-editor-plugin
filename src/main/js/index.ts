@@ -65,7 +65,8 @@ binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
     category: "Editor",
     label: "scm-editor-plugin.move.tooltip",
     icon: "exchange-alt",
-    modalElement: FileMoveAction
+    modalElement: FileMoveAction,
+    props: { ...createAttributesForTesting("move-file-button") }
   },
   props => props.file && "move" in props.file._links
 );
@@ -73,6 +74,7 @@ binder.bind<extensionPoints.FileViewActionBarOverflowMenu>("repos.sources.conten
   category: "Editor",
   label: "scm-editor-plugin.download.tooltip",
   icon: "download",
+  props: { ...createAttributesForTesting("download-file-button") },
   action: props => {
     const link = document.createElement("a");
     link.href = (props.file._links.self as Link).href;
@@ -88,7 +90,8 @@ binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
     category: "",
     label: "scm-editor-plugin.delete.tooltip",
     icon: "trash",
-    modalElement: FileDeleteAction
+    modalElement: FileDeleteAction,
+    props: { ...createAttributesForTesting("delete-file-button") }
   },
   props => !!props.file._links.delete
 );
