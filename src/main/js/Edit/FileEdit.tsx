@@ -448,6 +448,7 @@ class FileEdit extends React.Component<Props, State> {
                   <OpenInFullscreenButton
                     modalTitle={file?.name || ""}
                     modalBody={<MarginlessModalContent>{body}</MarginlessModalContent>}
+                    tooltipStyle="htmlTitle"
                   />
                 }
               />

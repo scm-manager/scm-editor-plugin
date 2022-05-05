@@ -1,0 +1,2 @@
+- type: fixed
+  description: Modal must not trigger underlying tooltip ([#78](https://github.com/scm-manager/scm-editor-plugin/pull/78))
