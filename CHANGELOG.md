@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.11.0 - 2022-05-13
+### Fixed
+- Modal must not trigger underlying tooltip ([#78](https://github.com/scm-manager/scm-editor-plugin/pull/78))
+
+### Changed
+- Render file action in overflow menu instead directly ([#75](https://github.com/scm-manager/scm-editor-plugin/pull/75))
+
 ## 2.10.4 - 2022-04-29
 ### Fixed
 - Improve vertical scrolling for smaller screens ([#73](https://github.com/scm-manager/scm-editor-plugin/pull/73))
