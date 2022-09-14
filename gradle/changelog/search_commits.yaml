@@ -1,0 +1,2 @@
+- type: added
+  description: Handle missing encoding of square brackets in filenames ([#80](https://github.com/scm-manager/scm-editor-plugin/pull/80)
