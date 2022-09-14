@@ -214,9 +214,11 @@ class FileEdit extends React.Component<Props, State> {
           reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
         }
 
-        resolve(`${base}${revision}/${path}`);
+        resolve(`${base}${revision}/${this.encodeInvalidCharacters(path!)}`);
       }
     });
+
+  encodeInvalidCharacters = (input: string) => input.replace(/\[/g, "%5B").replace(/]/g, "%5D");
 
   isEditMode = () => {
     const { extension, path } = this.props;
