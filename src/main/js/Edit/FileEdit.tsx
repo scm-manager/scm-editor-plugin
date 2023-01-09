@@ -424,7 +424,13 @@ class FileEdit extends React.Component<Props, State> {
           language={language}
           changeLanguage={this.changeLanguage}
         />
-        <CodeEditor onChange={this.changeFileContent} content={content} disabled={loading} language={language} />
+        <CodeEditor
+          onChange={this.changeFileContent}
+          content={content}
+          disabled={loading}
+          language={language}
+          initialFocus={true}
+        />
       </>
     );
 
