@@ -120,7 +120,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
     }
     move(repository, sources, {
       commitMessage,
-      branch: revision || "",
+      branch: decodeURIComponent(revision ?? ""),
       newPath: "/" + resultingPath
     });
   };
@@ -141,7 +141,7 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
     <>
       {error ? <ErrorNotification error={error} /> : null}
       {revision ? (
-        <InputField label={t("scm-editor-plugin.move.branch.label")} value={revision} disabled={true} />
+        <InputField label={t("scm-editor-plugin.move.branch.label")} value={decodeURIComponent(revision)} disabled={true} />
       ) : null}
       <InputField label={t("scm-editor-plugin.move.path.label")} value={originalPath} disabled={true} />
       <InputField
