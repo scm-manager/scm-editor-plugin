@@ -23,14 +23,34 @@
  */
 
 import { extensionPoints, ExtractProps } from "@scm-manager/ui-extensions";
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import MoveModal from "./MoveModal";
+import { useMoveFolder } from "./moveFolder";
 
 export const FileMoveAction: FC<ExtractProps<extensionPoints.ModalMenuProps["modalElement"]>> = ({
+  close,
   repository,
-  revision,
   file,
-  close
+  revision,
+  setLoading
 }) => {
-  return <MoveModal onClose={close} repository={repository} sources={file} revision={revision} />;
+  const { isLoading, error, move } = useMoveFolder();
+
+  useEffect(() => {
+    if (setLoading) {
+      setLoading(isLoading);
+    }
+  }, [isLoading, setLoading]);
+
+  return (
+    <MoveModal
+      onClose={close}
+      repository={repository}
+      sources={file}
+      revision={revision}
+      isLoading={isLoading}
+      error={error}
+      move={move}
+    />
+  );
 };

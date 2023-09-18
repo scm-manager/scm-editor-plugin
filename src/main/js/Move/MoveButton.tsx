@@ -24,10 +24,12 @@
 import React, { FC, useState } from "react";
 import { File, Repository } from "@scm-manager/ui-types";
 import { useTranslation } from "react-i18next";
-import styled from "styled-components";
 import MoveModal from "./MoveModal";
+import { useMoveFolder } from "./moveFolder";
+import styled from "styled-components";
+import classNames from "classnames";
 
-const Button = styled.button`
+const StyledButton = styled.button`
   width: 50px;
   &:hover {
     color: #33b2e8;
@@ -43,6 +45,7 @@ type Props = {
 const MoveButton: FC<Props> = ({ sources, revision, repository }) => {
   const [t] = useTranslation("plugins");
   const [modalVisible, setModalVisible] = useState(false);
+  const { isLoading, error, move } = useMoveFolder();
 
   if (!sources || !("move" in sources._links)) {
     return null;
@@ -56,11 +59,19 @@ const MoveButton: FC<Props> = ({ sources, revision, repository }) => {
           repository={repository}
           sources={sources}
           revision={revision}
+          isLoading={isLoading}
+          error={error}
+          move={move}
         />
       ) : null}
-      <Button className="button" title={t("scm-editor-plugin.move.tooltip")} onClick={() => setModalVisible(true)}>
+      <StyledButton
+        disabled={isLoading}
+        className={classNames("button", { "is-loading": isLoading })}
+        title={t("scm-editor-plugin.move.tooltip")}
+        onClick={() => setModalVisible(true)}
+      >
         <i className="fas fa-exchange-alt" />
-      </Button>
+      </StyledButton>
     </>
   );
 };

@@ -23,7 +23,6 @@
  */
 import React, { FC, useRef, useState } from "react";
 import {
-  apiClient,
   Button,
   ButtonGroup,
   CommitAuthor,
@@ -33,52 +32,22 @@ import {
   Textarea
 } from "@scm-manager/ui-components";
 import { useTranslation } from "react-i18next";
-import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
-import { useMutation, useQueryClient } from "react-query";
-import { useHistory } from "react-router-dom";
+import { File, Repository } from "@scm-manager/ui-types";
 import { MoveRequest } from "./moveRequest";
-import { createSourceUrlFromChangeset } from "../links";
 import { useDirectoryValidation, useFilenameValidation } from "../validation";
 import { usePathState } from "../pathSanitizer";
-
-type UseMovePayload = {
-  repository: Repository;
-  sources: File;
-  moveRequest: MoveRequest;
-};
-
-const useMoveFolder = () => {
-  const queryClient = useQueryClient();
-  const history = useHistory();
-  const { mutate, data, isLoading, error } = useMutation<Changeset, Error, UseMovePayload>(
-    ({ moveRequest, sources }) =>
-      apiClient.post((sources._links.move as Link).href, moveRequest).then(response => response.json()),
-    {
-      onSuccess: async (changeset, { repository, moveRequest: { newPath } }) => {
-        await queryClient.invalidateQueries(["repository", repository.namespace, repository.name]);
-        const pushPath = createSourceUrlFromChangeset(repository, changeset, newPath.substr(1));
-        history.push(pushPath);
-      }
-    }
-  );
-  return {
-    move: (repository: Repository, parent: File, moveRequest: MoveRequest) => {
-      mutate({ repository, moveRequest, sources: parent });
-    },
-    isLoading,
-    error,
-    changeset: data
-  };
-};
 
 type Props = {
   repository: Repository;
   revision?: string;
   sources: File;
   onClose: () => void;
+  move: (repository: Repository, parent: File, moveRequest: MoveRequest) => void;
+  isLoading: boolean;
+  error: Error | null;
 };
 
-const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
+const MoveModal: FC<Props> = ({ sources, revision, onClose, repository, move, isLoading, error }) => {
   const originalPath = sources.path === "/" ? "/" : "/" + sources.path;
   let pathToEdit = sources.directory ? originalPath : originalPath.substr(0, originalPath.lastIndexOf("/"));
   if (pathToEdit === "") {
@@ -89,7 +58,6 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
   const [newPath, setNewPath, sanitizedPath] = usePathState(pathToEdit);
   const [newFilename, setNewFilename] = usePathState(filenameToEdit);
   const [commitMessage, setCommitMessage] = useState("");
-  const { isLoading, error, move } = useMoveFolder();
   const [validateFilename, filenameErrorMessage] = useFilenameValidation();
   const [validateDirectory, directoryErrorMessage] = useDirectoryValidation();
   const initialFocusRef = useRef<HTMLInputElement>(null);
@@ -141,7 +109,11 @@ const MoveModal: FC<Props> = ({ sources, revision, onClose, repository }) => {
     <>
       {error ? <ErrorNotification error={error} /> : null}
       {revision ? (
-        <InputField label={t("scm-editor-plugin.move.branch.label")} value={decodeURIComponent(revision)} disabled={true} />
+        <InputField
+          label={t("scm-editor-plugin.move.branch.label")}
+          value={decodeURIComponent(revision)}
+          disabled={true}
+        />
       ) : null}
       <InputField label={t("scm-editor-plugin.move.path.label")} value={originalPath} disabled={true} />
       <InputField

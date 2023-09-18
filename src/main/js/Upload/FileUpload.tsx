@@ -100,7 +100,7 @@ class FileUpload extends React.Component<Props, State> {
       loading: false,
       files: [],
       commitMessage: "",
-      path: decodeURIComponent(this.props.path || ""),
+      path: decodeURIComponent(this.props.path ?? ""),
       shouldValidate: true
     };
   }
@@ -220,6 +220,7 @@ class FileUpload extends React.Component<Props, State> {
               });
             }}
             onBlur={() => this.setState({ shouldValidate: true })}
+            disabled={loading}
           />
           <FileUploadDropzone fileHandler={this.handleFile} disabled={loading} />
         </Border>

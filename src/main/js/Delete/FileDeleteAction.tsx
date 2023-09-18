@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { Changeset, Link } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
 import { apiClient } from "@scm-manager/ui-components";
@@ -37,13 +37,20 @@ export const FileDeleteAction: FC<ExtractProps<extensionPoints.ModalMenuProps["m
   revision,
   file,
   handleExtensionError,
-  close
+  close,
+  setLoading: setExtensionLoading
 }) => {
   const [loading, setLoading] = useState(false);
   const history = useHistory();
   const location = useLocation();
 
-  const deleteFile = (commitMessage: string) => {
+  useEffect(() => {
+    if (setExtensionLoading) {
+      setExtensionLoading(loading);
+    }
+  }, [loading, setExtensionLoading]);
+
+  const deleteFile = async (commitMessage: string) => {
     setLoading(true);
     apiClient
       .post((file._links.delete as Link).href, {
@@ -57,21 +64,14 @@ export const FileDeleteAction: FC<ExtractProps<extensionPoints.ModalMenuProps["m
         }
       })
       .catch(error => {
-        unmountComponent();
         handleExtensionError(error);
       });
   };
 
   const redirectAfterNewCommit = async (newCommit: Changeset) => {
-    const newRevision =
-      newCommit._embedded &&
-      newCommit._embedded.branches &&
-      newCommit._embedded.branches[0] &&
-      newCommit._embedded.branches[0].name
-        ? newCommit._embedded.branches[0].name
-        : newCommit.id;
+    const newRevision = newCommit._embedded?.branches?.[0]?.name ?? newCommit.id;
     const filePath = location.pathname
-      .substr(0, location.pathname.length - file.name.length - 1)
+      .slice(0, location.pathname.length - file.name.length - 1)
       .split("/sources/" + revision)[1];
 
     const filePathParts = filePath.split("/");
