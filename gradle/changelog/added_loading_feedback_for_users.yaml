@@ -1,4 +1,0 @@
-- type: added
-  description: While the system is moving a folder, moving a file or deleting a file, the corresponding buttons are disabled and a loading spinner is shown, to indicate that the operation is still running
-- type: fixed
-  description: While uploading a file, the path input element gets disabled
