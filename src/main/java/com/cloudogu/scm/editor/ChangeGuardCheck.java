@@ -25,7 +25,7 @@ package com.cloudogu.scm.editor;
 
 import sonia.scm.repository.NamespaceAndName;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Collection;
 import java.util.Set;
 

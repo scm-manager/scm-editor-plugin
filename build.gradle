@@ -24,22 +24,22 @@
 
 
 plugins {
-  id 'org.scm-manager.smp' version '0.15.0'
+  id 'org.scm-manager.smp' version '0.16.3'
 }
 
 dependencies {
   // we don't want the transitive dependencies in the resulting smp ...
-  implementation("org.jboss.resteasy:resteasy-multipart-provider:4.5.8.Final") {
+  implementation("org.jboss.resteasy:resteasy-multipart-provider:6.2.5.Final") {
     transitive = false
   }
   // ... but we want them on the classpath for testing
-  testImplementation "org.jboss.resteasy:resteasy-multipart-provider:4.5.8.Final"
+  testImplementation "org.jboss.resteasy:resteasy-multipart-provider:6.2.5.Final"
 
   plugin 'sonia.scm.plugins:scm-code-editor-plugin:1.0.0'
 }
 
 scmPlugin {
-  scmVersion = "2.34.0"
+  scmVersion = "3.0.0"
 
   displayName = "Editor"
   description = "Creates, edits and deletes Files"

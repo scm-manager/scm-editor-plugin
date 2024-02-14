@@ -36,7 +36,7 @@ import sonia.scm.repository.api.RepositoryServiceFactory;
 import sonia.scm.util.ValidationUtil;
 
 import javax.annotation.CheckForNull;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
