@@ -23,7 +23,8 @@
  */
 import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
-import { CommitAuthor, Textarea } from "@scm-manager/ui-components";
+import { CommitAuthor } from "@scm-manager/ui-components";
+import { Textarea } from "@scm-manager/ui-core"
 
 type Props = {
   onChange: (p: string) => void;
@@ -56,6 +57,7 @@ const CommitMessage: FC<InnerProps> = ({ onChange, onSubmit, disabled, innerRef 
         disabled={disabled}
         onSubmit={onSubmit}
         ref={innerRef}
+        className="mb-3 mousetrap"
       />
     </>
   );

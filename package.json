@@ -15,6 +15,8 @@
         "@scm-manager/ui-components": "^2.34.0",
         "@scm-manager/ui-extensions": "^2.34.0",
         "@scm-manager/ui-plugins": "2.34.0",
+        "@scm-manager/ui-buttons": "3.0.3",
+        "@scm-manager/ui-core": "3.0.3",
         "classnames": "^2.2.6",
         "human-readable-ids": "^1.0.4",
         "query-string": "6.14.1",

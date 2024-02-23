@@ -16,6 +16,15 @@ Folgende Informationen bzw. Interaktionen bietet der Editor:
 - **Autor:** Dieser Benutzer wird als Autor in den neuen Commit geschrieben.
 - **Commit Nachricht:** Die Nachricht für den neuen Commit.
 
+### Editornavigation
+
+| Key Combination | Description                                                         |
+|-----------------|---------------------------------------------------------------------|
+| ctrl enter      | (Im Editor) Verlasse den Editor und fokussiere die Commit Nachricht |
+| ctrl enter      | (In der Commitnachricht) Schicke den Commit ab                      |
+| Escape          | (In der Commitnachricht) Fokussiere den Cancel-Button               |
+
+
 Immer wenn der Editor neu fokussiert wird, prüft der SCM-Manager, ob auf dem Branch bzw. dem Repository neue Revisionen
 vorhanden sind. Wenn neue Revisionen vorhanden sind, wird eine Warnung angezeigt und die Änderungen können nicht mehr
 mit einem Commit abgeschlossen werden. Werden neue Revisionen nicht rechtzeitig erkannt, wird ein Commit vom Server

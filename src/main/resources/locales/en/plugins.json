@@ -1,5 +1,9 @@
 {
   "scm-editor-plugin": {
+    "shortcuts": {
+      "strgEnter": "Either focuses the commit message when entered inside the editor or commits the changes when entered inside the commit message",
+      "escape": "Focuses the cancel button when pressed inside the commit message"
+    },
     "button": {
       "cancel": "Cancel",
       "commit": "Commit"

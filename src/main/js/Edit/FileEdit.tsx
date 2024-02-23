@@ -21,16 +21,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import { WithTranslation, withTranslation } from "react-i18next";
+import React, { FC, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
-import { RouteComponentProps, withRouter } from "react-router-dom";
 import FileMetaData from "../FileMetaData";
 import {
   apiClient,
   Breadcrumb,
-  Button,
-  ButtonGroup,
   ErrorNotification,
   Level,
   Loading,
@@ -40,11 +37,13 @@ import {
 } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
+import { Button, useShortcut } from "@scm-manager/ui-core";
 import { encodeFilePath } from "./encodeFilePath";
 import styled from "styled-components";
 import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import { setPathInLink } from "../links";
+import { useHistory } from "react-router-dom";
 
 const Header = styled.div`
   line-height: 1.25;
@@ -62,23 +61,23 @@ const Border = styled.div`
   .textarea:active {
     box-shadow: none;
   }
-  ,
-    &:focus-within: {
+,
+&:focus-within: {
+  border-color: #33b2e8;
+  box-shadow: 0 0 0 0.125em rgba(51, 178, 232, 0.25);
+  &:hover {
     border-color: #33b2e8;
-    box-shadow: 0 0 0 0.125em rgba(51, 178, 232, 0.25);
-    &:hover {
-      border-color: #33b2e8;
-    }
   }
-  ,
-    &:hover: {
-    border: 1px solid #b5b5b5;
-    border-radius: 4px;
-  }
-  ,
-    & .input, .textarea: {
-    border-color: #dbdbdb;
-  }
+}
+,
+&:hover: {
+  border: 1px solid #b5b5b5;
+  border-radius: 4px;
+}
+,
+& .input, .textarea: {
+  border-color: #dbdbdb;
+}
 `;
 
 const MarginlessModalContent = styled.div`
@@ -94,115 +93,118 @@ type FileWithType = File & {
   type?: string;
 };
 
-type Props = WithTranslation &
-  RouteComponentProps & {
-    repository: Repository;
-    extension: string;
-    revision?: string;
-    resolvedRevision?: string;
-    path?: string;
-    file: FileWithType;
-    sources: File;
-    baseUrl: string;
-  };
-
-type State = {
-  file?: FileWithType;
-  content: string;
-  initialRevision?: string;
+type Props = {
+  repository: Repository;
+  extension: string;
+  revision?: string;
+  resolvedRevision?: string;
   path?: string;
-  initialError: Error;
-  initialLoading: boolean;
-  error: Error;
-  loading: boolean;
-  commitMessage?: string;
-  contentType: string;
-  language: string;
-  contentLength: number;
-  isValid?: boolean;
+  file: FileWithType;
+  sources: File;
+  baseUrl: string;
 };
 
-class FileEdit extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      initialLoading: true,
-      loading: false,
-      path: "",
-      file: this.isEditMode() ? undefined : {},
-      isValid: true,
-      initialRevision: props.resolvedRevision
-    };
-  }
+const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision, path, file, sources, baseUrl }) => {
+  const [t] = useTranslation("plugins");
+  const [content, setContent] = useState<string>("");
+  const [initialRevision, setInitialRevision] = useState<string>(resolvedRevision || "");
+  const [statePath, setPath] = useState<string | undefined>("");
+  const [initialError, setInitialError] = useState<Error>();
+  const [initialLoading, setInitialLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error>();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [commitMessage, setCommitMessage] = useState<string>("");
+  const [contentType, setContentType] = useState<string>("");
+  const [language, setLanguage] = useState<string>("");
+  const [contentLength, setContentLength] = useState<number>(0);
+  const [isValid, setIsValid] = useState<boolean>(true);
+  const [fetchData, setFetchData] = useState<boolean>(false);
+  const history = useHistory();
 
-  componentDidMount() {
-    if (this.isEditMode()) {
-      this.fetchFile();
+  const commitButtonRef = useRef<HTMLButtonElement>();
+  const cancelButtonRef = useRef<HTMLButtonElement>();
+  const editorRef = useRef();
+  const commitMessageRef = useRef<HTMLTextAreaElement>();
+
+  const isEditMode = () => {
+    return !!(extension === "edit" && path);
+  };
+  const [stateFile, setFile] = useState<FileWithType | undefined>(isEditMode()? undefined : {name: ""});
+
+  useEffect(() => {
+    if (isEditMode()) {
+      fetchFile();
     } else {
-      this.setState({
-        initialLoading: false
-      });
-      this.afterLoading();
+      setInitialLoading(false);
+      afterLoading();
     }
-  }
+  }, []);
 
-  fetchFile = () => {
-    this.createFileUrl()
-      .then(apiClient.get)
-      .then(response => response.json())
-      .then((file: FileWithType) =>
-        this.setState({
-          file
-        })
-      )
-      .then(() => this.fetchContent())
-      .catch(this.handleInitialError);
+  useEffect(() => {
+    if (stateFile !== undefined && fetchData === true) {
+      fetchContent();
+    }
+  }, [fetchData]);
+
+  const evaluateCtrlEnterShortcut = () => {
+    if (commitMessageRef.current === document.activeElement) {
+      commitButtonRef.current.click()
+    } else {
+      commitMessageRef.current?.focus();
+    }
   };
 
-  fetchContent = () => {
+  const evaluateEscShortcut = () => {
+    if (commitMessageRef.current === document.activeElement) {
+      cancelButtonRef.current.focus();
+    }
+  };
+
+  useShortcut("ctrl+enter", evaluateCtrlEnterShortcut, {
+    description: t("scm-editor-plugin.shortcuts.strgEnter")
+  });
+
+  useShortcut("esc", evaluateEscShortcut, {
+    description: t("scm-editor-plugin.shortcuts.escape")
+  });
+
+
+  const fetchFile = () => {
+    createFileUrl()
+      .then(apiClient.get)
+      .then(response => response.json())
+      .then((file: FileWithType) => {
+        setFile(file);
+        setFetchData(true);
+      })
+      .catch(handleInitialError);
+  };
+
+  const fetchContent = () => {
     apiClient
-      .get((this.state.file?._links.self as Link).href)
+      .get((stateFile?._links?.self as Link).href)
       .then(response => {
         response
           .text()
-          .then(content =>
-            this.setState(
-              {
-                contentType: response.headers.get("Content-Type"),
-                language: response.headers.get("X-Programming-Language"),
-                contentLength: content.length,
-                content
-              },
-              this.afterLoading
-            )
-          )
-          .catch(this.handleInitialError);
+          .then(content => {
+            setContentType(response.headers.get("Content-Type") || "");
+            setLanguage(response.headers.get("X-Programming-Language") || "");
+            setContentLength(content.length);
+            setContent(content);
+            afterLoading();
+          })
+          .catch(handleInitialError);
       })
-      .catch(this.handleInitialError);
+      .catch(handleInitialError);
   };
 
-  afterLoading = () => {
-    const pathWithFilename = decodeURIComponent(this.props.path || "");
-    const { initialLoading, path } = this.state;
-    const lastPathDelimiter = pathWithFilename?.lastIndexOf("/");
-    const parentDirPath = this.isEditMode() ? pathWithFilename?.substr(0, lastPathDelimiter) : pathWithFilename;
-
-    if (!path) {
-      this.setState({
-        path: parentDirPath || ""
-      });
-    }
-
-    if (initialLoading) {
-      this.setState({
-        initialLoading: false
-      });
-    }
+  const handleInitialError = (initialError: Error) => {
+    setInitialLoading(false);
+    setInitialError(initialError);
   };
 
-  createFileUrl = (): Promise<string> =>
+  const createFileUrl = (): Promise<string> =>
     new Promise((resolve, reject) => {
-      const { repository, revision, path, t } = this.props;
       if (repository._links.sources) {
         const base = (repository._links.sources as Link).href;
 
@@ -213,72 +215,40 @@ class FileEdit extends React.Component<Props, State> {
         if (!revision) {
           reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
         }
-
-        resolve(`${base}${revision}/${this.encodeInvalidCharacters(path!)}`);
+        console.log(`${base}${revision}/${encodeInvalidCharacters(path!)}`);
+        resolve(`${base}${revision}/${encodeInvalidCharacters(path!)}`);
       }
     });
 
-  encodeInvalidCharacters = (input: string) => input.replace(/\[/g, "%5B").replace(/]/g, "%5D");
+  const afterLoading = () => {
+    const pathWithFilename = decodeURIComponent(path || "");
+    const lastPathDelimiter = pathWithFilename?.lastIndexOf("/");
+    const parentDirPath = isEditMode() ? pathWithFilename?.substr(0, lastPathDelimiter) : pathWithFilename;
 
-  isEditMode = () => {
-    const { extension, path } = this.props;
-    return !!(extension === "edit" && path);
+    if (!statePath) {
+      setPath(parentDirPath || "");
+    }
+
+    if (initialLoading) {
+      setInitialLoading(false);
+    }
   };
 
-  changePath = (path: string) => {
-    this.setState({
-      path
-    });
+  const encodeInvalidCharacters = (input: string) => input.replace(/\[/g, "%5B").replace(/]/g, "%5D");
+
+  const changeFileName = (fileName: string) => {
+    setFile({ ...stateFile, name: fileName });
   };
 
-  changeFileName = (fileName: string) => {
-    this.setState((state: State) => {
-      return {
-        file: {
-          ...state.file,
-          name: fileName
-        }
-      };
-    });
+  const handleError = (error: Error) => {
+    setLoading(false);
+    setInitialLoading(false);
+    setError(error);
   };
 
-  changeFileContent = (content: string) => {
-    this.setState({
-      content
-    });
-  };
-
-  changeCommitMessage = (commitMessage: string) => {
-    this.setState({
-      commitMessage
-    });
-  };
-
-  handleInitialError = (initialError: Error) => {
-    this.setState({
-      initialLoading: false,
-      initialError
-    });
-  };
-
-  validate = (isValid: boolean) => {
-    this.setState({
-      isValid
-    });
-  };
-
-  handleError = (error: Error) => {
-    this.setState({
-      loading: false,
-      initialLoading: false,
-      error
-    });
-  };
-
-  redirectAfterCommit = (newCommit: Changeset) => {
-    const { path, file } = this.state;
-    let redirectUrl = this.createRedirectUrl();
-    const encodedFilename = file && file.name ? encodeURIComponent(file.name) + "/" : "";
+  const redirectAfterCommit = (newCommit: Changeset) => {
+    let redirectUrl = createRedirectUrl();
+    const encodedFilename = stateFile && stateFile.name ? encodeURIComponent(stateFile.name) + "/" : "";
 
     if (newCommit) {
       const newRevision =
@@ -288,72 +258,65 @@ class FileEdit extends React.Component<Props, State> {
         newCommit._embedded.branches[0].name
           ? newCommit._embedded.branches[0].name
           : newCommit.id;
-      let redirectPath = encodeFilePath(path, true) + encodedFilename;
+      let redirectPath = encodeFilePath(statePath, true) + encodedFilename;
       if (redirectPath[0] === "/") {
         redirectPath = redirectPath.substr(1);
       }
       redirectUrl += `/${encodeURIComponent(newRevision)}/${redirectPath}`;
     }
-    this.props.history.push(redirectUrl);
+    history.push(redirectUrl);
   };
 
-  redirectOnCancel = (revision: string) => {
-    const { file } = this.state;
-    let redirectUrl = this.createRedirectUrl();
+  const redirectOnCancel = (revision: string) => {
+    let redirectUrl = createRedirectUrl();
 
-    let path;
-    if (this.isEditMode()) {
-      path = this.state.path;
+    let _path;
+    if (isEditMode()) {
+      _path = statePath;
     } else {
-      path = this.props.path;
+      _path = path;
     }
 
     if (revision) {
       redirectUrl += `/${encodeURIComponent(revision)}`;
     }
 
-    redirectUrl += "/" + encodeFilePath(path, true);
+    redirectUrl += "/" + encodeFilePath(_path, true);
 
-    if (this.isEditMode() && file && file.name) {
-      redirectUrl += encodeURIComponent(file.name);
+    if (isEditMode() && stateFile && stateFile.name) {
+      redirectUrl += encodeURIComponent(stateFile.name);
     }
-    this.props.history.push(redirectUrl);
+    history.push(redirectUrl);
   };
 
-  createRedirectUrl = () => {
-    const { repository } = this.props;
+  const createRedirectUrl = () => {
     return `/repo/${repository.namespace}/${repository.name}/code/sources`;
   };
 
-  commitFile = () => {
-    const { sources, revision } = this.props;
-    const { file, commitMessage, path, content, initialRevision } = this.state;
-
-    if (file) {
+  const commitFile = () => {
+    if (stateFile) {
       let link;
       let type;
-      if (this.isEditMode()) {
+      if (isEditMode()) {
         link = (sources._links.modify as Link).href;
-        type = file.type;
+        type = stateFile.type;
       } else {
         link = (sources._links.upload as Link).href;
-        link = setPathInLink(link, path);
+        link = setPathInLink(link, statePath);
         type = "text/plain";
       }
 
       const blob = new Blob([content ? content : ""], {
         type
       });
-      this.setState({
-        loading: true
-      });
+      setLoading(true);
 
       const commit = {
         commitMessage,
-        branch: decodeURIComponent(revision),
+        branch: decodeURIComponent(revision ? revision : ""),
         expectedRevision: initialRevision,
         names: {
-          file: file.name
+          file: stateFile.name
         }
       };
 
@@ -363,134 +326,122 @@ class FileEdit extends React.Component<Props, State> {
           formdata.append("commit", JSON.stringify(commit));
         })
         .then((r: Response) => r.json())
-        .then((newCommit: Changeset) => this.redirectAfterCommit(newCommit))
-        .catch(this.handleError);
+        .then(redirectAfterCommit)
+        .catch(handleError);
     }
   };
 
-  changeLanguage = (language: string) => {
-    this.setState({
-      language
-    });
-  };
-
-  render() {
-    const { revision, t, repository, baseUrl, resolvedRevision } = this.props;
-    const {
-      path,
-      file,
-      content,
-      initialLoading,
-      initialError,
-      loading,
-      error,
-      isValid,
-      commitMessage,
-      contentType,
-      contentLength,
-      initialRevision
-    } = this.state;
-
-    if (initialLoading) {
-      return <Loading />;
-    }
-
-    if (initialError) {
-      return <ErrorNotification error={initialError} />;
-    }
-
-    const language = findLanguage(this.state.language);
-    if (this.isEditMode() && !isEditable(contentType, language, contentLength)) {
-      return <Notification type="danger">{t("scm-editor-plugin.edit.notEditable")}</Notification>;
-    }
-
-    const extensionsProps = {
-      repository: this.props.repository,
-      file: this.isEditMode() ? this.props.file : this.state.file,
-      revision: this.props.revision,
-      path: this.isEditMode() ? this.props.path : this.state.path + "/" + this.state.file?.name
-    };
-
-    const body = (
-      <>
-        <Breadcrumb repository={repository} baseUrl={baseUrl} path={path} revision={revision} clickable={false} />
-        <FileMetaData
-          changePath={this.changePath}
-          path={path}
-          file={file}
-          changeFileName={this.changeFileName}
-          disabled={this.isEditMode() || loading}
-          validate={this.validate}
-          language={language}
-          changeLanguage={this.changeLanguage}
-        />
-        <CodeEditor
-          onChange={this.changeFileContent}
-          content={content}
-          disabled={loading}
-          language={language}
-          initialFocus={true}
-        />
-      </>
-    );
-
-    const revisionChanged = initialRevision && resolvedRevision && initialRevision !== resolvedRevision;
-    const revisionChangedWarning = revisionChanged && (
-      <Notification type={"warning"}>{t("scm-editor-plugin.edit.revisionChanged")}</Notification>
-    );
-
-    return (
-      <>
-        <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
-        <Border>
-          {revision && (
-            <Header className="has-background-secondary-less">
-              <Level
-                left={
-                  <span>
-                    <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
-                    {decodeURIComponent(revision)}
-                  </span>
-                }
-                right={
-                  <OpenInFullscreenButton
-                    modalTitle={file?.name || ""}
-                    modalBody={<MarginlessModalContent>{body}</MarginlessModalContent>}
-                    tooltipStyle="htmlTitle"
-                  />
-                }
-              />
-            </Header>
-          )}
-          {body}
-        </Border>
-        <ExtensionPoint name="editor.file.hints" renderAll={true} props={extensionsProps} />
-        {revisionChangedWarning}
-        <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
-        {error && <ErrorNotification error={error} />}
-        <div className="level">
-          <div className="level-left" />
-          <div className="level-right">
-            <ButtonGroup>
-              <Button
-                label={t("scm-editor-plugin.button.cancel")}
-                disabled={loading}
-                action={() => this.redirectOnCancel(revision)}
-              />
-              <Button
-                label={t("scm-editor-plugin.button.commit")}
-                color={"primary"}
-                disabled={!commitMessage || !isValid || !file.name || revisionChanged}
-                action={this.commitFile}
-                loading={loading}
-                testId="create-file-commit-button"
-              />
-            </ButtonGroup>
-          </div>
-        </div>
-      </>
-    );
+  if (initialLoading) {
+    return <Loading />;
   }
-}
 
-export default withRouter(withTranslation("plugins")(FileEdit));
+  const revisionChanged = initialRevision && resolvedRevision && initialRevision !== resolvedRevision;
+  const revisionChangedWarning = revisionChanged && (
+    <Notification type={"warning"}>{t("scm-editor-plugin.edit.revisionChanged")}</Notification>
+  );
+
+  if (initialError) {
+    return <ErrorNotification error={initialError} />;
+  }
+
+  const lng = findLanguage(language);
+  if (isEditMode() && !isEditable(contentType, lng)) {
+    return <Notification type="danger">{t("scm-editor-plugin.edit.notEditable")}</Notification>;
+  }
+
+  const extensionsProps = {
+    repository: repository,
+    file: isEditMode() ? file : stateFile,
+    revision: revision,
+    path: isEditMode() ? path : statePath + "/" + stateFile?.name
+  };
+
+  const body = (
+    <>
+      <Breadcrumb repository={repository} baseUrl={baseUrl} path={statePath} revision={revision} clickable={false} />
+      <FileMetaData
+        changePath={setPath}
+        path={statePath}
+        file={stateFile}
+        changeFileName={changeFileName}
+        disabled={isEditMode() || loading}
+        validate={setIsValid}
+        language={language}
+        changeLanguage={setLanguage}
+        autoFocus={extension === "create"}
+      />
+      <CodeEditor
+        onChange={setContent}
+        content={content}
+        disabled={loading}
+        language={language}
+        initialFocus={extension === "edit"}
+        ref={editorRef}
+        onBlur={evaluateCtrlEnterShortcut}
+      />
+    </>
+  );
+
+  return (
+    <>
+      <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
+      <Border>
+        {revision && (
+          <Header className="has-background-secondary-less">
+            <Level
+              left={
+                <span>
+                  <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
+                  {decodeURIComponent(revision)}
+                </span>
+              }
+              right={
+                <OpenInFullscreenButton
+                  modalTitle={stateFile?.name || ""}
+                  modalBody={<MarginlessModalContent>{body}</MarginlessModalContent>}
+                  tooltipStyle="htmlTitle"
+                />
+              }
+            />
+          </Header>
+        )}
+        {body}
+      </Border>
+      <ExtensionPoint name="editor.file.hints" renderAll={true} props={extensionsProps} />
+      {revisionChangedWarning}
+      <CommitMessage
+        commitMessage={commitMessage}
+        onChange={setCommitMessage}
+        disabled={loading}
+        ref={commitMessageRef}
+      />
+      {error && <ErrorNotification error={error} />}
+      <div className="level">
+        <div className="level-left" />
+        <div className="level-right">
+          <Button
+            disabled={loading}
+            className={"mr-3"}
+            onClick={() => redirectOnCancel(revision)}
+            ref={cancelButtonRef}
+            variant="secondary"
+          >
+            {t("scm-editor-plugin.button.cancel")}
+          </Button>
+          <Button
+            disabled={!commitMessage || !isValid || !stateFile.name || revisionChanged}
+            onClick={commitFile}
+            loading={loading}
+            testId="create-file-commit-button"
+            ref={commitButtonRef}
+            variant="primary"
+          >
+            {t("scm-editor-plugin.button.commit")}
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default FileEdit;

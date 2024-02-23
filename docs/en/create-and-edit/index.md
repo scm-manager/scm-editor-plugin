@@ -17,6 +17,15 @@ The editor offers this information and interactions:
 - **Author:** This user is used as author for the new commit.
 - **Commit message:** The commit message.
 
+### Editor Navigation
+
+| Key Combination | Description                                                   |
+|-----------------|---------------------------------------------------------------|
+| ctrl enter      | (Inside Editor) Leave the editor and focus the commit message |
+| ctrl enter      | (Inside the commit message) commit changes                    |
+| Escape          | (Inside the commit message) focus the cancel button           |
+
+
 Whenever the user refocuses the editor, it will check for new revisions of the branch or the repository. If there is a
 new revision, a warning is shown and the commit cannot be triggered. If such a new revision is not detected beforehand,
 a commit will be rejected by the server and a "concurrent modification error" will be shown.

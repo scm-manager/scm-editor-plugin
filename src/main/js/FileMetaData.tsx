@@ -25,9 +25,7 @@ import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import LanguageSelector from "./LanguageSelector";
-import { FilenameValidation, PathInputField, DirectoryValidation } from "./PathInputField";
 import { useDirectoryValidation, useFilenameValidation } from "./validation";
-import { sanitizePath } from "./pathSanitizer";
 import {InputField} from "@scm-manager/ui-components";
 
 const NoBottomMargin = styled.div`
@@ -96,6 +94,7 @@ type Props = {
   language?: string;
   changeLanguage?: (lang: string) => void;
   onBlur: () => void;
+  autoFocus?: boolean;
 };
 
 const FileMetaData: FC<Props> = ({
@@ -107,7 +106,8 @@ const FileMetaData: FC<Props> = ({
   validate,
   language,
   changeLanguage,
-  onBlur
+  onBlur,
+  autoFocus
 }) => {
   const [t] = useTranslation("plugins");
   const [validateFilename, filenameErrorMessage] = useFilenameValidation();
@@ -154,6 +154,7 @@ const FileMetaData: FC<Props> = ({
                 onChange={handlePathChange}
                 testId="create-file-path-input"
                 onBlur={onBlur}
+                autofocus={autoFocus}
               />
             </InputBorder>
           </NoBottomMargin>

@@ -26,13 +26,13 @@ import FileDownloadIcon from "./Download/FileDownloadIcon";
 import SourcesActionbar from "./SourcesActionbar";
 import FileUpload from "./Upload/FileUpload";
 import { Link, Repository } from "@scm-manager/ui-types";
-import FileEdit from "./Edit/FileEdit";
 import { createAttributesForTesting } from "@scm-manager/ui-components";
 import FileDeleteAction from "./Delete/FileDeleteAction";
 import { isEditable } from "./Edit/isEditable";
 import { FileMoveAction } from "./Move/FileMoveAction";
 import { createSourceExtensionUrl } from "./links";
 import { encodeFilePath } from "./Edit/encodeFilePath";
+import FileEdit from "./Edit/FileEdit";
 
 type ExtensionProps = {
   repository: Repository;
