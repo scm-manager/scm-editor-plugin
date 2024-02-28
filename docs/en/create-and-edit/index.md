@@ -19,11 +19,11 @@ The editor offers this information and interactions:
 
 ### Editor Navigation
 
-| Key Combination | Description                                                   |
-|-----------------|---------------------------------------------------------------|
-| ctrl enter      | (Inside Editor) Leave the editor and focus the commit message |
-| ctrl enter      | (Inside the commit message) commit changes                    |
-| Escape          | (Inside the commit message) focus the cancel button           |
+| Key Combination | Description                                                       |
+|-----------------|-------------------------------------------------------------------|
+| ctrl enter      | (Inside Editor) Leave the editor and focus the commit message     |
+| ctrl enter      | (Inside the commit message) commit changes                        |
+| Escape          | (Inside the commit message or the editor) focus the cancel button |
 
 
 Whenever the user refocuses the editor, it will check for new revisions of the branch or the repository. If there is a

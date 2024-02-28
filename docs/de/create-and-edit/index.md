@@ -22,7 +22,7 @@ Folgende Informationen bzw. Interaktionen bietet der Editor:
 |-----------------|---------------------------------------------------------------------|
 | ctrl enter      | (Im Editor) Verlasse den Editor und fokussiere die Commit Nachricht |
 | ctrl enter      | (In der Commitnachricht) Schicke den Commit ab                      |
-| Escape          | (In der Commitnachricht) Fokussiere den Cancel-Button               |
+| Escape          | (In der Commitnachricht oder Editor) Fokussiere den Cancel-Button   |
 
 
 Immer wenn der Editor neu fokussiert wird, prüft der SCM-Manager, ob auf dem Branch bzw. dem Repository neue Revisionen

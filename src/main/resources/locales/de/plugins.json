@@ -2,7 +2,7 @@
   "scm-editor-plugin": {
     "shortcuts": {
       "strgEnter": "Fokussiert die Commitnachricht an wenn im Editor betätigt oder schickt den Commit ab wenn in der Commitnachricht betätigt",
-      "escape": "Fokussiert den Cancel-Button an, wenn in der Commitnachricht betätigt"
+      "escape": "Fokussiert den Cancel-Button an, wenn in der Commitnachricht oder Editor betätigt"
     },
     "button": {
       "cancel": "Abbrechen",

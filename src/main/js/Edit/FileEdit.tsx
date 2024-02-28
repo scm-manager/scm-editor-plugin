@@ -146,7 +146,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
 
   const evaluateCtrlEnterShortcut = () => {
     if (commitMessageRef.current === document.activeElement) {
-      commitButtonRef.current.click();
+      commitButtonRef.current?.click();
     } else {
       commitMessageRef.current?.focus();
     }
@@ -154,8 +154,17 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
 
   const evaluateEscShortcut = () => {
     if (commitMessageRef.current === document.activeElement) {
-      cancelButtonRef.current.focus();
+      cancelButtonRef.current?.focus();
     }
+  };
+
+  const evaluateEscShortCutEditor = () => {
+    cancelButtonRef.current?.focus();
+  };
+
+  const onBlurCallbacks = {
+    esc: evaluateEscShortCutEditor,
+    strgEnter: evaluateCtrlEnterShortcut
   };
 
   useShortcut("ctrl+enter", evaluateCtrlEnterShortcut, {
@@ -370,7 +379,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         language={language}
         initialFocus={extension === "edit"}
         ref={editorRef}
-        onBlur={evaluateCtrlEnterShortcut}
+        onBlur={onBlurCallbacks}
       />
     </>
   );
