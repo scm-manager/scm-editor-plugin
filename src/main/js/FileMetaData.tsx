@@ -26,7 +26,7 @@ import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import LanguageSelector from "./LanguageSelector";
 import { useDirectoryValidation, useFilenameValidation } from "./validation";
-import {InputField} from "@scm-manager/ui-components";
+import { InputField } from "@scm-manager/ui-components";
 
 const NoBottomMargin = styled.div`
   margin-bottom: 0 !important;
@@ -147,7 +147,7 @@ const FileMetaData: FC<Props> = ({
             <InputBorder disabled={disabled} className="control">
               <InputField
                 disabled={disabled}
-                value={path ? decodeURIComponent(path) : ""}
+                value={path}
                 validationError={!!directoryErrorMessage}
                 errorMessage={directoryErrorMessage}
                 placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.path")}

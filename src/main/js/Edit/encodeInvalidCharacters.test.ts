@@ -21,11 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-export type Commit = {
-  commitMessage: string;
-  branch: string | null | undefined;
-  expectedRevision: string | null | undefined;
-  names: {
-    [key: string]: string;
-  };
-};
+import { encodeInvalidCharacters } from "./encodeInvalidCharacters";
+describe("encodeInvalidCharacters tests", () => {
+  it("should keep characters as written", () => {
+    const specialCharacters = encodeInvalidCharacters("!\"'()*-<>");
+    const umlautsAndSlashes = encodeInvalidCharacters("abc/äöü\\ß");
+    expect(specialCharacters).toBe("!\"'()*-<>");
+    expect(umlautsAndSlashes).toBe("abc/äöü\\ß");
+  });
+  it("should keep encoded characters", () => {
+    const specialCharacters = encodeInvalidCharacters("%23%24%26%2B%2C%3A%3D%3F%40%7B%7C%7D"); // #$&+,:=?@{|}
+    const percentSign = encodeInvalidCharacters("%25"); // %
+    expect(specialCharacters).toBe("%23%24%26%2B%2C%3A%3D%3F%40%7B%7C%7D");
+    expect(percentSign).toBe("%25");
+  });
+  it("should encode invalid characters", () => {
+    const invalidCharacters = encodeInvalidCharacters("[]"); // ;[]
+    expect(invalidCharacters).toBe("%5B%5D");
+  });
+});

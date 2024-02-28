@@ -44,6 +44,7 @@ import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import { setPathInLink } from "../links";
 import { useHistory } from "react-router-dom";
+import { encodeInvalidCharacters } from "./encodeInvalidCharacters";
 
 const Header = styled.div`
   line-height: 1.25;
@@ -61,23 +62,23 @@ const Border = styled.div`
   .textarea:active {
     box-shadow: none;
   }
-,
+  ,
 &:focus-within: {
-  border-color: #33b2e8;
-  box-shadow: 0 0 0 0.125em rgba(51, 178, 232, 0.25);
-  &:hover {
     border-color: #33b2e8;
+    box-shadow: 0 0 0 0.125em rgba(51, 178, 232, 0.25);
+    &:hover {
+      border-color: #33b2e8;
+    }
   }
-}
-,
+  ,
 &:hover: {
-  border: 1px solid #b5b5b5;
-  border-radius: 4px;
-}
-,
+    border: 1px solid #b5b5b5;
+    border-radius: 4px;
+  }
+  ,
 & .input, .textarea: {
-  border-color: #dbdbdb;
-}
+    border-color: #dbdbdb;
+  }
 `;
 
 const MarginlessModalContent = styled.div`
@@ -107,16 +108,13 @@ type Props = {
 const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision, path, file, sources, baseUrl }) => {
   const [t] = useTranslation("plugins");
   const [content, setContent] = useState<string>("");
-  const [initialRevision, setInitialRevision] = useState<string>(resolvedRevision || "");
-  const [statePath, setPath] = useState<string | undefined>("");
+  const [statePath, setStatePath] = useState<string | undefined>("");
   const [initialError, setInitialError] = useState<Error>();
   const [initialLoading, setInitialLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
   const [loading, setLoading] = useState<boolean>(false);
   const [commitMessage, setCommitMessage] = useState<string>("");
-  const [contentType, setContentType] = useState<string>("");
-  const [language, setLanguage] = useState<string>("");
-  const [contentLength, setContentLength] = useState<number>(0);
+  const [language, setLanguage] = useState<string>("text");
   const [isValid, setIsValid] = useState<boolean>(true);
   const [fetchData, setFetchData] = useState<boolean>(false);
   const history = useHistory();
@@ -129,7 +127,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   const isEditMode = () => {
     return !!(extension === "edit" && path);
   };
-  const [stateFile, setFile] = useState<FileWithType | undefined>(isEditMode()? undefined : {name: ""});
+  const [stateFile, setFile] = useState<FileWithType | undefined>(isEditMode() ? undefined : { name: "" });
 
   useEffect(() => {
     if (isEditMode()) {
@@ -141,14 +139,14 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   }, []);
 
   useEffect(() => {
-    if (stateFile !== undefined && fetchData === true) {
+    if (stateFile !== undefined && fetchData) {
       fetchContent();
     }
   }, [fetchData]);
 
   const evaluateCtrlEnterShortcut = () => {
     if (commitMessageRef.current === document.activeElement) {
-      commitButtonRef.current.click()
+      commitButtonRef.current.click();
     } else {
       commitMessageRef.current?.focus();
     }
@@ -168,7 +166,6 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
     description: t("scm-editor-plugin.shortcuts.escape")
   });
 
-
   const fetchFile = () => {
     createFileUrl()
       .then(apiClient.get)
@@ -187,9 +184,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         response
           .text()
           .then(content => {
-            setContentType(response.headers.get("Content-Type") || "");
-            setLanguage(response.headers.get("X-Programming-Language") || "");
-            setContentLength(content.length);
+            setLanguage(findLanguage(response.headers.get("X-Programming-Language") ?? ""));
             setContent(content);
             afterLoading();
           })
@@ -215,7 +210,6 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         if (!revision) {
           reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
         }
-        console.log(`${base}${revision}/${encodeInvalidCharacters(path!)}`);
         resolve(`${base}${revision}/${encodeInvalidCharacters(path!)}`);
       }
     });
@@ -226,15 +220,13 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
     const parentDirPath = isEditMode() ? pathWithFilename?.substr(0, lastPathDelimiter) : pathWithFilename;
 
     if (!statePath) {
-      setPath(parentDirPath || "");
+      setStatePath(parentDirPath || "");
     }
 
     if (initialLoading) {
       setInitialLoading(false);
     }
   };
-
-  const encodeInvalidCharacters = (input: string) => input.replace(/\[/g, "%5B").replace(/]/g, "%5D");
 
   const changeFileName = (fileName: string) => {
     setFile({ ...stateFile, name: fileName });
@@ -248,19 +240,15 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
 
   const redirectAfterCommit = (newCommit: Changeset) => {
     let redirectUrl = createRedirectUrl();
-    const encodedFilename = stateFile && stateFile.name ? encodeURIComponent(stateFile.name) + "/" : "";
+    const encodedFilename = stateFile?.name ? encodeURIComponent(stateFile.name) + "/" : "";
 
     if (newCommit) {
-      const newRevision =
-        newCommit._embedded &&
-        newCommit._embedded.branches &&
-        newCommit._embedded.branches[0] &&
-        newCommit._embedded.branches[0].name
-          ? newCommit._embedded.branches[0].name
-          : newCommit.id;
+      const newRevision = newCommit._embedded?.branches?.[0]?.name
+        ? newCommit._embedded.branches[0].name
+        : newCommit.id;
       let redirectPath = encodeFilePath(statePath, true) + encodedFilename;
-      if (redirectPath[0] === "/") {
-        redirectPath = redirectPath.substr(1);
+      if (redirectPath.startsWith("/")) {
+        redirectPath = redirectPath.substring(1);
       }
       redirectUrl += `/${encodeURIComponent(newRevision)}/${redirectPath}`;
     }
@@ -306,15 +294,15 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         type = "text/plain";
       }
 
-      const blob = new Blob([content ? content : ""], {
+      const blob = new Blob([content || ""], {
         type
       });
       setLoading(true);
 
       const commit = {
         commitMessage,
-        branch: decodeURIComponent(revision ? revision : ""),
-        expectedRevision: initialRevision,
+        branch: decodeURIComponent(revision ?? ""),
+        expectedRevision: file?.revision ?? "",
         names: {
           file: stateFile.name
         }
@@ -335,17 +323,16 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
     return <Loading />;
   }
 
-  const revisionChanged = initialRevision && resolvedRevision && initialRevision !== resolvedRevision;
+  const revisionChanged = !!(file?.revision && resolvedRevision && file?.revision !== resolvedRevision);
   const revisionChangedWarning = revisionChanged && (
-    <Notification type={"warning"}>{t("scm-editor-plugin.edit.revisionChanged")}</Notification>
+    <Notification type="warning">{t("scm-editor-plugin.edit.revisionChanged")}</Notification>
   );
 
   if (initialError) {
     return <ErrorNotification error={initialError} />;
   }
 
-  const lng = findLanguage(language);
-  if (isEditMode() && !isEditable(contentType, lng)) {
+  if (isEditMode() && !isEditable(file?.type, language)) {
     return <Notification type="danger">{t("scm-editor-plugin.edit.notEditable")}</Notification>;
   }
 
@@ -358,16 +345,22 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
 
   const body = (
     <>
-      <Breadcrumb repository={repository} baseUrl={baseUrl} path={statePath} revision={revision} clickable={false} />
+      <Breadcrumb
+        repository={repository}
+        baseUrl={baseUrl}
+        path={encodeURIComponent(statePath)}
+        revision={revision}
+        clickable={false}
+      />
       <FileMetaData
-        changePath={setPath}
+        changePath={setStatePath}
         path={statePath}
         file={stateFile}
         changeFileName={changeFileName}
         disabled={isEditMode() || loading}
         validate={setIsValid}
         language={language}
-        changeLanguage={setLanguage}
+        changeLanguage={lng => setLanguage(findLanguage(lng))}
         autoFocus={extension === "create"}
       />
       <CodeEditor
@@ -421,7 +414,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         <div className="level-right">
           <Button
             disabled={loading}
-            className={"mr-3"}
+            className="mr-3"
             onClick={() => redirectOnCancel(revision)}
             ref={cancelButtonRef}
             variant="secondary"

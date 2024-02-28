@@ -21,11 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-export type Commit = {
-  commitMessage: string;
-  branch: string | null | undefined;
-  expectedRevision: string | null | undefined;
-  names: {
-    [key: string]: string;
-  };
-};
+export function encodeInvalidCharacters(input: string) {
+  return input.replace(/\[/g, "%5B").replace(/]/g, "%5D");
+}
