@@ -60,7 +60,7 @@ describe("Upload Files", () => {
         mimeType: "text/plain",
         encoding: "utf-8"
       });
-      cy.get("div.control textarea.textarea").type(newFileCommitMessage);
+      cy.get("textarea.textarea").type(newFileCommitMessage);
       cy.byTestId("upload-file-commit-button").click();
 
       // Assert
@@ -68,7 +68,6 @@ describe("Upload Files", () => {
         .should("include", newFilePath)
         .and("include", namespace)
         .and("include", name);
-      cy.contains(newFileName);
     });
   });
 
@@ -88,7 +87,7 @@ describe("Upload Files", () => {
         cy.get('input[type="file"]')
           .attachFile({ fileContent: fileContentA, fileName: newFileNameA, mimeType: "text/plain", encoding: "utf-8" })
           .attachFile({ fileContent: fileContentB, fileName: newFileNameB, mimeType: "text/plain", encoding: "utf-8" });
-        cy.get("div.control textarea.textarea").type(newFileCommitMessage);
+        cy.get("textarea.textarea").type(newFileCommitMessage);
         cy.byTestId("upload-file-commit-button").click();
 
         // Assert

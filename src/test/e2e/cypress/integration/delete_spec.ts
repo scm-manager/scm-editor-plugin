@@ -55,7 +55,7 @@ describe("Delete Files", () => {
     cy.visit(`/repo/${namespace}/${name}/code/sources/main/README.md`);
     cy.get(".fa-ellipsis-v").click();
     cy.byTestId("delete-file-button").click();
-    cy.get("div.control textarea.textarea").type(newFileCommitMessage);
+    cy.get("textarea.textarea").type(newFileCommitMessage);
     cy.byTestId("delete-file-commit-button").click();
 
     // Assert

@@ -58,7 +58,7 @@ describe("Create Files", () => {
       cy.byTestId("create-file-path-input").type(newFilePath);
       cy.byTestId("create-file-name-input").type(newFileName);
       cy.get("textarea.ace_text-input").type(newFileContent, { force: true });
-      cy.get("div.control textarea.textarea").type(newFileCommitMessage);
+      cy.get("textarea.textarea").type(newFileCommitMessage);
       cy.byTestId("create-file-commit-button").click();
 
       // Assert

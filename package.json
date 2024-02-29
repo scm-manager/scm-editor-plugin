@@ -8,7 +8,8 @@
     "build": "plugin-scripts build",
     "watch": "plugin-scripts watch",
     "postinstall": "plugin-scripts postinstall",
-    "e2e": "integration-test-runner run -u scmadmin -p scmadmin -O ../../../build/target/ -d ./src/test/e2e"
+    "e2e": "integration-test-runner run -u scmadmin -p scmadmin -O ../../../build/target/ -d ./src/test/e2e",
+    "ci": "integration-test-runner run -u scmadmin -p scmadmin ../../../build/target/ -d ./src/test/e2e"
   },
   "dependencies": {
     "@scm-manager/scm-code-editor-plugin": "1.0.0",

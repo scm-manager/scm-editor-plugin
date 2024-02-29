@@ -54,8 +54,9 @@ describe("Edit Files", () => {
     cy.visit(`/repo/${namespace}/${name}/code/sources/main/README.md`);
     cy.get(".fa-ellipsis-v").click();
     cy.byTestId("edit-file-button").click();
+    cy.wait(4000);
     cy.get("textarea.ace_text-input").type(newContent, { force: true });
-    cy.get("div.control textarea.textarea").type(commitMessage);
+    cy.get("textarea.textarea").type(commitMessage);
     cy.byTestId("create-file-commit-button").click();
 
     // Assert
