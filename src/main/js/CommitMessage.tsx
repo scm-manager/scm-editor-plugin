@@ -21,15 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC } from "react";
+import React, { FC, KeyboardEventHandler } from "react";
 import { useTranslation } from "react-i18next";
 import { CommitAuthor } from "@scm-manager/ui-components";
-import { Textarea } from "@scm-manager/ui-core"
+import { Textarea } from "@scm-manager/ui-core";
 
 type Props = {
   onChange: (p: string) => void;
   disabled: boolean;
   onSubmit?: () => void;
+  onKeyDown: KeyboardEventHandler<HTMLTextAreaElement>;
 };
 
 type InnerProps = Props & {
@@ -40,7 +41,7 @@ const isStringOnChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string
   return typeof event === "string";
 };
 
-const CommitMessage: FC<InnerProps> = ({ onChange, onSubmit, disabled, innerRef }) => {
+const CommitMessage: FC<InnerProps> = ({ onChange, onSubmit, disabled, innerRef, onKeyDown }) => {
   const [t] = useTranslation("plugins");
   return (
     <>
@@ -57,7 +58,8 @@ const CommitMessage: FC<InnerProps> = ({ onChange, onSubmit, disabled, innerRef 
         disabled={disabled}
         onSubmit={onSubmit}
         ref={innerRef}
-        className="mb-3 mousetrap"
+        onKeyDown={onKeyDown}
+        className="mb-3"
       />
     </>
   );

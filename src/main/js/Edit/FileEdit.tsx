@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState, KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
 import FileMetaData from "../FileMetaData";
@@ -167,11 +167,22 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
     strgEnter: evaluateCtrlEnterShortcut
   };
 
-  useShortcut("ctrl+enter", evaluateCtrlEnterShortcut, {
+  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Escape") {
+      evaluateEscShortcut();
+      return;
+    }
+
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+      evaluateCtrlEnterShortcut();
+    }
+  };
+
+  useShortcut("ctrl+enter", () => true, {
     description: t("scm-editor-plugin.shortcuts.strgEnter")
   });
 
-  useShortcut("esc", evaluateEscShortcut, {
+  useShortcut("esc", () => true, {
     description: t("scm-editor-plugin.shortcuts.escape")
   });
 
@@ -416,6 +427,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         onChange={setCommitMessage}
         disabled={loading}
         ref={commitMessageRef}
+        onKeyDown={onKeyDown}
       />
       {error && <ErrorNotification error={error} />}
       <div className="level">
