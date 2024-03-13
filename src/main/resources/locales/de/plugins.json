@@ -77,6 +77,7 @@
       "title": "Datei hochladen",
       "dragAndDrop": "Dateien hier einfügen oder zum Auswählen hier klicken",
       "file": {
+        "path": "Pfad",
         "name": "Dateiname",
         "type": "Typ",
         "size": "Größe",
@@ -84,7 +85,8 @@
           "title": "Ausgewählte Dateien"
         }
       },
-      "delete": "Löschen"
+      "delete": "Löschen",
+      "fileUpload": "Hochladen von Dateien"
     },
     "create": {
       "tooltip": "Neue Datei erstellen"

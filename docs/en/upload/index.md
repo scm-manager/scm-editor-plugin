@@ -3,6 +3,8 @@ title: Upload
 subtitle: Upload files
 ---
 One or more files can be uploaded into a folder. If a file already exists, it will be overwritten.
+If a folder is added via drag-&-drop when uploading, all files including the folder structure are uploaded. 
+Adding files via the file selector will ignore folders.
 
 ![Upload files](assets/fileUploader.png)
 

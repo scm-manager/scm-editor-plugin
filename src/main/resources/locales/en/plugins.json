@@ -77,6 +77,7 @@
       "title": "Upload file",
       "dragAndDrop": "Drag and drop your files here or click here to select your files",
       "file": {
+        "path": "Path",
         "name": "Filename",
         "type": "Type",
         "size": "Size",
@@ -84,7 +85,8 @@
           "title": "Selected files"
         }
       },
-      "delete": "Delete"
+      "delete": "Delete",
+      "fileUpload": "Upload files"
     },
     "create": {
       "tooltip": "Create new file"

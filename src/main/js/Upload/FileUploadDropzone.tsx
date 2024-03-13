@@ -21,10 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-import React from "react";
-import Dropzone from "react-dropzone";
-import { WithTranslation, withTranslation } from "react-i18next";
+import React, { FC } from "react";
+import { DropzoneOptions, useDropzone } from "react-dropzone";
+import { useTranslation } from "react-i18next";
 import styled from "styled-components";
+import { binder } from "@scm-manager/ui-extensions";
 
 const StyledDropzone = styled.div`
   width: 100%;
@@ -54,42 +55,45 @@ const Icon = styled.i`
   margin: 1rem 0;
 `;
 
-type Props = WithTranslation & {
+type Props = {
   fileHandler: any;
   disabled: boolean;
+  uploadMode: string;
 };
 
-class FileUploadDropzone extends React.Component<Props> {
-  onDrop = acceptedFiles => {
-    this.props.fileHandler(acceptedFiles);
-  };
+const DefaultOptions = {
+  multiple: true,
+  noDragEventsBubbling: true
+};
 
-  render() {
-    const { t, disabled } = this.props;
-    return (
-      <>
-        <Dropzone onDrop={acceptedFiles => this.onDrop(acceptedFiles)}>
-          {({ getRootProps, getInputProps }) => {
-            return (
-              <section>
-                <div {...getRootProps()}>
-                  <input {...getInputProps()} disabled={disabled} />
-                  <StyledDropzone>
-                    <InnerBorder>
-                      <Description className="has-text-secondary">
-                        <Icon className="fas fa-plus-circle fa-2x has-text-grey-lighter" />
-                        {t("scm-editor-plugin.upload.dragAndDrop")}
-                      </Description>
-                    </InnerBorder>
-                  </StyledDropzone>
-                </div>
-              </section>
-            );
-          }}
-        </Dropzone>
-      </>
-    );
-  }
-}
+const FileUploadDropzone: FC<Props> = ({ fileHandler, disabled, uploadMode }) => {
+  const [t] = useTranslation("plugins");
+  let extension = binder.getExtension("editorPlugin.upload", {});
 
-export default withTranslation("plugins")(FileUploadDropzone);
+  const { getRootProps, getInputProps } = useDropzone(
+    extension && uploadMode === extension().uploadMode
+      ? { ...DefaultOptions, disabled, ...(extension().dropZoneOptions(fileHandler) as DropzoneOptions) }
+      : {
+          ...DefaultOptions,
+          disabled,
+          onDrop: fileHandler
+        }
+  );
+  return (
+    <section>
+      <div {...getRootProps()}>
+        <input {...getInputProps()} disabled={disabled} />
+        <StyledDropzone>
+          <InnerBorder>
+            <Description className="has-text-secondary">
+              <Icon className="fas fa-plus-circle fa-2x has-text-grey-lighter" />
+              {t("scm-editor-plugin.upload.dragAndDrop")}
+            </Description>
+          </InnerBorder>
+        </StyledDropzone>
+      </div>
+    </section>
+  );
+};
+
+export default FileUploadDropzone;

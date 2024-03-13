@@ -3,6 +3,8 @@ title: Hochladen
 subtitle: Dateien hochladen
 ---
 Es können eine oder mehrere Dateien in ein Verzeichnis hochgeladen werden. Existiert bereits eine dieser Dateien, so werden diese überschrieben.
+Wird beim Hochladen per Drag-&-Drop ein Verzeichnis hingefügt, werden alle Dateien einschließlich der Verzeichnis-Struktur hochgeladen.
+Beim Hinzufügen von Dateien über den Datei-Selektor werden Verzeichnisse ignoriert.
 
 ![Dateien hochladen](assets/fileUploader.png)
 

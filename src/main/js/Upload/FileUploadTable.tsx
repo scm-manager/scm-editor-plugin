@@ -38,12 +38,14 @@ const NoBorderLeft = styled.table`
   }
 `;
 
-const NameColumnTH = styled.th`
-  width: 60%;
+const FixedColumnTH = styled.th`
+  width: 30%;
+  max-width: 30%;
 `;
 
-const NameColumnTD = styled.td`
-  width: 60%;
+const FixedColumnTD = styled.td`
+  width: 30%;
+  max-width: 30%;
 `;
 
 const FileUploadTable: FC<Props> = ({ files, removeFileEntry, disabled }) => {
@@ -55,8 +57,8 @@ const FileUploadTable: FC<Props> = ({ files, removeFileEntry, disabled }) => {
       <NoBorderLeft className="card-table table is-hoverable is-fullwidth">
         <thead>
           <tr>
-            <NameColumnTH>{t("scm-editor-plugin.upload.file.name")}</NameColumnTH>
-            <th className="is-hidden-mobile">{t("scm-editor-plugin.upload.file.type")}</th>
+            <FixedColumnTH className="is-hidden-mobile">{t("scm-editor-plugin.upload.file.path")}</FixedColumnTH>
+            <FixedColumnTH>{t("scm-editor-plugin.upload.file.name")}</FixedColumnTH>
             <th className="is-hidden-mobile">{t("scm-editor-plugin.upload.file.size")}</th>
           </tr>
         </thead>
@@ -64,8 +66,8 @@ const FileUploadTable: FC<Props> = ({ files, removeFileEntry, disabled }) => {
           {files.map(file => {
             return (
               <tr>
-                <NameColumnTD>{file.name}</NameColumnTD>
-                <td className="is-hidden-mobile">{file.type}</td>
+                <FixedColumnTD>{file.path.substring(0, file.path.length - file.name.length)}</FixedColumnTD>
+                <FixedColumnTD>{file.name}</FixedColumnTD>
                 <td className="is-hidden-mobile">
                   <FileSize bytes={file.size} />
                 </td>

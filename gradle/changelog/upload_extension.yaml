@@ -1,0 +1,4 @@
+- type: added
+  description: Extension point for custom upload modes
+- type: changed
+  description: Keep folder structure on drag-&-drop upload for directories

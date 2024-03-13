@@ -164,12 +164,12 @@ public class EditorService {
     }
 
     private String computeCompleteFileName(String fileName) {
-      validateFilename(fileName);
-
       validatePath(path, "path");
 
       if (StringUtils.isEmpty(path)) {
         return fileName;
+      } else if (fileName.startsWith("/")) {
+        return path + fileName;
       } else {
         return path + "/" + fileName;
       }
@@ -200,11 +200,5 @@ public class EditorService {
     doThrow()
       .violation("must not contain \"..\", \"//\", or \"\\\" and must not equal \"..\"", variableName)
       .when(!ValidationUtil.isPathValid(path));
-  }
-
-  private void validateFilename(String fileName) {
-    doThrow()
-      .violation("must not contain \"/\", \"\\\", or \":\"", "fileName")
-      .when(!ValidationUtil.isFilenameValid(fileName));
   }
 }

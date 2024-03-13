@@ -34,6 +34,7 @@ import styled from "styled-components";
 import { Commit } from "../commit";
 import { createSourceUrl, createSourceUrlFromChangeset, setPathInLink } from "../links";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
+import FileUploadOptions from "./FileUploadOptions";
 
 const Header = styled.div`
   line-height: 1.25;
@@ -90,6 +91,7 @@ type State = {
   error?: Error;
   loading: boolean;
   shouldValidate: boolean;
+  uploadMode: string;
 };
 
 class FileUpload extends React.Component<Props, State> {
@@ -101,7 +103,8 @@ class FileUpload extends React.Component<Props, State> {
       files: [],
       commitMessage: "",
       path: decodeURIComponent(this.props.path ?? ""),
-      shouldValidate: true
+      shouldValidate: true,
+      uploadMode: "file"
     };
   }
 
@@ -179,7 +182,13 @@ class FileUpload extends React.Component<Props, State> {
     const nameMap: {
       [key: string]: string;
     } = {};
-    Object.keys(fileAliases).forEach(name => (nameMap[name] = fileAliases[name].name));
+    Object.keys(fileAliases).forEach(
+      name =>
+        (nameMap[name] =
+          fileAliases[name].path.substring(0, fileAliases[name].path.length - fileAliases[name].name.length - 1) +
+          (fileAliases[name].path.endsWith("/") ? "" : "/") +
+          fileAliases[name].name)
+    );
     return nameMap;
   };
 
@@ -196,7 +205,7 @@ class FileUpload extends React.Component<Props, State> {
 
   render() {
     const { repository, revision, baseUrl, t } = this.props;
-    const { files, path, commitMessage, error, loading, shouldValidate } = this.state;
+    const { files, path, commitMessage, error, loading, shouldValidate, uploadMode } = this.state;
 
     return (
       <>
@@ -222,8 +231,13 @@ class FileUpload extends React.Component<Props, State> {
             onBlur={() => this.setState({ shouldValidate: true })}
             disabled={loading}
           />
-          <FileUploadDropzone fileHandler={this.handleFile} disabled={loading} />
+          <FileUploadDropzone fileHandler={this.handleFile} disabled={loading} uploadMode={uploadMode} />
         </Border>
+        <FileUploadOptions
+          uploadMode={uploadMode}
+          setUploadMode={(uploadMode: string) => this.setState({ ...this.state, uploadMode })}
+        />
+        <br />
         {files && files.length > 0 && (
           <FileUploadTable files={files} removeFileEntry={this.removeFileEntry} disabled={loading} />
         )}
