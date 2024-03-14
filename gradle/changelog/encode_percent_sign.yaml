@@ -1,4 +1,0 @@
-- type: fixed
-  description: Malformed URI if path contains a percent sign in create form
-- type: fixed
-  description: Initial language selection when creating a new file

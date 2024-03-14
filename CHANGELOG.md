@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.1.0 - 2024-03-14
+### Added
+- Esc shortcut to the editor
+- Extension point for custom upload modes
+
+### Fixed
+- The shortcuts of useShortcuts are not triggered anymore inside of the commit message text input
+- Malformed URI if path contains a percent sign in create form
+- Initial language selection when creating a new file
+
+### Changed
+- Keep folder structure on drag-&-drop upload for directories
+
 ## 3.0.0 - 2024-02-27
 ### Added
 - New shortcuts to navigate the code editor
