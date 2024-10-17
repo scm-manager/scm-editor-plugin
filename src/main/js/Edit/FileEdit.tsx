@@ -14,7 +14,7 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import React, { FC, useEffect, useRef, useState, KeyboardEvent } from "react";
+import React, { FC, useEffect, useRef, useState, KeyboardEvent, MutableRefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
 import FileMetaData from "../FileMetaData";
@@ -34,7 +34,7 @@ import { Button, useShortcut } from "@scm-manager/ui-core";
 import { encodeFilePath } from "./encodeFilePath";
 import styled from "styled-components";
 import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
-import { ExtensionPoint } from "@scm-manager/ui-extensions";
+import { ExtensionPoint, RenderableExtensionPointDefinition } from "@scm-manager/ui-extensions";
 import { setPathInLink } from "../links";
 import { useHistory } from "react-router-dom";
 import { encodeInvalidCharacters } from "./encodeInvalidCharacters";
@@ -98,12 +98,24 @@ type Props = {
   baseUrl: string;
 };
 
+export type CodeEditorExtension = RenderableExtensionPointDefinition<
+  "editor.edit.replace.editor",
+  {
+    content?: string;
+    language: string;
+    loading?: boolean;
+    className?: string;
+    onChange: (value: string) => void;
+    ref?: MutableRefObject<any>;
+  }
+>;
+
 const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision, path, file, sources, baseUrl }) => {
   const [t] = useTranslation("plugins");
   const [content, setContent] = useState<string>("");
   const [statePath, setStatePath] = useState<string | undefined>("");
   const [initialError, setInitialError] = useState<Error>();
-  const [initialLoading, setInitialLoading] = useState<boolean>(false);
+  const [initialLoading, setInitialLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error>();
   const [loading, setLoading] = useState<boolean>(false);
   const [commitMessage, setCommitMessage] = useState<string>("");
@@ -376,15 +388,20 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         changeLanguage={lng => setLanguage(findLanguage(lng))}
         autoFocus={extension === "create"}
       />
-      <CodeEditor
-        onChange={setContent}
-        content={content}
-        disabled={loading}
-        language={language}
-        initialFocus={extension === "edit"}
-        ref={editorRef}
-        onBlur={onBlurCallbacks}
-      />
+      <ExtensionPoint<CodeEditorExtension>
+        name={"editor.edit.replace.editor"}
+        props={{ onChange: setContent, content, loading: loading, language, ref: editorRef }}
+      >
+        <CodeEditor
+          onChange={setContent}
+          content={content}
+          disabled={loading}
+          language={language}
+          initialFocus={extension === "edit"}
+          ref={editorRef}
+          onBlur={onBlurCallbacks}
+        />
+      </ExtensionPoint>
     </>
   );
 
