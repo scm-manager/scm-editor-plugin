@@ -1,0 +1,2 @@
+- type: fixed
+  description: Ctrl + enter now triggers commit while in commit field in upload file

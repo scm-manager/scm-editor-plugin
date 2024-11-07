@@ -124,10 +124,10 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   const [fetchData, setFetchData] = useState<boolean>(false);
   const history = useHistory();
 
-  const commitButtonRef = useRef<HTMLButtonElement>();
-  const cancelButtonRef = useRef<HTMLButtonElement>();
+  const commitButtonRef = useRef<HTMLButtonElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const editorRef = useRef();
-  const commitMessageRef = useRef<HTMLTextAreaElement>();
+  const commitMessageRef: MutableRefObject<HTMLTextAreaElement | null> = useRef<HTMLTextAreaElement>(null);
 
   const isEditMode = () => {
     return !!(extension === "edit" && path);
@@ -150,17 +150,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   }, [fetchData]);
 
   const evaluateCtrlEnterShortcut = () => {
-    if (commitMessageRef.current === document.activeElement) {
-      commitButtonRef.current?.click();
-    } else {
-      commitMessageRef.current?.focus();
-    }
-  };
-
-  const evaluateEscShortcut = () => {
-    if (commitMessageRef.current === document.activeElement) {
-      cancelButtonRef.current?.focus();
-    }
+    commitMessageRef.current?.focus();
   };
 
   const evaluateEscShortCutEditor = () => {
@@ -170,17 +160,6 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   const onBlurCallbacks = {
     esc: evaluateEscShortCutEditor,
     strgEnter: evaluateCtrlEnterShortcut
-  };
-
-  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === "Escape") {
-      evaluateEscShortcut();
-      return;
-    }
-
-    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
-      evaluateCtrlEnterShortcut();
-    }
   };
 
   useShortcut("ctrl+enter", () => true, {
@@ -436,8 +415,9 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         commitMessage={commitMessage}
         onChange={setCommitMessage}
         disabled={loading}
+        onEnter={() => commitFile()}
+        cancelButtonRef={cancelButtonRef}
         ref={commitMessageRef}
-        onKeyDown={onKeyDown}
       />
       {error && <ErrorNotification error={error} />}
       <div className="level">

@@ -14,16 +14,18 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import React, { FC, KeyboardEventHandler } from "react";
+import React, { FC, KeyboardEvent, RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { CommitAuthor } from "@scm-manager/ui-components";
 import { Textarea } from "@scm-manager/ui-core";
 
 type Props = {
+  commitMessage: string;
   onChange: (p: string) => void;
   disabled: boolean;
   onSubmit?: () => void;
-  onKeyDown: KeyboardEventHandler<HTMLTextAreaElement>;
+  onEnter: () => void;
+  cancelButtonRef?: RefObject<HTMLButtonElement>;
 };
 
 type InnerProps = Props & {
@@ -34,8 +36,31 @@ const isStringOnChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string
   return typeof event === "string";
 };
 
-const CommitMessage: FC<InnerProps> = ({ onChange, onSubmit, disabled, innerRef, onKeyDown }) => {
+const CommitMessage: FC<InnerProps> = ({
+  commitMessage,
+  onChange,
+  onSubmit,
+  disabled,
+  innerRef,
+  onEnter,
+  cancelButtonRef
+}) => {
   const [t] = useTranslation("plugins");
+
+  const onKeyDownEvent = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Escape") {
+      if (cancelButtonRef) {
+        cancelButtonRef.current?.focus();
+      }
+    }
+
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+      if (commitMessage !== "") {
+        onEnter();
+      }
+    }
+  };
+
   return (
     <>
       <CommitAuthor />
@@ -51,7 +76,7 @@ const CommitMessage: FC<InnerProps> = ({ onChange, onSubmit, disabled, innerRef,
         disabled={disabled}
         onSubmit={onSubmit}
         ref={innerRef}
-        onKeyDown={onKeyDown}
+        onKeyDown={onKeyDownEvent}
         className="mb-3"
       />
     </>

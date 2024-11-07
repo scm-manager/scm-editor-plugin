@@ -16,7 +16,8 @@
 
 import React, { FC, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, ButtonGroup, Modal } from "@scm-manager/ui-components";
+import { Modal } from "@scm-manager/ui-components";
+import { Button } from "@scm-manager/ui-core";
 import CommitMessage from "../CommitMessage";
 import { File } from "@scm-manager/ui-types";
 
@@ -34,31 +35,31 @@ const FileDeleteModal: FC<Props> = ({ onCommit, onClose, loading }) => {
 
   const body = (
     <CommitMessage
+      commitMessage={commitMessage}
       onChange={setCommitMessage}
       disabled={loading}
       onSubmit={() => !!commitMessage && onCommit(commitMessage)}
+      onEnter={() => onCommit(commitMessage)}
       ref={initialFocusRef}
     />
   );
 
   const footer = (
-    <ButtonGroup>
+    <>
+      <Button className="is-marginless" onClick={onClose} disabled={loading}>
+        {t("scm-editor-plugin.button.cancel")}
+      </Button>
       <Button
         className="is-marginless"
-        label={t("scm-editor-plugin.button.cancel")}
-        action={onClose}
-        disabled={loading}
-      />
-      <Button
-        className="is-marginless"
-        label={t("scm-editor-plugin.button.commit")}
-        color="primary"
+        variant="primary"
         disabled={!commitMessage}
-        loading={loading}
-        action={() => onCommit(commitMessage)}
+        isLoading={loading}
+        onClick={() => onCommit(commitMessage)}
         testId={"delete-file-commit-button"}
-      />
-    </ButtonGroup>
+      >
+        {t("scm-editor-plugin.button.commit")}
+      </Button>
+    </>
   );
 
   return (

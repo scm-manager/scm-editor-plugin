@@ -14,7 +14,7 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import React from "react";
+import React, { KeyboardEvent } from "react";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { WithTranslation, withTranslation } from "react-i18next";
 import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
@@ -88,6 +88,8 @@ type State = {
 };
 
 class FileUpload extends React.Component<Props, State> {
+  cancelButtonRef: React.RefObject<HTMLButtonElement>;
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -99,6 +101,8 @@ class FileUpload extends React.Component<Props, State> {
       shouldValidate: true,
       uploadMode: "file"
     };
+
+    this.cancelButtonRef = React.createRef();
   }
 
   handleError = (error: Error) => {
@@ -196,6 +200,14 @@ class FileUpload extends React.Component<Props, State> {
     return createSourceUrl(repository, revision, path);
   };
 
+  onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+      if (this.state.commitMessage !== "") {
+        this.commitFile();
+      }
+    }
+  };
+
   render() {
     const { repository, revision, baseUrl, t } = this.props;
     const { files, path, commitMessage, error, loading, shouldValidate, uploadMode } = this.state;
@@ -239,13 +251,24 @@ class FileUpload extends React.Component<Props, State> {
           props={{ repository, files, path, shouldValidate }}
         />
         {error && <ErrorNotification error={error} />}
-        <CommitMessage commitMessage={commitMessage} onChange={this.changeCommitMessage} disabled={loading} />
+        <CommitMessage
+          commitMessage={commitMessage}
+          onChange={this.changeCommitMessage}
+          disabled={loading}
+          onEnter={() => this.commitFile()}
+          cancelButtonRef={this.cancelButtonRef}
+        />
         <br />
         <div className="level">
           <div className="level-left" />
           <div className="level-right">
             <ButtonGroup>
-              <Button label={t("scm-editor-plugin.button.cancel")} link={this.createSourcesLink()} disabled={loading} />
+              <Button
+                label={t("scm-editor-plugin.button.cancel")}
+                link={this.createSourcesLink()}
+                disabled={loading}
+                ref={this.cancelButtonRef}
+              />
               <Button
                 label={t("scm-editor-plugin.button.commit")}
                 color={"primary"}
