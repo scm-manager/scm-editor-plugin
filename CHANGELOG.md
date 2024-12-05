@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.3.0 - 2024-12-05
+### Added
+- New extension point for injecting other editors
+
+### Fixed
+- Ctrl + enter now triggers commit while in commit field in upload file
+
+### Changed
+- Usage of the 'is modifiable' flag in the browse command result
+
 ## 3.2.0 - 2024-09-12
 ### Changed
 - Changeover to AGPLv3 license
