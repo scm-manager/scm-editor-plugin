@@ -26,7 +26,7 @@ import {
   Loading,
   Notification,
   OpenInFullscreenButton,
-  Subtitle
+  Subtitle,
 } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
@@ -159,21 +159,21 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
 
   const onBlurCallbacks = {
     esc: evaluateEscShortCutEditor,
-    strgEnter: evaluateCtrlEnterShortcut
+    strgEnter: evaluateCtrlEnterShortcut,
   };
 
   useShortcut("ctrl+enter", () => true, {
-    description: t("scm-editor-plugin.shortcuts.strgEnter")
+    description: t("scm-editor-plugin.shortcuts.strgEnter"),
   });
 
   useShortcut("esc", () => true, {
-    description: t("scm-editor-plugin.shortcuts.escape")
+    description: t("scm-editor-plugin.shortcuts.escape"),
   });
 
   const fetchFile = () => {
     createFileUrl()
       .then(apiClient.get)
-      .then(response => response.json())
+      .then((response) => response.json())
       .then((file: FileWithType) => {
         setFile(file);
         setFetchData(true);
@@ -184,10 +184,10 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   const fetchContent = () => {
     apiClient
       .get((stateFile?._links?.self as Link).href)
-      .then(response => {
+      .then((response) => {
         response
           .text()
-          .then(content => {
+          .then((content) => {
             setLanguage(findLanguage(response.headers.get("X-Programming-Language") ?? ""));
             setContent(content);
             afterLoading();
@@ -299,7 +299,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
       }
 
       const blob = new Blob([content || ""], {
-        type
+        type,
       });
       setLoading(true);
 
@@ -308,12 +308,12 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         branch: decodeURIComponent(revision ?? ""),
         expectedRevision: file?.revision ?? "",
         names: {
-          file: stateFile.name
-        }
+          file: stateFile.name,
+        },
       };
 
       apiClient
-        .postBinary(link, formdata => {
+        .postBinary(link, (formdata) => {
           formdata.append("file", blob, "file");
           formdata.append("commit", JSON.stringify(commit));
         })
@@ -344,7 +344,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
     repository: repository,
     file: isEditMode() ? file : stateFile,
     revision: revision,
-    path: isEditMode() ? path : statePath + "/" + stateFile?.name
+    path: isEditMode() ? path : statePath + "/" + stateFile?.name,
   };
 
   const body = (
@@ -364,7 +364,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         disabled={isEditMode() || loading}
         validate={setIsValid}
         language={language}
-        changeLanguage={lng => setLanguage(findLanguage(lng))}
+        changeLanguage={(lng) => setLanguage(findLanguage(lng))}
         autoFocus={extension === "create"}
       />
       <ExtensionPoint<CodeEditorExtension>
@@ -435,7 +435,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
           <Button
             disabled={!commitMessage || !isValid || !stateFile.name || revisionChanged}
             onClick={commitFile}
-            loading={loading}
+            isLoading={loading}
             testId="create-file-commit-button"
             ref={commitButtonRef}
             variant="primary"
