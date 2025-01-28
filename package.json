@@ -1,7 +1,7 @@
 {
     "name": "@scm-manager/scm-editor-plugin",
     "private": true,
-    "version": "3.3.1",
+    "version": "3.3.2-SNAPSHOT",
     "license": "AGPL-3.0-only",
     "main": "./src/main/js/index.ts",
     "scripts": {
