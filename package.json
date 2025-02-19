@@ -65,7 +65,7 @@
         "@types/fetch-mock": "^7.3.1",
         "@types/i18next": "^13.0.0",
         "@types/jest": "^26.0.24",
-        "@types/query-string": "5",
+        "@types/query-string": "6",
         "@types/react": "^17.0.1",
         "@types/react-redux": "5.0.7",
         "@types/react-router-dom": "^5.3.3",
