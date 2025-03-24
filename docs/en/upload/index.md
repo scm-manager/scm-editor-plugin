@@ -16,3 +16,12 @@ The upload offers these information and interactions:
 - **Selected files:** A list of all files that are to be uploaded. It is possible to delete files from this list.
 - **Author:** This user is used as author for the new commit.
 - **Commit message:** The commit message.
+
+
+### Navigation
+
+| Key Combination | Description                                                                          |
+|-----------------|--------------------------------------------------------------------------------------|
+| Enter or Space  | Within upload zone: Opens view for file upload selection                             |
+| Ctrl + Enter    | Focus on commit message (outside commit message field)                               |
+| Ctrl + Enter    | Within commit message field: Send commit with files to upload (requires valid input) |

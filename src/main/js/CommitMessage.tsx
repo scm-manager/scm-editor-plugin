@@ -26,6 +26,7 @@ type Props = {
   onSubmit?: () => void;
   onEnter: () => void;
   cancelButtonRef?: RefObject<HTMLButtonElement>;
+  id?: string;
 };
 
 type InnerProps = Props & {
@@ -43,7 +44,8 @@ const CommitMessage: FC<InnerProps> = ({
   disabled,
   innerRef,
   onEnter,
-  cancelButtonRef
+  cancelButtonRef,
+  id,
 }) => {
   const [t] = useTranslation("plugins");
 
@@ -66,7 +68,7 @@ const CommitMessage: FC<InnerProps> = ({
       <CommitAuthor />
       <Textarea
         placeholder={t("scm-editor-plugin.commit.placeholder")}
-        onChange={event => {
+        onChange={(event) => {
           if (isStringOnChange(event)) {
             onChange(event);
           } else {
@@ -78,6 +80,7 @@ const CommitMessage: FC<InnerProps> = ({
         ref={innerRef}
         onKeyDown={onKeyDownEvent}
         className="mb-3"
+        id={id}
       />
     </>
   );

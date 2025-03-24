@@ -1,0 +1,2 @@
+- type: fixed
+  description: Cancel button redirected to a broken link if an alternative path had already been entered

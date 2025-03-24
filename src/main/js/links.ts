@@ -52,7 +52,7 @@ function append(url: string, revision?: string, path?: string) {
   return url;
 }
 
-export function setPathInLink(link: string, path: string) {
+export function setPathInLink(link: string, path?: string) {
   const pathToReplace = path ? encodePath(path) : "";
   return link.replace("{path}", pathToReplace);
 }
@@ -61,8 +61,5 @@ function encodePath(path: string | undefined) {
   if (!path) {
     return "";
   }
-  return sanitizePath(path)
-    .split("/")
-    .map(encodeURIComponent)
-    .join("/");
+  return sanitizePath(path).split("/").map(encodeURIComponent).join("/");
 }

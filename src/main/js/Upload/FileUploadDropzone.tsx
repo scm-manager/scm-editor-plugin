@@ -19,6 +19,8 @@ import { DropzoneOptions, useDropzone } from "react-dropzone";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
 import { binder } from "@scm-manager/ui-extensions";
+import classNames from "classnames";
+import { useShortcut } from "@scm-manager/ui-core";
 
 const StyledDropzone = styled.div`
   width: 100%;
@@ -56,31 +58,69 @@ type Props = {
 
 const DefaultOptions = {
   multiple: true,
-  noDragEventsBubbling: true
+  noDragEventsBubbling: true,
+  noKeyboard: true, // We override the native settings with our own implementation
 };
 
 const FileUploadDropzone: FC<Props> = ({ fileHandler, disabled, uploadMode }) => {
   const [t] = useTranslation("plugins");
   let extension = binder.getExtension("editorPlugin.upload", {});
 
-  const { getRootProps, getInputProps } = useDropzone(
+  const { getRootProps, getInputProps, open } = useDropzone(
     extension && uploadMode === extension().uploadMode
       ? { ...DefaultOptions, disabled, ...(extension().dropZoneOptions(fileHandler) as DropzoneOptions) }
       : {
           ...DefaultOptions,
           disabled,
-          onDrop: fileHandler
-        }
+          onDrop: fileHandler,
+        },
   );
+
+  const noSpecialKeyPressedFor = (key: KeyboardEvent) => {
+    return !key.ctrlKey || !key.metaKey || !key.altKey || !key.shiftKey;
+  };
+
+  useShortcut(
+    "enter",
+    (key) => {
+      if (noSpecialKeyPressedFor(key) && document.activeElement?.id == "fileDropzone") {
+        open();
+      }
+    },
+    {
+      description: t("scm-editor-plugin.shortcuts.openDropzone"),
+      active: true, // At least Firefox fails to do the check here, so we do it within the event handler.
+    },
+  );
+  useShortcut(
+    "space",
+    (key) => {
+      if (noSpecialKeyPressedFor(key) && document.activeElement?.id == "fileDropzone") {
+        open();
+      }
+    },
+    {
+      description: t("scm-editor-plugin.shortcuts.openDropzone"),
+      active: true, // At least Firefox fails to do the check here, so we do it within the event handler.
+    },
+  );
+
   return (
     <section>
-      <div {...getRootProps()}>
+      <div
+        className={classNames("focus-zone", getRootProps().className)}
+        {...getRootProps({
+          id: "fileDropzone",
+          tabIndex: 0,
+          "aria-labelledby": "dropzoneTextDescription",
+        })}
+      >
         <input {...getInputProps()} disabled={disabled} />
         <StyledDropzone>
           <InnerBorder>
             <Description className="has-text-secondary">
               <Icon className="fas fa-plus-circle fa-2x has-text-grey-lighter" />
-              {t("scm-editor-plugin.upload.dragAndDrop")}
+              <p id="dropzoneTextDescription">{t("scm-editor-plugin.upload.dragAndDrop")}</p>
             </Description>
           </InnerBorder>
         </StyledDropzone>

@@ -17,7 +17,9 @@
 import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
 import styled from "styled-components";
-import { FileSize, Icon, Subtitle, Tooltip } from "@scm-manager/ui-components";
+import { FileSize } from "@scm-manager/ui-components";
+import { Button, Icon, Subtitle } from "@scm-manager/ui-core";
+import { File } from "@scm-manager/ui-types";
 
 type Props = {
   files: File[];
@@ -44,6 +46,11 @@ const FixedColumnTD = styled.td`
 const FileUploadTable: FC<Props> = ({ files, removeFileEntry, disabled }) => {
   const [t] = useTranslation("plugins");
 
+  const deleteThis = (file: File) => {
+    if (!disabled) {
+      removeFileEntry(file);
+    }
+  };
   return (
     <>
       <Subtitle className="mt-5" subtitle={t("scm-editor-plugin.upload.file.table.title")} />
@@ -56,23 +63,33 @@ const FileUploadTable: FC<Props> = ({ files, removeFileEntry, disabled }) => {
           </tr>
         </thead>
         <tbody>
-          {files.map(file => {
+          {files.map((file, idx) => {
             return (
               <tr>
-                <FixedColumnTD>{file.path.substring(0, file.path.length - file.name.length)}</FixedColumnTD>
-                <FixedColumnTD>{file.name}</FixedColumnTD>
-                <td className="is-hidden-mobile">
+                <FixedColumnTD className="is-vcentered">
+                  {file.path.substring(0, file.path.length - file.name.length)}
+                </FixedColumnTD>
+                <FixedColumnTD className="is-vcentered">
+                  <p id={`fileUploadDeleteColumn-` + idx}>{file.name}</p>
+                </FixedColumnTD>
+                <td className="is-hidden-mobile is-center">
                   <FileSize bytes={file.size} />
                 </td>
-                <td>
-                  <Tooltip message={t("scm-editor-plugin.upload.delete")} location="top">
-                    <Icon
-                      name="trash"
-                      color="inherit"
-                      onClick={() => !disabled && removeFileEntry(file)}
-                      alt={t("scm-editor-plugin.upload.delete")}
-                    />
-                  </Tooltip>
+                <td className="is-vcentered">
+                  <Button
+                    color="inherit"
+                    aria-label={t("scm-editor-plugin.upload.delete")}
+                    aria-describedby={`fileUploadDeleteColumn-` + idx}
+                    title={t("scm-editor-plugin.upload.delete")}
+                    onClick={() => deleteThis(file)}
+                    onKeyDown={(event) => {
+                      if (event.key == "Enter" || event.key == " ") {
+                        deleteThis(file);
+                      }
+                    }}
+                  >
+                    <Icon alt={t("scm-editor-plugin.upload.delete")}>trash</Icon>
+                  </Button>
                 </td>
               </tr>
             );

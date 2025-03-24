@@ -1,0 +1,2 @@
+- type: fixed
+  description: Accessibility within file upload (file drop zone, delete buttons, focus color for SCM-Manager 3.8.0+)

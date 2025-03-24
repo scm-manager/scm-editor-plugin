@@ -1,8 +1,9 @@
 {
   "scm-editor-plugin": {
     "shortcuts": {
-      "strgEnter": "Fokussiert die Commitnachricht an wenn im Editor betätigt oder schickt den Commit ab wenn in der Commitnachricht betätigt",
-      "escape": "Fokussiert den Cancel-Button an, wenn in der Commitnachricht oder Editor betätigt"
+      "strgEnter": "Wenn im Editor betätigt: Setzt Fokus auf Commitnachricht. Wenn in der Commitnachricht betätigt: Schickt den Commit ab",
+      "escape": "Setzt Fokus auf den Cancel-Button, wenn in der Commitnachricht oder Editor betätigt",
+      "openDropzone": "Wenn im Datei-Dropdown-Feld betätigt: Öffnet Dateiauswahl"
     },
     "button": {
       "cancel": "Abbrechen",
@@ -52,7 +53,7 @@
         "label": "Pfad"
       },
       "commit": {
-        "placeholder": "Commit Nachricht"
+        "placeholder": "Commitnachricht"
       },
       "branch": {
         "label": "Branch"
@@ -66,8 +67,8 @@
     },
     "edit": {
       "tooltip": "Bearbeiten",
-      "subtitle": "Datei Editor",
-      "selectedBranch": "Ausgewählter Branch",
+      "subtitle": "Datei-Editor",
+      "selectedBranch": "Ausgewählter Branch: {{branch}}",
       "notEditable": "Dateien diesen Typs können innerhalb des SCM-Managers nicht bearbeitet werden",
       "placeholder": "Hier können Sie Ihre Datei schreiben",
       "revisionChanged": "Die aktuelle Revision hat sich geändert. Kopieren Sie ihre Änderungen und aktualisieren Sie die Seite, um die letzte Version der Datei zu erhalten."
@@ -75,7 +76,7 @@
     "upload": {
       "tooltip": "Upload",
       "title": "Datei hochladen",
-      "dragAndDrop": "Dateien hier einfügen oder zum Auswählen hier klicken",
+      "dragAndDrop": "Datei-Upload: Hier einfügen oder zum Auswählen hier klicken",
       "file": {
         "path": "Pfad",
         "name": "Dateiname",
@@ -92,7 +93,7 @@
       "tooltip": "Neue Datei erstellen"
     },
     "commit": {
-      "placeholder": "Bitte eine Commit Nachricht eintragen"
+      "placeholder": "Bitte eine Commitnachricht eintragen"
     },
     "errors": {
       "fileMissing": "In der URL fehlt der Dateiname",
@@ -112,12 +113,12 @@
       "description": "Eine Datei konnte nicht korrekt hochgeladen werden."
     },
     "AnRacIBuV1": {
-      "displayName": "Fehlender Commit Text",
-      "description": "Der Commit Text muss als Form Part mit dem Namen 'message' hochgeladen werden."
+      "displayName": "Fehlender Committext",
+      "description": "Der Committext muss als Form-Part mit dem Namen 'message' hochgeladen werden."
     },
     "CIRacPIOH1": {
       "displayName": "Fehlender Dateiname",
-      "description": "Ein Form Part hat keinen Content-Disposition Header oder in diesem fehlt ein Wert für 'filename'."
+      "description": "Ein Form-Part hat keinen Content-Disposition-Header oder in diesem fehlt ein Wert für 'filename'."
     },
     "AuRneG3vO1": {
       "displayName": "Änderung verhindert",

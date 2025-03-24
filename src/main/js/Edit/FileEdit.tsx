@@ -14,23 +14,15 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import React, { FC, useEffect, useRef, useState, KeyboardEvent, MutableRefObject } from "react";
+import React, { FC, useEffect, useRef, useState, MutableRefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
 import FileMetaData from "../FileMetaData";
-import {
-  apiClient,
-  Breadcrumb,
-  ErrorNotification,
-  Level,
-  Loading,
-  Notification,
-  OpenInFullscreenButton,
-  Subtitle,
-} from "@scm-manager/ui-components";
+import { Breadcrumb, OpenInFullscreenButton } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
-import { Button, useShortcut } from "@scm-manager/ui-core";
+import { apiClient } from "@scm-manager/ui-api";
+import { Button, ErrorNotification, Loading, Notification, Level, Subtitle, useShortcut } from "@scm-manager/ui-core";
 import { encodeFilePath } from "./encodeFilePath";
 import styled from "styled-components";
 import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
@@ -38,40 +30,12 @@ import { ExtensionPoint, RenderableExtensionPointDefinition } from "@scm-manager
 import { setPathInLink } from "../links";
 import { useHistory } from "react-router-dom";
 import { encodeInvalidCharacters } from "./encodeInvalidCharacters";
+import FileActionBorder from "../FileActionBorder";
 
 const Header = styled.div`
   line-height: 1.25;
   padding: 1em;
   border-bottom: solid 1px #dbdbdb;
-`;
-
-const Border = styled.div`
-  margin-bottom: 2rem;
-  border: 1px solid #98d8f3;
-  border-radius: 4px;
-  & .input:focus,
-  .input:active,
-  .textarea:focus,
-  .textarea:active {
-    box-shadow: none;
-  }
-  ,
-&:focus-within: {
-    border-color: #33b2e8;
-    box-shadow: 0 0 0 0.125em rgba(51, 178, 232, 0.25);
-    &:hover {
-      border-color: #33b2e8;
-    }
-  }
-  ,
-&:hover: {
-    border: 1px solid #b5b5b5;
-    border-radius: 4px;
-  }
-  ,
-& .input, .textarea: {
-    border-color: #dbdbdb;
-  }
 `;
 
 const MarginlessModalContent = styled.div`
@@ -132,7 +96,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   const isEditMode = () => {
     return !!(extension === "edit" && path);
   };
-  const [stateFile, setFile] = useState<FileWithType | undefined>(isEditMode() ? undefined : { name: "" });
+  const [stateFile, setFile] = useState<FileWithType | undefined>(!isEditMode() ? { name: "" } : undefined);
 
   useEffect(() => {
     if (isEditMode()) {
@@ -221,7 +185,12 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   const afterLoading = () => {
     const pathWithFilename = decodeURIComponent(path || "");
     const lastPathDelimiter = pathWithFilename?.lastIndexOf("/");
-    const parentDirPath = isEditMode() ? pathWithFilename?.substr(0, lastPathDelimiter) : pathWithFilename;
+    let parentDirPath;
+    if (pathWithFilename?.length === lastPathDelimiter + 1) {
+      parentDirPath = pathWithFilename;
+    } else {
+      parentDirPath = isEditMode() ? pathWithFilename?.substring(0, lastPathDelimiter + 1) : pathWithFilename;
+    }
 
     if (!statePath) {
       setStatePath(parentDirPath || "");
@@ -259,7 +228,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
     history.push(redirectUrl);
   };
 
-  const redirectOnCancel = (revision: string) => {
+  const redirectOnCancel = (revision?: string) => {
     let redirectUrl = createRedirectUrl();
 
     let _path;
@@ -286,7 +255,8 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   };
 
   const commitFile = () => {
-    if (stateFile) {
+    // TODO stateFile.name check is a makeshift validity check to avoid keyboard shortcut issues. Please refactor validity check in future.
+    if (stateFile && stateFile.name) {
       let link;
       let type;
       if (isEditMode()) {
@@ -320,6 +290,8 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         .then((r: Response) => r.json())
         .then(redirectAfterCommit)
         .catch(handleError);
+    } else if (stateFile && !stateFile.name) {
+      setIsValid(false);
     }
   };
 
@@ -366,6 +338,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         language={language}
         changeLanguage={(lng) => setLanguage(findLanguage(lng))}
         autoFocus={extension === "create"}
+        onBlur={() => {}}
       />
       <ExtensionPoint<CodeEditorExtension>
         name={"editor.edit.replace.editor"}
@@ -387,14 +360,15 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   return (
     <>
       <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
-      <Border>
+      <FileActionBorder>
         {revision && (
           <Header className="has-background-secondary-less">
             <Level
               left={
                 <span>
-                  <strong>{t("scm-editor-plugin.edit.selectedBranch") + ": "}</strong>
-                  {decodeURIComponent(revision)}
+                  <strong>
+                    {t("scm-editor-plugin.edit.selectedBranch", { branch: decodeURIComponent(revision) })}
+                  </strong>
                 </span>
               }
               right={
@@ -408,7 +382,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
           </Header>
         )}
         {body}
-      </Border>
+      </FileActionBorder>
       <ExtensionPoint name="editor.file.hints" renderAll={true} props={extensionsProps} />
       {revisionChangedWarning}
       <CommitMessage
