@@ -324,7 +324,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
       <Breadcrumb
         repository={repository}
         baseUrl={baseUrl}
-        path={encodeURIComponent(statePath)}
+        path={decodeURIComponent(statePath)}
         revision={revision}
         clickable={false}
       />
