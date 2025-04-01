@@ -174,11 +174,11 @@ function FileUpload({ repository, path, sources, revision, baseUrl }: Readonly<P
           disabled={loading}
           uploadMode={uploadMode}
         />
-        <FileUploadOptions
-          uploadMode={uploadMode}
-          setUploadMode={(uploadMode: string) => setUploadMode(uploadMode)}
-        ></FileUploadOptions>
       </FileActionBorder>
+      <FileUploadOptions
+        uploadMode={uploadMode}
+        setUploadMode={(uploadMode: string) => setUploadMode(uploadMode)}
+      ></FileUploadOptions>
       {fileTable}
       <br />
       <ExtensionPoint

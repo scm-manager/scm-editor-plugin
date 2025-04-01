@@ -15,7 +15,7 @@
  */
 
 import React, { FC, SetStateAction } from "react";
-import { Radio } from "@scm-manager/ui-core";
+import { Radio } from "@scm-manager/ui-components";
 import { useTranslation } from "react-i18next";
 import { binder } from "@scm-manager/ui-extensions";
 
