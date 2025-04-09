@@ -15,9 +15,9 @@
  */
 
 import { Changeset, Link, Repository } from "@scm-manager/ui-types";
-import { Commit } from "../commit";
+import { Commit } from "../../commit";
 import { apiClient } from "@scm-manager/ui-api";
-import { createSourceUrl, createSourceUrlFromChangeset, setPathInLink } from "../links";
+import { createSourceUrl, createSourceUrlFromChangeset, setPathInLink } from "../../links";
 import { useHistory } from "react-router-dom";
 import { useState } from "react";
 import { File as SCMFile } from "@scm-manager/ui-types";

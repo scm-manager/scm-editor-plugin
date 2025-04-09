@@ -23,7 +23,7 @@ import { Repository, File as SCMFile } from "@scm-manager/ui-types";
 import FileUploadDropzone from "./FileUploadDropzone";
 import FileUploadOptions from "./FileUploadOptions";
 import FileUploadTable from "./FileUploadTable";
-import { createSourcesLink, removeFileEntry, useFileCommit } from "./fileUpload";
+import { createSourcesLink, removeFileEntry, useFileCommit } from "./hook/fileUpload";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import CommitMessage from "../CommitMessage";
 import { Breadcrumb } from "@scm-manager/ui-components";
@@ -45,7 +45,7 @@ type Props = {
   path?: string;
 };
 
-function FileUpload({ repository, path, sources, revision, baseUrl }: Readonly<Props>) {
+export default function FileUpload({ repository, path, sources, revision, baseUrl }: Readonly<Props>) {
   const [t] = useTranslation("plugins");
   const [files, setFiles] = useState<File[]>([]);
   const [uploadMode, setUploadMode] = useState<string>("file");
@@ -75,6 +75,8 @@ function FileUpload({ repository, path, sources, revision, baseUrl }: Readonly<P
     </LinkButton>
   );
 
+  const isFormValid = () => commitMessage && files.length > 0;
+
   const commitMessageArea = (
     <CommitMessage
       commitMessage={commitMessage}
@@ -83,7 +85,11 @@ function FileUpload({ repository, path, sources, revision, baseUrl }: Readonly<P
       cancelButtonRef={cancelButtonRef}
       onChange={(msg) => setCommitMessage(msg)}
       disabled={loading}
-      onEnter={() => fileCommit(currentPath, files, sources, revision, repository, commitMessage)}
+      onEnter={() => {
+        if (isFormValid()) {
+          fileCommit(currentPath, files, sources, revision, repository, commitMessage);
+        }
+      }}
     />
   );
 
@@ -119,7 +125,7 @@ function FileUpload({ repository, path, sources, revision, baseUrl }: Readonly<P
       if (document.activeElement?.id !== "commitMessageField") {
         // @ts-ignore
         commitMessageAreaRef.current?.focus();
-      } else if (document.activeElement?.id === "commitMessageField" && commitMessage !== "" && files) {
+      } else if (document.activeElement?.id === "commitMessageField" && isFormValid()) {
         fileCommit(currentPath, files, sources, revision, repository, commitMessage);
       }
     },
@@ -138,8 +144,6 @@ function FileUpload({ repository, path, sources, revision, baseUrl }: Readonly<P
       active: document.activeElement?.id === "commitMessageField",
     },
   );
-
-  const isFormValid = () => commitMessage && files.length > 0;
 
   return (
     <>
@@ -168,9 +172,7 @@ function FileUpload({ repository, path, sources, revision, baseUrl }: Readonly<P
           }}
         ></FileMetaData>
         <FileUploadDropzone
-          fileHandler={(newFiles: File[]) => {
-            setFiles([...newFiles, ...files]);
-          }}
+          fileHandler={(newFiles: File[]) => setFiles([...files, ...newFiles])}
           disabled={loading}
           uploadMode={uploadMode}
         />
@@ -212,5 +214,3 @@ function FileUpload({ repository, path, sources, revision, baseUrl }: Readonly<P
     </>
   );
 }
-
-export default FileUpload;

@@ -83,7 +83,7 @@ const FileUploadTable: FC<Props> = ({ files, removeFileEntry, disabled }) => {
                     title={t("scm-editor-plugin.upload.delete")}
                     onClick={() => deleteThis(file)}
                     onKeyDown={(event) => {
-                      if (event.key == "Enter" || event.key == " ") {
+                      if (!event.ctrlKey && (event.key == "Enter" || event.key == " ")) {
                         deleteThis(file);
                       }
                     }}
