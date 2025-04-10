@@ -15,7 +15,7 @@
  */
 
 import { useTranslation } from "react-i18next";
-import { Button, ButtonVariants, ErrorNotification, LinkButton, Subtitle, useShortcut } from "@scm-manager/ui-core";
+import { Button, ButtonVariants, ErrorNotification, LinkButton, Subtitle, useShortcut, useDocumentTitleForRepository } from "@scm-manager/ui-core";
 import React, { useRef, useState } from "react";
 import styled from "styled-components";
 import FileMetaData from "../FileMetaData";
@@ -54,6 +54,8 @@ export default function FileUpload({ repository, path, sources, revision, baseUr
   const [shouldValidate, setShouldValidate] = useState<boolean>(true);
   const history = useHistory();
   const { loading, error, fileCommit } = useFileCommit();
+
+  useDocumentTitleForRepository(repository, t("scm-editor-plugin.upload.title"))
 
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const commitMessageAreaRef = useRef<HTMLTextAreaElement>(null);

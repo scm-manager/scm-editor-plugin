@@ -22,7 +22,16 @@ import { Breadcrumb, OpenInFullscreenButton } from "@scm-manager/ui-components";
 import CommitMessage from "../CommitMessage";
 import { isEditable } from "./isEditable";
 import { apiClient } from "@scm-manager/ui-api";
-import { Button, ErrorNotification, Loading, Notification, Level, Subtitle, useShortcut } from "@scm-manager/ui-core";
+import {
+  Button,
+  ErrorNotification,
+  Loading,
+  Notification,
+  Level,
+  Subtitle,
+  useShortcut,
+  useDocumentTitleForRepository
+} from "@scm-manager/ui-core";
 import { encodeFilePath } from "./encodeFilePath";
 import styled from "styled-components";
 import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
@@ -92,6 +101,10 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const editorRef = useRef();
   const commitMessageRef: MutableRefObject<HTMLTextAreaElement | null> = useRef<HTMLTextAreaElement>(null);
+
+  useDocumentTitleForRepository(repository,
+  path ? t("scm-editor-plugin.edit.titleWithPath", {path}) : t("scm-editor-plugin.edit.title")
+  )
 
   const isEditMode = () => {
     return !!(extension === "edit" && path);
@@ -359,7 +372,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
 
   return (
     <>
-      <Subtitle subtitle={t("scm-editor-plugin.edit.subtitle")} />
+      <Subtitle subtitle={t("scm-editor-plugin.edit.title")} />
       <FileActionBorder>
         {revision && (
           <Header className="has-background-secondary-less">

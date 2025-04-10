@@ -66,8 +66,9 @@
       "tooltip": "Download"
     },
     "edit": {
+      "title": "Datei-Editor",
+      "titleWithPath": "Datei {{path}} bearbeiten",
       "tooltip": "Bearbeiten",
-      "subtitle": "Datei-Editor",
       "selectedBranch": "Ausgewählter Branch: {{branch}}",
       "notEditable": "Dateien diesen Typs können innerhalb des SCM-Managers nicht bearbeitet werden",
       "placeholder": "Hier können Sie Ihre Datei schreiben",

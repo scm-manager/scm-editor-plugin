@@ -66,8 +66,9 @@
       "tooltip": "Download"
     },
     "edit": {
+      "title": "File Editor",
+      "titleWithPath": "Edit file {{path}}",
       "tooltip": "Edit",
-      "subtitle": "File Editor",
       "selectedBranch": "Selected Branch: {{branch}}",
       "notEditable": "This file type cannot be edited inside SCM-Manager",
       "placeholder": "Start writing your file here",
