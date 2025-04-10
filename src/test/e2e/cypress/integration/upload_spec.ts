@@ -77,8 +77,10 @@ describe("Upload Files", () => {
         cy.visit(`/repo/${namespace}/${name}/code/sourceext/upload/main`);
         cy.byTestId("create-file-path-input").type(newFilePath);
         cy.get('input[type="file"]')
-          .attachFile({ fileContent: fileContentA, fileName: newFileNameA, mimeType: "text/plain", encoding: "utf-8" })
-          .attachFile({ fileContent: fileContentB, fileName: newFileNameB, mimeType: "text/plain", encoding: "utf-8" });
+          .attachFile([
+            { fileContent: fileContentA, fileName: newFileNameA, mimeType: "text/plain", encoding: "utf-8" },
+            { fileContent: fileContentB, fileName: newFileNameB, mimeType: "text/plain", encoding: "utf-8" }
+          ]);
         cy.get("textarea.textarea").type(newFileCommitMessage);
         cy.byTestId("upload-file-commit-button").click();
 
