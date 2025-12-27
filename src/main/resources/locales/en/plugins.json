@@ -38,7 +38,7 @@
       "newPath": {
         "label": "New path",
         "errors": {
-          "pattern": "The path must start with \"/\", must not contain \"\\\" and must not end with space",
+          "pattern": "The path must start with \"/\", must not contain \"\\\", and must not end with space",
           "empty": "The path must not be empty"
         }
       },
@@ -72,12 +72,12 @@
       "selectedBranch": "Selected Branch: {{branch}}",
       "notEditable": "This file type cannot be edited inside SCM-Manager",
       "placeholder": "Start writing your file here",
-      "revisionChanged": "The latest revision has changed. Copy your changes and refresh the page to get the latest version of the file."
+      "revisionChanged": "The latest revision has changed. Copy your changes and refresh the page to get the latest version of the file"
     },
     "upload": {
       "tooltip": "Upload",
       "title": "Upload file",
-      "dragAndDrop": "File Upload: Drag and drop your files here or click to select",
+      "dragAndDrop": "File upload: Drag and drop your files here or click to select",
       "file": {
         "path": "Path",
         "name": "Filename",
@@ -119,7 +119,7 @@
     },
     "CIRacPIOH1": {
       "displayName": "Filename missing",
-      "description": "A form part is missing the Content-Disposition header or it has no value for 'filename'."
+      "description": "A form part is missing the 'Content-Disposition' header or it has no value for 'filename'."
     },
     "AuRneG3vO1": {
       "displayName": "Change prevented",

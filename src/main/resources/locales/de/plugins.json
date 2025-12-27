@@ -70,9 +70,9 @@
       "titleWithPath": "Datei {{path}} bearbeiten",
       "tooltip": "Bearbeiten",
       "selectedBranch": "Ausgewählter Branch: {{branch}}",
-      "notEditable": "Dateien diesen Typs können innerhalb des SCM-Managers nicht bearbeitet werden",
+      "notEditable": "Dateien dieses Typs können innerhalb des SCM-Managers nicht bearbeitet werden",
       "placeholder": "Hier können Sie Ihre Datei schreiben",
-      "revisionChanged": "Die aktuelle Revision hat sich geändert. Kopieren Sie ihre Änderungen und aktualisieren Sie die Seite, um die letzte Version der Datei zu erhalten."
+      "revisionChanged": "Die aktuelle Revision hat sich geändert. Kopieren Sie ihre Änderungen und aktualisieren Sie die Seite, um die letzte Version der Datei zu erhalten"
     },
     "upload": {
       "tooltip": "Upload",
@@ -94,7 +94,7 @@
       "tooltip": "Neue Datei erstellen"
     },
     "commit": {
-      "placeholder": "Bitte eine Commitnachricht eintragen"
+      "placeholder": "Bitte eine Commitnachricht eintragen."
     },
     "errors": {
       "fileMissing": "In der URL fehlt der Dateiname",
