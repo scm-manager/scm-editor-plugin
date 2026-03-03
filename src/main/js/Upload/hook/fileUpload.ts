@@ -55,7 +55,10 @@ export function useFileCommit() {
 
     apiClient
       .postBinary(setPathInLink(link, path), (formdata) => {
-        Object.keys(fileAliases).forEach((name) => formdata.append(name, fileAliases[name], name));
+        Object.keys(fileAliases).forEach((name) => {
+          const safeBlob = new Blob([fileAliases[name]], { type: "application/octet-stream" });
+          formdata.append(name, safeBlob, name)
+        });
         formdata.append("commit", JSON.stringify(commit));
       })
       .then((r: Response) => r.json())
