@@ -144,10 +144,34 @@ class EditorServiceTest {
 
     verify(modifyCommandBuilder).setBranch("master");
     verify(modifyCommandBuilder).setCommitMessage("move file");
-    verify(moveBuilder).to(SOME_OTHER_PATH);
+    verify(moveBuilder).to("other/path");
     verify(modifyCommandBuilder).execute();
     assertThat(changeset).isNotNull();
     assertThat(changeset.getId()).isEqualTo("1337");
+  }
+
+  @Test
+  void shouldNotMoveToTargetPathWithPathTraversal() {
+    assertThrows(ScmConstraintViolationException.class, () ->
+      editorService.move("space", "name", "master", SOME_PATH, "/../other/path", "move file"));
+
+    verify(modifyCommandBuilder, never()).execute();
+  }
+
+  @Test
+  void shouldNotMoveToTargetPathWithDoubleLeadingSlash() {
+    assertThrows(ScmConstraintViolationException.class, () ->
+      editorService.move("space", "name", "master", SOME_PATH, "//other/path", "move file"));
+
+    verify(modifyCommandBuilder, never()).execute();
+  }
+
+  @Test
+  void shouldNotMoveToRoot() {
+    assertThrows(ScmConstraintViolationException.class, () ->
+      editorService.move("space", "name", "master", SOME_PATH, "/", "move file"));
+
+    verify(modifyCommandBuilder, never()).execute();
   }
 
   @Test

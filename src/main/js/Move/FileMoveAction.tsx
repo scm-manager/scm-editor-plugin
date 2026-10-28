@@ -14,17 +14,17 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import { extensionPoints, ExtractProps } from "@scm-manager/ui-extensions";
-import React, { FC, useEffect } from "react";
+import { extensionPoints } from "@scm-manager/ui-extensions";
+import React, { ComponentProps, FC, useEffect } from "react";
 import MoveModal from "./MoveModal";
 import { useMoveFolder } from "./moveFolder";
 
-export const FileMoveAction: FC<ExtractProps<extensionPoints.ModalMenuProps["modalElement"]>> = ({
+export const FileMoveAction: FC<ComponentProps<extensionPoints.ModalMenuProps["modalElement"]>> = ({
   close,
   repository,
   file,
   revision,
-  setLoading
+  setLoading,
 }) => {
   const { isLoading, error, move } = useMoveFolder();
 

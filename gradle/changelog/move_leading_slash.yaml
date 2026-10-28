@@ -1,0 +1,2 @@
+- type: fixed
+  description: Moving files and folders failed with a validation error since SCM-Manager 3.12.1

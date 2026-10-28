@@ -16,9 +16,9 @@
 
 import React, { FC } from "react";
 import { useTranslation } from "react-i18next";
-import { File, Link, Repository } from "@scm-manager/ui-types";
+import { Icon, Tooltip } from "@scm-manager/ui-core";
 import { ExtensionPoint } from "@scm-manager/ui-extensions";
-import { Tooltip, Icon } from "@scm-manager/ui-components";
+import { File, Link, Repository } from "@scm-manager/ui-types";
 
 type Props = {
   repository: Repository;
@@ -30,13 +30,14 @@ const FileDownloadIcon: FC<Props> = ({ repository, file }) => {
 
   return (
     <ExtensionPoint name="repos.sources.actionbar.download" props={{ repository, file }} renderAll={false}>
-      <Tooltip message={t("scm-editor-plugin.download.tooltip")} location="top">
+      <Tooltip message={t("scm-editor-plugin.download.tooltip")}>
         <a
+          className="button is-info is-inverted p-0 m-0"
           href={(file._links.self as Link).href}
           aria-label={t("scm-editor-plugin.download.tooltip")}
           download={file.name}
         >
-          <Icon name="download" color="inherit" />
+          <Icon>download</Icon>
         </a>
       </Tooltip>
     </ExtensionPoint>

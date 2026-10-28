@@ -14,18 +14,23 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import { FC, useEffect } from "react";
-import { useHistory } from "react-router-dom";
-import { createSourceExtensionUrl } from "../links";
-import { encodeFilePath } from "./encodeFilePath";
-import { extensionPoints } from "@scm-manager/ui-extensions";
+import { defineConfig } from "vitest/config";
+import { isCI } from "ci-info";
 
-export const FileEditAction: FC<extensionPoints.ActionBarExtensionsProps> = ({ repository, revision, file }) => {
-  const history = useHistory();
-
-  useEffect(() => {
-    history.push(createSourceExtensionUrl(repository, "edit", revision, encodeFilePath(file.path)));
-  });
-
-  return null;
-};
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: "jsdom",
+    reporters: ["default", "junit"],
+    outputFile: {
+      junit: "./build/vite-reports/TEST-vitest-report.xml",
+    },
+    coverage: {
+      enabled: isCI,
+      reporter: ["text", "lcov", "html"],
+      provider: "v8",
+      reportsDirectory: "./build/coverage",
+      include: ["src/**/*.{ts,tsx,js,jsx}"],
+    },
+  },
+});

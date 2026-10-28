@@ -30,15 +30,14 @@ import {
   Level,
   Subtitle,
   useShortcut,
-  useDocumentTitleForRepository
+  useDocumentTitleForRepository,
 } from "@scm-manager/ui-core";
 import { encodeFilePath } from "./encodeFilePath";
 import styled from "styled-components";
 import { CodeEditor, findLanguage } from "@scm-manager/scm-code-editor-plugin";
 import { ExtensionPoint, RenderableExtensionPointDefinition } from "@scm-manager/ui-extensions";
 import { setPathInLink } from "../links";
-import { useHistory } from "react-router-dom";
-import { encodeInvalidCharacters } from "./encodeInvalidCharacters";
+import { useNavigate } from "react-router-dom";
 import FileActionBorder from "../FileActionBorder";
 
 const Header = styled.div`
@@ -86,7 +85,7 @@ export type CodeEditorExtension = RenderableExtensionPointDefinition<
 const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision, path, file, sources, baseUrl }) => {
   const [t] = useTranslation("plugins");
   const [content, setContent] = useState<string>("");
-  const [statePath, setStatePath] = useState<string | undefined>("");
+  const [statePath, setStatePath] = useState<string>("");
   const [initialError, setInitialError] = useState<Error>();
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error>();
@@ -95,16 +94,17 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
   const [language, setLanguage] = useState<string>("text");
   const [isValid, setIsValid] = useState<boolean>(true);
   const [fetchData, setFetchData] = useState<boolean>(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
-  const commitButtonRef = useRef<HTMLButtonElement>(null);
-  const cancelButtonRef = useRef<HTMLButtonElement>(null);
-  const editorRef = useRef();
-  const commitMessageRef: MutableRefObject<HTMLTextAreaElement | null> = useRef<HTMLTextAreaElement>(null);
+  const commitButtonRef = useRef<HTMLButtonElement | null>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
+  const editorRef = useRef(null);
+  const commitMessageRef: MutableRefObject<HTMLTextAreaElement | null> = useRef<HTMLTextAreaElement | null>(null);
 
-  useDocumentTitleForRepository(repository,
-  path ? t("scm-editor-plugin.edit.titleWithPath", {path}) : t("scm-editor-plugin.edit.title")
-  )
+  useDocumentTitleForRepository(
+    repository,
+    path ? t("scm-editor-plugin.edit.titleWithPath", { path }) : t("scm-editor-plugin.edit.title"),
+  );
 
   const isEditMode = () => {
     return !!(extension === "edit" && path);
@@ -149,7 +149,9 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
 
   const fetchFile = () => {
     createFileUrl()
-      .then(apiClient.get)
+      .then((e) => {
+        return apiClient.get(e);
+      })
       .then((response) => response.json())
       .then((file: FileWithType) => {
         setFile(file);
@@ -191,12 +193,12 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
         if (!revision) {
           reject(new Error(t("scm-editor-plugin.errors.branchMissing")));
         }
-        resolve(`${base}${revision}/${encodeInvalidCharacters(path!)}`);
+        resolve(`${base}${revision}/${encodeURIComponent(path!)}`);
       }
     });
 
   const afterLoading = () => {
-    const pathWithFilename = decodeURIComponent(path || "");
+    const pathWithFilename = path || "";
     const lastPathDelimiter = pathWithFilename?.lastIndexOf("/");
     let parentDirPath;
     if (pathWithFilename?.length === lastPathDelimiter + 1) {
@@ -238,7 +240,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
       }
       redirectUrl += `/${encodeURIComponent(newRevision)}/${redirectPath}`;
     }
-    history.push(redirectUrl);
+    navigate(redirectUrl);
   };
 
   const redirectOnCancel = (revision?: string) => {
@@ -260,7 +262,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
     if (isEditMode() && stateFile && stateFile.name) {
       redirectUrl += encodeURIComponent(stateFile.name);
     }
-    history.push(redirectUrl);
+    navigate(redirectUrl);
   };
 
   const createRedirectUrl = () => {
@@ -334,13 +336,7 @@ const FileEdit: FC<Props> = ({ repository, extension, revision, resolvedRevision
 
   const body = (
     <>
-      <Breadcrumb
-        repository={repository}
-        baseUrl={baseUrl}
-        path={decodeURIComponent(statePath)}
-        revision={revision}
-        clickable={false}
-      />
+      <Breadcrumb repository={repository} baseUrl={baseUrl} path={statePath} revision={revision} clickable={false} />
       <FileMetaData
         changePath={setStatePath}
         path={statePath}

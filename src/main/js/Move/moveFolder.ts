@@ -14,8 +14,8 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import { useMutation, useQueryClient } from "react-query";
-import { useHistory } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Changeset, File, Link, Repository } from "@scm-manager/ui-types";
 import { apiClient } from "@scm-manager/ui-components";
 import { createSourceUrlFromChangeset } from "../links";
@@ -29,24 +29,28 @@ type UseMovePayload = {
 
 export const useMoveFolder = () => {
   const queryClient = useQueryClient();
-  const history = useHistory();
-  const { mutate, data, isLoading, error } = useMutation<Changeset, Error, UseMovePayload>(
-    async ({ moveRequest, sources }) =>
-      apiClient.post((sources._links.move as Link).href, moveRequest).then(response => response.json()),
-    {
-      onSuccess: async (changeset, { repository, moveRequest: { newPath } }) => {
-        await queryClient.invalidateQueries(["repository", repository.namespace, repository.name]);
-        const pushPath = createSourceUrlFromChangeset(repository, changeset, newPath.slice(1));
-        history.push(pushPath);
-      }
-    }
-  );
+  const navigate = useNavigate();
+  const {
+    mutate,
+    data,
+    isPending: isLoading,
+    error,
+  } = useMutation<Changeset, Error, UseMovePayload>({
+    mutationFn: async ({ moveRequest, sources }) =>
+      apiClient.post((sources._links.move as Link).href, moveRequest).then((response) => response.json()),
+
+    onSuccess: async (changeset, { repository, moveRequest: { newPath } }) => {
+      await queryClient.invalidateQueries({ queryKey: ["repository", repository.namespace, repository.name] });
+      const pushPath = createSourceUrlFromChangeset(repository, changeset, newPath.slice(1));
+      navigate(pushPath);
+    },
+  });
   return {
     move: (repository: Repository, parent: File, moveRequest: MoveRequest) => {
       mutate({ repository, moveRequest, sources: parent });
     },
     isLoading,
     error,
-    changeset: data
+    changeset: data,
   };
 };

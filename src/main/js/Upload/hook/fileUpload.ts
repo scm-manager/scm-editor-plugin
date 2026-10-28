@@ -14,20 +14,19 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import { Changeset, Link, Repository } from "@scm-manager/ui-types";
+import { Changeset, Link, Repository, File as SCMFile } from "@scm-manager/ui-types";
 import { Commit } from "../../commit";
 import { apiClient } from "@scm-manager/ui-api";
 import { createSourceUrl, createSourceUrlFromChangeset, setPathInLink } from "../../links";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { File as SCMFile } from "@scm-manager/ui-types";
 
 type HasPath = { path: string };
 type FileAliases = { [key: string]: File & HasPath };
 type FileNameMap = { [key: string]: string };
 
 export function useFileCommit() {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error>();
 
@@ -63,7 +62,7 @@ export function useFileCommit() {
       })
       .then((r: Response) => r.json())
       .then((newCommit: Changeset) => {
-        history.push(createSourcesLink(path, repository, revision, newCommit));
+        navigate(createSourcesLink(path, repository, revision, newCommit));
         setLoading(false);
       })
       .catch((error) => {

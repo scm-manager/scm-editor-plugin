@@ -14,7 +14,7 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import React, { FC, ReactPropTypes, useState } from "react";
+import React, { FC, useState } from "react";
 import { InputField } from "@scm-manager/ui-components";
 import { useTranslation } from "react-i18next";
 import { sanitizePath } from "./pathSanitizer";
@@ -60,7 +60,7 @@ export const PathInputField: FC<Props> = ({ disabled, initialPath, onChange, val
       value={path}
       validationError={error}
       placeholder={disabled ? "" : t("scm-editor-plugin.path.placeholder.filename")}
-      onChange={value => pathChanged(value)}
+      onChange={(value) => pathChanged(value)}
       testId={testId}
       {...props}
     />

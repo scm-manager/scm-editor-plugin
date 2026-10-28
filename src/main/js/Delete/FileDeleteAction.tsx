@@ -14,27 +14,27 @@
  * along with this program. If not, see https://www.gnu.org/licenses/.
  */
 
-import React, { FC, useEffect, useState } from "react";
+import React, { ComponentProps, FC, useEffect, useState } from "react";
 import { Changeset, Link } from "@scm-manager/ui-types";
 import FileDeleteModal from "./FileDeleteModal";
 import { apiClient } from "@scm-manager/ui-components";
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { extensionPoints, ExtractProps } from "@scm-manager/ui-extensions";
+import { extensionPoints } from "@scm-manager/ui-extensions";
 
 const Pointer = styled.div`
   cursor: initial;
 `;
 
-export const FileDeleteAction: FC<ExtractProps<extensionPoints.ModalMenuProps["modalElement"]>> = ({
+export const FileDeleteAction: FC<ComponentProps<extensionPoints.ModalMenuProps["modalElement"]>> = ({
   revision,
   file,
   handleExtensionError,
   close,
-  setLoading: setExtensionLoading
+  setLoading: setExtensionLoading,
 }) => {
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
@@ -48,15 +48,15 @@ export const FileDeleteAction: FC<ExtractProps<extensionPoints.ModalMenuProps["m
     apiClient
       .post((file._links.delete as Link).href, {
         commitMessage: commitMessage,
-        branch: decodeURIComponent(revision)
+        branch: decodeURIComponent(revision),
       })
-      .then(r => r.json())
-      .then(async newCommit => {
+      .then((r) => r.json())
+      .then(async (newCommit) => {
         if (newCommit) {
           await redirectAfterNewCommit(newCommit);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         handleExtensionError(error);
       });
   };
@@ -82,7 +82,7 @@ export const FileDeleteAction: FC<ExtractProps<extensionPoints.ModalMenuProps["m
 
     const redirectUrl =
       location.pathname.split("/sources")[0] + `/sources/${encodeURIComponent(newRevision)}${filePathParts.join("/")}`;
-    history.push(redirectUrl);
+    navigate(redirectUrl);
   };
 
   return (

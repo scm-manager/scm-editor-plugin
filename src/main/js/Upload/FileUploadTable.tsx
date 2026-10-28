@@ -70,9 +70,9 @@ const FileUploadTable: FC<Props> = ({ files, removeFileEntry, disabled }) => {
                   {file.path.substring(0, file.path.length - file.name.length)}
                 </FixedColumnTD>
                 <FixedColumnTD className="is-vcentered">
-                  <p id={`fileUploadDeleteColumn-` + idx}>{file.name}</p>
+                  <span id={`fileUploadDeleteColumn-` + idx}>{file.name}</span>
                 </FixedColumnTD>
-                <td className="is-hidden-mobile is-center">
+                <td className="is-hidden-mobile is-vcentered">
                   <FileSize bytes={file.size} />
                 </td>
                 <td className="is-vcentered">

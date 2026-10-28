@@ -46,11 +46,12 @@ binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
     category: "Editor",
     label: "scm-editor-plugin.edit.tooltip",
     icon: "edit",
-    link: props => createSourceExtensionUrl(props.repository, "edit", props.revision, encodeFilePath(props.file.path)),
-    props: { ...createAttributesForTesting("edit-file-button") }
+    link: (props) =>
+      createSourceExtensionUrl(props.repository, "edit", props.revision, encodeFilePath(props.file.path)),
+    props: { ...createAttributesForTesting("edit-file-button") },
   },
-  props =>
-    props.file._links.modify && props.contentType && isEditable(props.contentType.type, props.contentType.language)
+  (props) =>
+    props.file._links.modify && props.contentType && isEditable(props.contentType.type, props.contentType.language),
 );
 binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
   "repos.sources.content.actionbar.menu",
@@ -59,24 +60,30 @@ binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
     label: "scm-editor-plugin.move.tooltip",
     icon: "exchange-alt",
     modalElement: FileMoveAction,
-    props: { ...createAttributesForTesting("move-file-button") }
+    props: { ...createAttributesForTesting("move-file-button") },
   },
-  props => props.file && "move" in props.file._links
+  (props) => props.file && "move" in props.file._links,
 );
-binder.bind<extensionPoints.FileViewActionBarOverflowMenu>("repos.sources.content.actionbar.menu", {
-  category: "Editor",
-  label: "scm-editor-plugin.download.tooltip",
-  icon: "download",
-  props: { ...createAttributesForTesting("download-file-button") },
-  action: props => {
-    const link = document.createElement("a");
-    link.href = (props.file._links.self as Link).href;
-    link.setAttribute("download", props.file.name);
-    document.body.appendChild(link);
-    link.click();
-    link.parentNode?.removeChild(link);
-  }
-});
+binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
+  "repos.sources.content.actionbar.menu",
+  {
+    category: "Editor",
+    label: "scm-editor-plugin.download.tooltip",
+    icon: "download",
+    props: { ...createAttributesForTesting("download-file-button") },
+    action: (props) => {
+      const link = document.createElement("a");
+      link.href = (props.file._links.self as Link).href;
+      link.setAttribute("download", props.file.name);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    },
+  },
+  {
+    predicate: (props) => props.file && !("lock" in props.file._links || "unlock" in props.file._links),
+  },
+);
 binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
   "repos.sources.content.actionbar.menu",
   {
@@ -84,9 +91,9 @@ binder.bind<extensionPoints.FileViewActionBarOverflowMenu>(
     label: "scm-editor-plugin.delete.tooltip",
     icon: "trash",
     modalElement: FileDeleteAction,
-    props: { ...createAttributesForTesting("delete-file-button") }
+    props: { ...createAttributesForTesting("delete-file-button") },
   },
-  props => !!props.file._links.delete
+  (props) => !!props.file._links.delete,
 );
 
 binder.bind("repos.sources.tree.row.right", FileDownloadIcon);

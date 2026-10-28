@@ -61,10 +61,12 @@ public class EditorService {
       .violation("must not be empty", "source path")
       .when(StringUtils.isEmpty(fromPath));
 
-    validatePath(toPath, "target path");
+    // the target path is sent with a leading slash, which ValidationUtil rejects since SCM-Manager 3.12.1
+    String relativeToPath = StringUtils.removeStart(toPath, "/");
+    validatePath(relativeToPath, "target path");
     doThrow()
       .violation("must not be empty", "target path")
-      .when(StringUtils.isEmpty(toPath));
+      .when(StringUtils.isEmpty(relativeToPath));
 
     try (RepositoryService repositoryService = repositoryServiceFactory.create(new NamespaceAndName(namespace, repositoryName))) {
       checkWritePermission(repositoryService);
@@ -74,7 +76,7 @@ public class EditorService {
         modifyCommand.setBranch(branch);
       }
       modifyCommand.setCommitMessage(commitMessage);
-      modifyCommand.move(fromPath).to(toPath);
+      modifyCommand.move(fromPath).to(relativeToPath);
       String newChangesetId = modifyCommand.execute();
 
       return repositoryService.getLogCommand().setBranch(branch).getChangeset(newChangesetId);

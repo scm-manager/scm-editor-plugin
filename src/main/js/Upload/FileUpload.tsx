@@ -28,7 +28,7 @@ import { ExtensionPoint } from "@scm-manager/ui-extensions";
 import CommitMessage from "../CommitMessage";
 import { Breadcrumb } from "@scm-manager/ui-components";
 import FileActionBorder from "../FileActionBorder";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Header = styled.div`
   line-height: 1.25;
@@ -52,13 +52,13 @@ export default function FileUpload({ repository, path, sources, revision, baseUr
   const [commitMessage, setCommitMessage] = useState<string>("");
   const [currentPath, setCurrentPath] = useState<string>(decodeURIComponent(path ?? ""));
   const [shouldValidate, setShouldValidate] = useState<boolean>(true);
-  const history = useHistory();
+  const navigate = useNavigate();
   const { loading, error, fileCommit } = useFileCommit();
 
   useDocumentTitleForRepository(repository, t("scm-editor-plugin.upload.title"))
 
-  const cancelButtonRef = useRef<HTMLButtonElement>(null);
-  const commitMessageAreaRef = useRef<HTMLTextAreaElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement | null>(null);
+  const commitMessageAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const cancelButtonLink = createSourcesLink(decodeURIComponent(path ?? ""), repository, revision);
   const cancelButton = (
@@ -67,7 +67,7 @@ export default function FileUpload({ repository, path, sources, revision, baseUr
       onKeyDown={(key) => {
         // We need to hard-code this behavior here because useShortcut() in FileUploadDropzone overrides it.
         if (key.key === " " || key.key === "Enter") {
-          history.push(cancelButtonLink);
+          navigate(cancelButtonLink);
         }
       }}
       // @ts-ignore - cancelButtonRef still works for our purposes here
@@ -165,7 +165,7 @@ export default function FileUpload({ repository, path, sources, revision, baseUr
         <FileMetaData
           path={currentPath}
           changePath={(changedPath) => {
-            setCurrentPath(decodeURIComponent(changedPath));
+            setCurrentPath(changedPath);
             setShouldValidate(false);
           }}
           disabled={loading}
@@ -182,7 +182,7 @@ export default function FileUpload({ repository, path, sources, revision, baseUr
       <FileUploadOptions
         uploadMode={uploadMode}
         setUploadMode={(uploadMode: string) => setUploadMode(uploadMode)}
-      ></FileUploadOptions>
+      />
       {fileTable}
       <br />
       <ExtensionPoint
